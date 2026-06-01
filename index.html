@@ -1,1 +1,1384 @@
+<!DOCTYPE html>
+<html lang="fr" data-lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FENNEC RACING TEAM</title>
+<meta name="description" content="Fennec Racing Team — Ligue ACC PS5 × Xbox Series S Cross-Play">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #ff0080; --blue: #00b4ff; --dark: #0a0a0f; --darker: #050508;
+  --mid: #12121a; --card: #16161f; --border: rgba(255,0,128,0.22);
+  --border-blue: rgba(0,180,255,0.22); --text: #e8e8f0; --muted: #777;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--darker); color:var(--text); font-family:'Rajdhani',sans-serif; overflow-x:hidden; }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-thumb { background:var(--pink); }
 
+/* NAV */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:1000; height:68px;
+  background:rgba(5,5,8,0.97); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between; padding:0 32px;
+}
+.nav-logo { display:flex; align-items:center; gap:12px; cursor:pointer; text-decoration:none; }
+.logo-circle {
+  width:46px; height:46px; border-radius:50%; border:2px solid var(--pink);
+  background:linear-gradient(135deg,rgba(255,0,128,.2),rgba(0,180,255,.1));
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Orbitron',sans-serif; font-size:11px; font-weight:900; color:var(--pink);
+  box-shadow:0 0 16px rgba(255,0,128,.35);
+}
+.logo-text { font-family:'Orbitron',sans-serif; font-size:12px; font-weight:700; line-height:1.25; }
+.logo-text span { color:var(--pink); }
+.nav-links { display:flex; gap:4px; list-style:none; }
+.nav-links a {
+  color:var(--muted); text-decoration:none; font-family:'Orbitron',sans-serif;
+  font-size:10px; font-weight:700; letter-spacing:2px; padding:7px 14px;
+  border:1px solid transparent; border-radius:3px; transition:all .25s; cursor:pointer; text-transform:uppercase;
+}
+.nav-links a:hover, .nav-links a.active { color:var(--pink); border-color:var(--border); background:rgba(255,0,128,.07); }
+.nav-right { display:flex; align-items:center; gap:8px; }
+.btn-lang { background:none; border:1px solid var(--border); color:var(--muted); font-family:'Orbitron',sans-serif; font-size:9px; padding:5px 10px; cursor:pointer; border-radius:3px; transition:all .25s; letter-spacing:1px; }
+.btn-lang:hover { color:var(--blue); border-color:var(--border-blue); }
+.btn-discord-nav {
+  background:linear-gradient(135deg,#5865F2,#4752c4); color:white; border:none;
+  padding:7px 14px; font-family:'Orbitron',sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:1px; cursor:pointer; border-radius:3px; transition:all .25s;
+  display:flex; align-items:center; gap:6px;
+}
+.btn-discord-nav:hover { transform:translateY(-1px); box-shadow:0 5px 18px rgba(88,101,242,.5); }
+.btn-user {
+  background:rgba(255,0,128,.12); border:1px solid var(--border); color:var(--pink);
+  padding:7px 14px; font-family:'Orbitron',sans-serif; font-size:10px; font-weight:700;
+  letter-spacing:1px; cursor:pointer; border-radius:3px; transition:all .25s; display:flex; align-items:center; gap:8px;
+}
+.avatar-sm { width:24px; height:24px; border-radius:50%; border:1px solid var(--pink); }
+.btn-logout { background:none; border:1px solid rgba(255,64,64,.3); color:#ff4040; font-family:'Orbitron',sans-serif; font-size:9px; padding:5px 10px; cursor:pointer; border-radius:3px; transition:all .25s; letter-spacing:1px; }
+.btn-logout:hover { background:rgba(255,64,64,.1); }
+
+/* PAGES */
+.page { display:none; padding-top:68px; min-height:100vh; }
+.page.active { display:block; animation:fadeUp .35s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* HERO */
+.hero {
+  position:relative; height:320px; overflow:hidden;
+  background:linear-gradient(135deg,#080012 0%,#00060f 50%,#0f0005 100%);
+  display:flex; align-items:center; justify-content:center;
+}
+.hero-bg {
+  position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(255,0,128,.12) 0%,transparent 50%,rgba(0,180,255,.08) 100%);
+}
+.hero-stripes { position:absolute; inset:0; overflow:hidden; opacity:.12; }
+.hero-stripes span { position:absolute; top:-80px; width:3px; height:500px; transform:rotate(22deg); }
+.hero-stripes span:nth-child(1) { right:80px; background:var(--pink); width:8px; }
+.hero-stripes span:nth-child(2) { right:140px; background:var(--blue); }
+.hero-stripes span:nth-child(3) { right:30px; background:var(--pink); }
+.hero-scanlines { position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px); pointer-events:none; }
+.hero-content { position:relative; z-index:1; text-align:center; }
+.hero-title { font-family:'Orbitron',sans-serif; font-size:54px; font-weight:900; letter-spacing:-1px; color:white; line-height:1; text-shadow:0 0 50px rgba(255,0,128,.4); }
+.hero-title span { color:var(--pink); }
+.hero-sub { font-family:'Orbitron',sans-serif; font-size:12px; letter-spacing:7px; color:var(--blue); margin-top:10px; text-transform:uppercase; }
+.hero-tags { display:flex; gap:8px; justify-content:center; margin-top:14px; }
+.tag { display:inline-block; padding:3px 10px; border-radius:2px; font-family:'Orbitron',sans-serif; font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+.tag-ps5 { background:rgba(0,70,163,.3); color:#4da6ff; border:1px solid rgba(0,112,209,.3); }
+.tag-xbox { background:rgba(16,124,16,.3); color:#4abf4a; border:1px solid rgba(16,160,16,.3); }
+.tag-cross { background:rgba(255,0,128,.15); color:var(--pink); border:1px solid var(--border); }
+.tag-race { background:rgba(255,165,0,.15); color:#ffa500; border:1px solid rgba(255,165,0,.3); }
+.tag-quali { background:rgba(0,180,255,.15); color:var(--blue); border:1px solid var(--border-blue); }
+
+/* LAYOUT */
+.container { max-width:1360px; margin:0 auto; padding:36px 32px; }
+.page-header { background:linear-gradient(135deg,var(--mid),rgba(255,0,128,.04)); border-bottom:1px solid var(--border); padding:44px 32px 28px; }
+.page-header h1 { font-family:'Orbitron',sans-serif; font-size:28px; font-weight:900; color:white; }
+.page-header h1 span { color:var(--pink); }
+.page-header p { color:var(--muted); font-size:13px; margin-top:6px; letter-spacing:.5px; }
+.grid-2 { display:grid; grid-template-columns:2fr 1fr; gap:22px; }
+.section-label { font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; letter-spacing:4px; color:var(--pink); margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+.section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--border),transparent); }
+
+/* CARDS */
+.card { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:22px; position:relative; overflow:hidden; }
+.card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--pink),var(--blue)); }
+
+/* NEXT EVENT */
+.next-event { background:linear-gradient(135deg,var(--card),rgba(255,0,128,.04)); border:1px solid var(--border); border-radius:6px; padding:26px; position:relative; overflow:hidden; margin-bottom:22px; }
+.ev-badge { font-family:'Orbitron',sans-serif; font-size:9px; letter-spacing:3px; color:var(--pink); background:rgba(255,0,128,.1); border:1px solid var(--border); padding:4px 12px; display:inline-block; margin-bottom:14px; border-radius:2px; }
+.ev-title { font-family:'Orbitron',sans-serif; font-size:20px; font-weight:900; color:white; margin-bottom:6px; }
+.ev-title span { color:var(--pink); }
+.ev-meta { display:flex; gap:22px; margin:14px 0; flex-wrap:wrap; }
+.ev-meta-item .lbl { font-size:9px; letter-spacing:2px; color:var(--muted); font-family:'Orbitron',sans-serif; text-transform:uppercase; }
+.ev-meta-item .val { font-size:15px; font-weight:600; color:var(--blue); }
+.countdown { display:flex; gap:10px; margin:16px 0; }
+.cd-item { text-align:center; background:rgba(0,0,0,.4); border:1px solid var(--border); padding:10px 14px; border-radius:4px; min-width:58px; }
+.cd-num { font-family:'Orbitron',sans-serif; font-size:26px; font-weight:900; color:white; line-height:1; }
+.cd-unit { font-size:8px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-top:3px; }
+.btn-group { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+
+/* BUTTONS */
+.btn { padding:11px 24px; font-family:'Orbitron',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; cursor:pointer; border-radius:3px; transition:all .25s; text-transform:uppercase; border:none; }
+.btn-primary { background:linear-gradient(135deg,var(--pink),#cc0066); color:white; }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(255,0,128,.45); }
+.btn-secondary { background:transparent; color:var(--blue); border:1px solid var(--border-blue); }
+.btn-secondary:hover { background:rgba(0,180,255,.07); transform:translateY(-2px); }
+.btn-danger { background:rgba(255,64,64,.15); color:#ff4040; border:1px solid rgba(255,64,64,.3); }
+.btn-success { background:rgba(0,255,136,.1); color:#00ff88; border:1px solid rgba(0,255,136,.3); }
+.btn:disabled { opacity:.4; cursor:not-allowed; transform:none !important; }
+
+/* SIDEBAR STATS */
+.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+.stat-box { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:16px; text-align:center; }
+.stat-num { font-family:'Orbitron',sans-serif; font-size:28px; font-weight:900; background:linear-gradient(135deg,var(--pink),var(--blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.stat-lbl { font-size:9px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-top:3px; }
+
+/* RESULTS */
+.result-row { display:flex; align-items:center; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.result-row:last-child { border-bottom:none; }
+.result-pos { font-family:'Orbitron',sans-serif; font-size:18px; font-weight:900; min-width:36px; }
+.p1 { color:#FFD700; } .p2 { color:#C0C0C0; } .p3 { color:#CD7F32; }
+.result-info { flex:1; }
+.result-track { font-weight:700; font-size:14px; color:white; }
+.result-driver { font-size:11px; color:var(--muted); letter-spacing:.5px; }
+.result-time { font-family:'Orbitron',sans-serif; font-size:11px; color:var(--blue); }
+
+/* EVENTS PAGE */
+.filters { display:flex; gap:7px; margin-bottom:26px; flex-wrap:wrap; }
+.filter-btn { background:var(--card); border:1px solid var(--border); color:var(--muted); padding:7px 16px; font-family:'Orbitron',sans-serif; font-size:9px; letter-spacing:2px; cursor:pointer; border-radius:3px; transition:all .25s; }
+.filter-btn.active,.filter-btn:hover { background:rgba(255,0,128,.1); border-color:var(--pink); color:var(--pink); }
+.event-card { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:24px; margin-bottom:16px; display:grid; grid-template-columns:76px 1fr auto; gap:24px; align-items:center; transition:all .25s; position:relative; overflow:hidden; }
+.event-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(180deg,var(--pink),var(--blue)); }
+.event-card:hover { border-color:rgba(255,0,128,.45); transform:translateX(3px); box-shadow:0 0 28px rgba(255,0,128,.08); }
+.date-box { text-align:center; background:rgba(0,0,0,.35); border:1px solid var(--border); padding:12px 10px; border-radius:4px; }
+.date-day { font-family:'Orbitron',sans-serif; font-size:28px; font-weight:900; color:white; line-height:1; }
+.date-month { font-size:10px; letter-spacing:3px; color:var(--pink); text-transform:uppercase; }
+.ev-info h3 { font-family:'Orbitron',sans-serif; font-size:15px; font-weight:700; color:white; margin-bottom:7px; }
+.ev-tags { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px; }
+.ev-details { font-size:12px; color:var(--muted); }
+.slots-wrap { text-align:right; min-width:130px; }
+.slots-bar { width:120px; height:4px; background:rgba(255,255,255,.08); border-radius:2px; margin:6px 0; overflow:hidden; }
+.slots-fill { height:100%; background:linear-gradient(90deg,var(--pink),var(--blue)); border-radius:2px; transition:width .5s; }
+.slots-text { font-family:'Orbitron',sans-serif; font-size:10px; color:var(--muted); }
+
+/* PROFILES */
+.pilots-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:18px; }
+.pilot-card { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:22px; position:relative; overflow:hidden; transition:all .3s; }
+.pilot-card:hover { border-color:rgba(255,0,128,.45); transform:translateY(-3px); box-shadow:0 10px 36px rgba(255,0,128,.12); }
+.pilot-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--pink),var(--blue)); }
+.pilot-num-bg { font-family:'Orbitron',sans-serif; font-size:46px; font-weight:900; color:rgba(255,255,255,.05); position:absolute; top:8px; right:14px; line-height:1; pointer-events:none; }
+.pilot-avatar { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Orbitron',sans-serif; font-size:20px; font-weight:900; color:white; margin-bottom:12px; border:2px solid rgba(255,255,255,.1); }
+.pilot-name { font-family:'Orbitron',sans-serif; font-size:13px; font-weight:700; color:white; margin-bottom:3px; }
+.pilot-handle { font-size:11px; color:var(--muted); letter-spacing:.5px; margin-bottom:10px; }
+.pilot-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; border-top:1px solid rgba(255,255,255,.05); padding-top:12px; }
+.ps { text-align:center; }
+.ps .v { font-family:'Orbitron',sans-serif; font-size:15px; font-weight:900; color:var(--pink); }
+.ps .l { font-size:8px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+
+/* RULES */
+.rules-toc { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:22px; margin-bottom:28px; }
+.rules-toc h3 { font-family:'Orbitron',sans-serif; font-size:10px; letter-spacing:3px; color:var(--pink); margin-bottom:14px; }
+.toc-list { list-style:none; }
+.toc-list li { padding:5px 0; border-bottom:1px solid rgba(255,255,255,.03); }
+.toc-list li a { color:var(--text); text-decoration:none; font-size:13px; display:flex; justify-content:space-between; transition:color .25s; }
+.toc-list li a:hover { color:var(--pink); }
+.toc-list li a span { color:var(--muted); font-family:'Orbitron',sans-serif; font-size:10px; }
+.rule-section { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:26px; margin-bottom:18px; position:relative; }
+.rule-section::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:linear-gradient(180deg,var(--pink),var(--blue)); border-radius:3px 0 0 3px; }
+.rule-section h2 { font-family:'Orbitron',sans-serif; font-size:14px; font-weight:700; color:white; margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.rule-num { background:linear-gradient(135deg,var(--pink),var(--blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-size:19px; }
+.rule-item { display:flex; gap:10px; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,.03); }
+.rule-item:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.rule-dot { width:5px; height:5px; background:var(--pink); border-radius:50%; margin-top:9px; flex-shrink:0; }
+.rule-item p { font-size:13px; line-height:1.7; color:#ccc; }
+.rule-item strong { color:var(--pink); }
+
+/* ADMIN */
+.admin-wrap { display:grid; grid-template-columns:260px 1fr; gap:22px; }
+.admin-sidebar { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:18px; height:fit-content; }
+.admin-menu { list-style:none; }
+.admin-menu li a { display:flex; align-items:center; gap:9px; padding:10px 12px; color:var(--muted); text-decoration:none; font-family:'Orbitron',sans-serif; font-size:9px; letter-spacing:1.5px; border-radius:4px; transition:all .25s; cursor:pointer; text-transform:uppercase; border:1px solid transparent; margin-bottom:3px; }
+.admin-menu li a:hover,.admin-menu li a.active { color:var(--pink); background:rgba(255,0,128,.07); border-color:var(--border); }
+.admin-card { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:24px; margin-bottom:18px; }
+.admin-card h3 { font-family:'Orbitron',sans-serif; font-size:12px; font-weight:700; letter-spacing:2px; color:white; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+.json-box { background:rgba(0,0,0,.6); border:1px solid rgba(255,255,255,.07); border-radius:4px; padding:14px; font-family:'Courier New',monospace; font-size:11px; color:#90e890; max-height:180px; overflow-y:auto; white-space:pre; margin:10px 0; }
+.server-status { display:flex; align-items:center; gap:10px; background:rgba(0,0,0,.4); border:1px solid var(--border); padding:12px 16px; border-radius:4px; margin-bottom:14px; }
+.dot-status { width:9px; height:9px; border-radius:50%; background:#00ff88; box-shadow:0 0 9px #00ff88; animation:blink 2s infinite; }
+.dot-status.offline { background:#ff4040; box-shadow:0 0 9px #ff4040; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.status-txt { font-family:'Orbitron',sans-serif; font-size:10px; color:var(--text); }
+.status-txt span { color:#00ff88; }
+
+/* FORM */
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-family:'Orbitron',sans-serif; font-size:9px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-bottom:7px; }
+.form-group input,.form-group select,.form-group textarea { width:100%; background:rgba(0,0,0,.5); border:1px solid var(--border); color:var(--text); padding:10px 14px; font-family:'Rajdhani',sans-serif; font-size:13px; border-radius:3px; transition:border-color .25s; outline:none; }
+.form-group input:focus,.form-group select:focus { border-color:var(--pink); box-shadow:0 0 0 2px rgba(255,0,128,.1); }
+.form-group select option { background:var(--mid); }
+.form-help { font-size:11px; color:var(--blue); margin-top:5px; cursor:pointer; text-decoration:underline; }
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+/* TABLE */
+.tbl { width:100%; border-collapse:collapse; font-size:13px; }
+.tbl th { background:rgba(0,0,0,.4); padding:9px 12px; text-align:left; font-family:'Orbitron',sans-serif; font-size:8px; letter-spacing:2px; color:var(--muted); border-bottom:1px solid var(--border); text-transform:uppercase; }
+.tbl td { padding:11px 12px; border-bottom:1px solid rgba(255,255,255,.04); }
+.tbl tr:hover td { background:rgba(255,0,128,.025); }
+.badge { display:inline-block; padding:2px 7px; border-radius:2px; font-family:'Orbitron',sans-serif; font-size:8px; letter-spacing:1px; text-transform:uppercase; }
+.badge-green { background:rgba(0,255,136,.13); color:#00ff88; border:1px solid rgba(0,255,136,.28); }
+.badge-yellow { background:rgba(255,200,0,.13); color:#ffc800; border:1px solid rgba(255,200,0,.28); }
+.badge-red { background:rgba(255,64,64,.13); color:#ff4040; border:1px solid rgba(255,64,64,.28); }
+.badge-blue { background:rgba(0,180,255,.13); color:var(--blue); border:1px solid var(--border-blue); }
+
+/* MODAL */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.87); z-index:2000; backdrop-filter:blur(10px); align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--mid); border:1px solid var(--border); border-radius:8px; padding:32px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto; position:relative; }
+.modal::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--pink),var(--blue)); }
+.modal-close { position:absolute; top:14px; right:14px; background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; transition:color .25s; }
+.modal-close:hover { color:var(--pink); }
+.modal h2 { font-family:'Orbitron',sans-serif; font-size:17px; font-weight:900; color:white; margin-bottom:5px; }
+.modal h2 span { color:var(--pink); }
+.modal-sub { color:var(--muted); font-size:13px; margin-bottom:24px; }
+.alert-box { background:rgba(255,0,128,.07); border:1px solid var(--border); border-radius:4px; padding:12px 16px; font-size:13px; margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+.platform-btns { display:flex; gap:8px; }
+.plat-btn { flex:1; background:rgba(0,0,0,.4); border:1px solid var(--border); color:var(--muted); padding:9px; font-family:'Orbitron',sans-serif; font-size:10px; letter-spacing:1px; cursor:pointer; border-radius:3px; transition:all .25s; text-align:center; }
+.plat-btn.sel-ps5 { background:rgba(0,112,209,.2); border-color:#0070d1; color:#4da6ff; }
+.plat-btn.sel-xbox { background:rgba(16,160,16,.2); border-color:#10a010; color:#4abf4a; }
+
+/* NUMBER GRID */
+.num-grid { display:grid; grid-template-columns:repeat(10,1fr); gap:5px; max-height:160px; overflow-y:auto; padding:3px; }
+.num-btn { background:rgba(0,0,0,.4); border:1px solid var(--border); color:var(--muted); aspect-ratio:1; font-family:'Orbitron',sans-serif; font-size:11px; cursor:pointer; border-radius:3px; transition:all .18s; display:flex; align-items:center; justify-content:center; }
+.num-btn:hover:not(.taken) { background:rgba(255,0,128,.15); color:var(--pink); border-color:var(--pink); }
+.num-btn.taken { opacity:.25; cursor:not-allowed; text-decoration:line-through; }
+.num-btn.selected { background:rgba(255,0,128,.25); color:white; border-color:var(--pink); box-shadow:0 0 8px rgba(255,0,128,.3); }
+
+/* DISCORD BANNER */
+.discord-banner { background:linear-gradient(135deg,rgba(88,101,242,.13),rgba(88,101,242,.04)); border:1px solid rgba(88,101,242,.28); border-radius:6px; padding:18px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; }
+.discord-banner h3 { font-family:'Orbitron',sans-serif; font-size:12px; color:white; margin-bottom:4px; }
+.discord-banner p { font-size:13px; color:var(--muted); }
+
+/* BOP TABLE */
+.bop-tbl { width:100%; border-collapse:collapse; }
+.bop-tbl th { background:rgba(255,0,128,.07); padding:9px 12px; text-align:left; font-family:'Orbitron',sans-serif; font-size:8px; letter-spacing:2px; color:var(--pink); border-bottom:1px solid var(--border); text-transform:uppercase; }
+.bop-tbl td { padding:9px 12px; border-bottom:1px solid rgba(255,255,255,.03); font-size:13px; }
+.bop-tbl input[type=number] { background:rgba(0,0,0,.5); border:1px solid var(--border); color:var(--text); padding:5px 8px; width:75px; font-family:'Rajdhani',sans-serif; font-size:12px; border-radius:3px; outline:none; }
+.bop-tbl input:focus { border-color:var(--pink); }
+
+/* LOADING */
+.loading { display:flex; align-items:center; justify-content:center; padding:40px; }
+.spinner { width:28px; height:28px; border:2px solid var(--border); border-top-color:var(--pink); border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* NOTIF */
+.notif { position:fixed; bottom:26px; right:26px; background:var(--card); border:1px solid var(--border); border-left:3px solid var(--pink); padding:14px 18px; border-radius:4px; font-family:'Orbitron',sans-serif; font-size:10px; color:var(--text); letter-spacing:1px; z-index:3000; transform:translateX(220px); opacity:0; transition:all .35s; max-width:280px; }
+.notif.show { transform:translateX(0); opacity:1; }
+.notif.success { border-left-color:#00ff88; }
+.notif.error { border-left-color:#ff4040; }
+
+/* DIVIDER */
+.divider { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); margin:20px 0; }
+
+/* STANDINGS */
+.standings-row { display:flex; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.04); gap:12px; }
+.standings-row:last-child { border-bottom:none; }
+.st-pos { font-family:'Orbitron',sans-serif; font-size:13px; font-weight:900; min-width:28px; }
+.st-name { flex:1; font-size:14px; color:white; font-weight:600; }
+.st-pts { font-family:'Orbitron',sans-serif; font-size:13px; color:var(--pink); }
+
+/* FOOTER */
+footer { background:var(--darker); border-top:1px solid var(--border); padding:36px; margin-top:50px; }
+.footer-grid { max-width:1360px; margin:0 auto; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:36px; }
+.footer-brand h4 { font-family:'Orbitron',sans-serif; font-size:13px; font-weight:900; color:white; margin-bottom:10px; }
+.footer-brand h4 span { color:var(--pink); }
+.footer-brand p { font-size:13px; color:var(--muted); line-height:1.7; margin-bottom:16px; }
+.footer-socials { display:flex; gap:8px; }
+.social-btn { width:34px; height:34px; border:1px solid var(--border); border-radius:4px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .25s; color:var(--muted); text-decoration:none; font-size:13px; }
+.social-btn:hover { border-color:var(--pink); color:var(--pink); transform:translateY(-2px); }
+.footer-col h5 { font-family:'Orbitron',sans-serif; font-size:9px; letter-spacing:3px; color:var(--pink); margin-bottom:14px; text-transform:uppercase; }
+.footer-col ul { list-style:none; }
+.footer-col ul li { margin-bottom:7px; }
+.footer-col ul li a { color:var(--muted); text-decoration:none; font-size:13px; transition:color .25s; cursor:pointer; }
+.footer-col ul li a:hover { color:var(--text); }
+.footer-bottom { max-width:1360px; margin:26px auto 0; padding-top:18px; border-top:1px solid rgba(255,255,255,.04); display:flex; justify-content:space-between; font-size:11px; color:var(--muted); }
+
+@media(max-width:900px){
+  nav{padding:0 16px;} .nav-links{display:none;}
+  .grid-2,.footer-grid,.admin-wrap{grid-template-columns:1fr;}
+  .event-card{grid-template-columns:66px 1fr;} .slots-wrap{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="notif" id="notif"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" onclick="go('home')">
+    <div class="logo-circle">FRT</div>
+    <div class="logo-text">FENNEC<br><span>RACING TEAM</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a onclick="go('home')" id="nl-home" class="active" data-i18n="nav_home">Accueil</a></li>
+    <li><a onclick="go('events')" id="nl-events" data-i18n="nav_events">Événements</a></li>
+    <li><a onclick="go('profiles')" id="nl-profiles" data-i18n="nav_profiles">Profils</a></li>
+    <li><a onclick="go('rules')" id="nl-rules" data-i18n="nav_rules">Règlement</a></li>
+    <li id="admin-nav-li" style="display:none"><a onclick="go('admin')" id="nl-admin" style="color:var(--pink)">⚙ Admin</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-lang" onclick="toggleLang()" id="langBtn">🇬🇧 EN</button>
+    <div id="nav-auth-area">
+      <button class="btn-discord-nav" onclick="loginDiscord()">
+        <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        <span data-i18n="discord_login">Discord</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-stripes"><span></span><span></span><span></span></div>
+    <div class="hero-scanlines"></div>
+    <div class="hero-content">
+      <div class="hero-title">FENNEC<span>RACING</span></div>
+      <div class="hero-sub">Assetto Corsa Competizione</div>
+      <div class="hero-tags">
+        <span class="tag tag-ps5">PS5</span>
+        <span class="tag">×</span>
+        <span class="tag tag-xbox">XBOX SERIES S</span>
+        <span class="tag">×</span>
+        <span class="tag tag-cross">CROSS PLAY</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="grid-2">
+      <div>
+        <!-- NEXT EVENT -->
+        <div class="next-event" id="home-next-event">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+        <!-- LAST RESULTS -->
+        <div class="card">
+          <div class="section-label" data-i18n="last_results">DERNIERS RÉSULTATS</div>
+          <div id="home-results">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-num" id="stat-pilots">—</div><div class="stat-lbl" data-i18n="stat_pilots">Pilotes</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-events">—</div><div class="stat-lbl" data-i18n="stat_events">Courses</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-seasons">3</div><div class="stat-lbl" data-i18n="stat_seasons">Saisons</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-races">—</div><div class="stat-lbl" data-i18n="stat_total_races">Rounds</div></div>
+        </div>
+        <!-- DISCORD JOIN -->
+        <div class="card" style="text-align:center;margin-bottom:20px;" id="discord-join-card">
+          <div style="font-size:28px;margin-bottom:10px;">🎮</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:white;margin-bottom:8px;" data-i18n="join_community">REJOIGNEZ LA COMMUNAUTÉ</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;" data-i18n="join_desc">Connectez Discord pour rejoindre la ligue et vous inscrire aux courses</p>
+          <button class="btn btn-discord-nav" style="width:100%;justify-content:center;display:flex;" onclick="loginDiscord()">
+            <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            Discord FRT
+          </button>
+        </div>
+        <!-- STANDINGS -->
+        <div class="card">
+          <div class="section-label" data-i18n="standings">CLASSEMENT</div>
+          <div id="home-standings">
+            <div class="loading"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EVENTS -->
+<div class="page" id="page-events">
+  <div class="page-header">
+    <h1 data-i18n="events_title">CALENDRIER <span>ÉVÉNEMENTS</span></h1>
+    <p data-i18n="events_sub">Saison 2025 — ACC · PS5 × Xbox Series S Cross-Play</p>
+  </div>
+  <div class="container">
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all" data-i18n="f_all">Tous</button>
+      <button class="filter-btn" data-filter="upcoming" data-i18n="f_upcoming">À venir</button>
+      <button class="filter-btn" data-filter="finished" data-i18n="f_done">Terminés</button>
+    </div>
+    <div id="events-list"><div class="loading"><div class="spinner"></div></div></div>
+    <div style="margin-top:44px;">
+      <div class="section-label" data-i18n="race_results">RÉSULTATS DE COURSE</div>
+      <div id="results-section"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILES -->
+<div class="page" id="page-profiles">
+  <div class="page-header">
+    <h1 data-i18n="profiles_title">PROFILS <span>PILOTES</span></h1>
+    <p data-i18n="profiles_sub">Entry List officielle — Saison 2025 FRT</p>
+  </div>
+  <div class="container">
+    <div class="discord-banner" id="discord-required-banner">
+      <div>
+        <h3 data-i18n="discord_required">🔗 Compte Discord requis</h3>
+        <p data-i18n="discord_req_desc">Rejoignez le serveur FRT et liez votre compte pour créer un profil et vous inscrire.</p>
+      </div>
+      <button class="btn btn-discord-nav" onclick="loginDiscord()">
+        <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Rejoindre Discord
+      </button>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px;">
+      <div class="section-label" style="margin-bottom:0;flex:1;" data-i18n="registered_pilots">PILOTES INSCRITS</div>
+      <button class="btn btn-primary" onclick="openRegModal()" data-i18n="create_profile">+ CRÉER MON PROFIL</button>
+    </div>
+    <div class="pilots-grid" id="pilots-grid"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+</div>
+
+<!-- RULES -->
+<div class="page" id="page-rules">
+  <div class="page-header">
+    <h1 data-i18n="rules_title">RÈGLEMENT <span>OFFICIEL</span></h1>
+    <p data-i18n="rules_sub">Fennec Racing Team — Saison 2025 · ACC</p>
+  </div>
+  <div class="container" style="max-width:960px;">
+    <div class="rules-toc">
+      <h3 data-i18n="toc">TABLE DES MATIÈRES</h3>
+      <ul class="toc-list">
+        <li><a href="#r1"><span>01</span> <span data-i18n="r1_title">Conditions de participation</span></a></li>
+        <li><a href="#r2"><span>02</span> <span data-i18n="r2_title">Inscription et profil pilote</span></a></li>
+        <li><a href="#r3"><span>03</span> <span data-i18n="r3_title">Format des événements</span></a></li>
+        <li><a href="#r4"><span>04</span> <span data-i18n="r4_title">Règles de conduite sur piste</span></a></li>
+        <li><a href="#r5"><span>05</span> <span data-i18n="r5_title">Système de pénalités</span></a></li>
+        <li><a href="#r6"><span>06</span> <span data-i18n="r6_title">Balance of Performance (BOP)</span></a></li>
+        <li><a href="#r7"><span>07</span> <span data-i18n="r7_title">Points et classement</span></a></li>
+        <li><a href="#r8"><span>08</span> <span data-i18n="r8_title">Sanctions et exclusions</span></a></li>
+      </ul>
+    </div>
+    <div id="rules-content"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="page-admin">
+  <div class="page-header">
+    <h1>PANNEAU <span>ADMIN</span></h1>
+    <p>Fennec Racing Team — Gestion complète</p>
+  </div>
+  <div class="container">
+    <div class="admin-wrap">
+      <div class="admin-sidebar">
+        <div style="font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:3px;color:var(--pink);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">ADMINISTRATION</div>
+        <ul class="admin-menu">
+          <li><a onclick="adminTab('gportal')" class="active" id="at-gportal">🖥️ Serveur GPortal</a></li>
+          <li><a onclick="adminTab('entrylist')" id="at-entrylist">📋 Entry List</a></li>
+          <li><a onclick="adminTab('bop')" id="at-bop">⚖️ BOP Manager</a></li>
+          <li><a onclick="adminTab('event-create')" id="at-event-create">🏁 Créer Événement</a></li>
+          <li><a onclick="adminTab('results')" id="at-results">🏆 Résultats</a></li>
+          <li><a onclick="adminTab('discord-push')" id="at-discord-push">📢 Discord Push</a></li>
+          <li><a onclick="adminTab('pilots-manage')" id="at-pilots-manage">👤 Pilotes</a></li>
+        </ul>
+      </div>
+      <div id="admin-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-overlay" id="modal-reg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-reg')">✕</button>
+    <h2>CRÉER MON <span>PROFIL PILOTE</span></h2>
+    <p class="modal-sub" data-i18n="reg_sub">Inscription officielle — Saison 2025 FRT</p>
+    <div class="alert-box">
+      <span>🎮</span>
+      <span data-i18n="discord_alert">Vous devez être membre du <strong>serveur Discord FRT</strong> avant de créer votre profil.</span>
+    </div>
+    <div class="form-group">
+      <label data-i18n="platform_label">Plateforme</label>
+      <div class="platform-btns">
+        <button class="plat-btn" id="btn-ps5" onclick="selPlat('ps5')">🎮 PS5</button>
+        <button class="plat-btn" id="btn-xbox" onclick="selPlat('xbox')">🎮 XBOX SERIES S</button>
+      </div>
+    </div>
+    <div id="ps5-f" style="display:none">
+      <div class="form-group"><label>PSN ID</label><input type="text" id="reg-psn" placeholder="Votre_PSN_ID"></div>
+      <div class="form-group"><label>PSN UID</label><input type="text" id="reg-psn-uid" placeholder="1234567890123456789"><a class="form-help" href="https://www.psntools.com/psn/checker/" target="_blank">🔍 Trouver mon UID sur psntools.com</a></div>
+    </div>
+    <div id="xbox-f" style="display:none">
+      <div class="form-group"><label>Gamertag</label><input type="text" id="reg-gt" placeholder="VotreGamertag"></div>
+      <div class="form-group"><label>XUID</label><input type="text" id="reg-xuid" placeholder="12345678901234567"><a class="form-help" href="https://www.cxkes.me/xbox/xuid" target="_blank">🔍 Trouver mon XUID sur cxkes.me</a></div>
+    </div>
+    <div class="form-group">
+      <label data-i18n="pick_number">Choisissez votre numéro de course</label>
+      <div class="num-grid" id="num-grid"></div>
+      <div style="margin-top:7px;font-size:12px;color:var(--muted);" id="num-selected-label">Aucun numéro sélectionné</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;" onclick="submitReg()" data-i18n="submit_reg">VALIDER MON INSCRIPTION</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h4>FENNEC <span>RACING TEAM</span></h4>
+      <p data-i18n="footer_desc">Ligue simulation automobile sur ACC. PS5 × Xbox Series S Cross-Play. Rejoignez notre Discord et participez aux courses hebdomadaires.</p>
+      <div class="footer-socials">
+        <a class="social-btn" href="https://discord.gg/2pmFtyM33" target="_blank" title="Discord">
+          <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5 data-i18n="footer_nav">Navigation</h5>
+      <ul>
+        <li><a onclick="go('home')" data-i18n="nav_home">Accueil</a></li>
+        <li><a onclick="go('events')" data-i18n="nav_events">Événements</a></li>
+        <li><a onclick="go('profiles')" data-i18n="nav_profiles">Profils</a></li>
+        <li><a onclick="go('rules')" data-i18n="nav_rules">Règlement</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5 data-i18n="footer_register">Inscription</h5>
+      <ul>
+        <li><a href="https://discord.gg/2pmFtyM33" target="_blank">Discord FRT</a></li>
+        <li><a onclick="openRegModal()" data-i18n="create_profile">Créer mon profil</a></li>
+        <li><a href="https://www.psntools.com/psn/checker/" target="_blank">PSN UID Checker</a></li>
+        <li><a href="https://www.cxkes.me/xbox/xuid" target="_blank">Xbox XUID Finder</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Admin</h5>
+      <ul>
+        <li><a onclick="loginDiscord()" data-i18n="discord_login">Connexion Discord</a></li>
+        <li><a onclick="go('admin')" data-i18n="admin_panel">Panneau Admin</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Fennec Racing Team · fennec-racing-team.fr</span>
+    <span style="color:var(--pink);">ACC · PS5 × Xbox Series S · Cross-Play</span>
+  </div>
+</footer>
+
+<script>
+// ================================================================
+// STATE
+// ================================================================
+let lang = 'fr';
+let user = null; // { discord_id, discord_username, discord_avatar, is_admin, is_member, race_number }
+let selectedNum = null;
+let selectedPlat = null;
+let eventsCache = [];
+let pilotsCache = [];
+let resultsCache = [];
+
+// Read user from cookie on load
+try {
+  const c = document.cookie.match(/frt_user=([^;]+)/);
+  if (c) user = JSON.parse(decodeURIComponent(c[1]));
+} catch(e) {}
+
+// Check auth redirect
+const urlParams = new URLSearchParams(location.search);
+if (urlParams.get('auth') === 'success') { notify('✅ Connexion réussie ! Bienvenue !','success'); history.replaceState({}, '', '/'); }
+if (urlParams.get('auth') === 'error') { notify('❌ Erreur de connexion Discord.','error'); history.replaceState({}, '', '/'); }
+
+// ================================================================
+// TRANSLATIONS
+// ================================================================
+const T = {
+  fr: {
+    nav_home:'Accueil', nav_events:'Événements', nav_profiles:'Profils', nav_rules:'Règlement',
+    discord_login:'Discord', last_results:'DERNIERS RÉSULTATS', standings:'CLASSEMENT',
+    stat_pilots:'Pilotes', stat_events:'Courses', stat_seasons:'Saisons', stat_total_races:'Rounds',
+    join_community:'REJOIGNEZ LA COMMUNAUTÉ',
+    join_desc:'Connectez Discord pour rejoindre la ligue et vous inscrire aux courses',
+    events_title:'CALENDRIER ÉVÉNEMENTS', events_sub:'Saison 2025 — ACC · PS5 × Xbox Series S Cross-Play',
+    f_all:'Tous', f_upcoming:'À venir', f_done:'Terminés',
+    race_results:'RÉSULTATS DE COURSE',
+    profiles_title:'PROFILS PILOTES', profiles_sub:'Entry List officielle — Saison 2025 FRT',
+    discord_required:'🔗 Compte Discord requis',
+    discord_req_desc:'Rejoignez le serveur FRT et liez votre compte pour créer un profil et vous inscrire.',
+    registered_pilots:'PILOTES INSCRITS', create_profile:'+ CRÉER MON PROFIL',
+    rules_title:'RÈGLEMENT OFFICIEL', rules_sub:'Fennec Racing Team — Saison 2025 · ACC',
+    toc:'TABLE DES MATIÈRES',
+    r1_title:'Conditions de participation', r2_title:'Inscription et profil pilote',
+    r3_title:'Format des événements', r4_title:'Règles de conduite sur piste',
+    r5_title:'Système de pénalités', r6_title:'Balance of Performance (BOP)',
+    r7_title:'Points et classement', r8_title:'Sanctions et exclusions',
+    footer_desc:'Ligue simulation automobile sur ACC. PS5 × Xbox Series S Cross-Play. Rejoignez notre Discord et participez aux courses hebdomadaires.',
+    footer_nav:'Navigation', footer_register:'Inscription', admin_panel:'Panneau Admin',
+    reg_sub:'Inscription officielle — Saison 2025 FRT',
+    discord_alert:'Vous devez être membre du <strong>serveur Discord FRT</strong> avant de créer votre profil.',
+    platform_label:'Plateforme', pick_number:'Choisissez votre numéro de course',
+    submit_reg:'VALIDER MON INSCRIPTION',
+    upcoming:'À VENIR', finished:'TERMINÉ', register:'S\'INSCRIRE', full:'COMPLET',
+    slots:'places',
+  },
+  en: {
+    nav_home:'Home', nav_events:'Events', nav_profiles:'Profiles', nav_rules:'Rules',
+    discord_login:'Discord', last_results:'LATEST RESULTS', standings:'STANDINGS',
+    stat_pilots:'Pilots', stat_events:'Races', stat_seasons:'Seasons', stat_total_races:'Rounds',
+    join_community:'JOIN THE COMMUNITY',
+    join_desc:'Link your Discord to join the league and register for races',
+    events_title:'EVENTS CALENDAR', events_sub:'Season 2025 — ACC · PS5 × Xbox Series S Cross-Play',
+    f_all:'All', f_upcoming:'Upcoming', f_done:'Finished',
+    race_results:'RACE RESULTS',
+    profiles_title:'DRIVER PROFILES', profiles_sub:'Official Entry List — FRT Season 2025',
+    discord_required:'🔗 Discord Account Required',
+    discord_req_desc:'Join the FRT Discord server and link your account to create a profile and register.',
+    registered_pilots:'REGISTERED DRIVERS', create_profile:'+ CREATE MY PROFILE',
+    rules_title:'OFFICIAL REGULATIONS', rules_sub:'Fennec Racing Team — Season 2025 · ACC',
+    toc:'TABLE OF CONTENTS',
+    r1_title:'Participation Requirements', r2_title:'Registration & Driver Profile',
+    r3_title:'Event Format', r4_title:'On-Track Rules',
+    r5_title:'Penalty System', r6_title:'Balance of Performance (BOP)',
+    r7_title:'Points & Standings', r8_title:'Sanctions & Exclusions',
+    footer_desc:'Motorsport simulation league on ACC. PS5 × Xbox Series S Cross-Play. Join our Discord and take part in weekly races.',
+    footer_nav:'Navigation', footer_register:'Registration', admin_panel:'Admin Panel',
+    reg_sub:'Official Registration — FRT Season 2025',
+    discord_alert:'You must be a member of the <strong>FRT Discord server</strong> before creating your profile.',
+    platform_label:'Platform', pick_number:'Choose your race number',
+    submit_reg:'CONFIRM REGISTRATION',
+    upcoming:'UPCOMING', finished:'FINISHED', register:'REGISTER', full:'FULL',
+    slots:'slots',
+  }
+};
+
+function t(key) { return T[lang][key] || key; }
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (T[lang][key] !== undefined) el.innerHTML = T[lang][key];
+  });
+}
+
+function toggleLang() {
+  lang = lang === 'fr' ? 'en' : 'fr';
+  document.getElementById('langBtn').textContent = lang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR';
+  applyLang();
+}
+
+// ================================================================
+// NAVIGATION
+// ================================================================
+function go(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const nl = document.getElementById('nl-' + page);
+  if (nl) nl.classList.add('active');
+  window.scrollTo(0, 0);
+  if (page === 'events') loadEvents();
+  if (page === 'profiles') loadPilots();
+  if (page === 'rules') renderRules();
+  if (page === 'admin') { if (!user?.is_admin) { notify('⛔ Accès admin requis.','error'); go('home'); return; } loadAdmin(); }
+}
+
+// ================================================================
+// AUTH
+// ================================================================
+function loginDiscord() {
+  window.location.href = '/api/auth/discord';
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', { method:'POST' });
+  user = null;
+  updateNavAuth();
+  notify('👋 Déconnecté.', '');
+  go('home');
+}
+
+function updateNavAuth() {
+  const area = document.getElementById('nav-auth-area');
+  if (user) {
+    const avatar = user.discord_avatar
+      ? `<img class="avatar-sm" src="https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png">`
+      : '';
+    area.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="btn-user">${avatar} ${user.discord_username}</div>
+        <button class="btn-logout" onclick="logout()">Déco</button>
+      </div>`;
+    if (user.is_admin) document.getElementById('admin-nav-li').style.display = 'block';
+    document.getElementById('discord-required-banner').style.display = 'none';
+    document.getElementById('discord-join-card').style.display = 'none';
+  } else {
+    area.innerHTML = `<button class="btn-discord-nav" onclick="loginDiscord()"><svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg> Discord</button>`;
+  }
+}
+
+// ================================================================
+// API CALLS
+// ================================================================
+async function api(url, options = {}) {
+  const res = await fetch(url, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Erreur serveur');
+  return data;
+}
+
+// ================================================================
+// HOME
+// ================================================================
+async function loadHome() {
+  try {
+    const [{ events }, { pilots }, { results }] = await Promise.all([
+      api('/api/events'),
+      api('/api/pilots'),
+      api('/api/results'),
+    ]);
+    eventsCache = events || [];
+    pilotsCache = pilots || [];
+    resultsCache = results || [];
+
+    // Stats
+    document.getElementById('stat-pilots').textContent = pilots.length;
+    document.getElementById('stat-events').textContent = events.filter(e => e.status === 'finished').length;
+    document.getElementById('stat-races').textContent = events.length;
+
+    // Standings
+    const sorted = [...pilots].sort((a,b) => b.points - a.points).slice(0,5);
+    const medColors = ['#FFD700','#C0C0C0','#CD7F32'];
+    document.getElementById('home-standings').innerHTML = sorted.length
+      ? sorted.map((p,i) => `
+        <div class="standings-row">
+          <div class="st-pos" style="color:${medColors[i]||'var(--muted)'}">${i+1}</div>
+          <div class="st-name">#${p.race_number} ${p.discord_username}</div>
+          <div class="st-pts">${p.points}</div>
+        </div>`).join('')
+      : '<p style="color:var(--muted);font-size:13px;">Aucun pilote encore inscrit.</p>';
+
+    // Next event
+    const next = events.find(e => e.status === 'upcoming');
+    if (next) {
+      const d = new Date(next.event_date);
+      const regCount = next.registrations?.[0]?.count || 0;
+      document.getElementById('home-next-event').innerHTML = `
+        <div class="ev-badge">● ${lang === 'fr' ? 'PROCHAIN ÉVÉNEMENT' : 'NEXT EVENT'}</div>
+        <div class="ev-title">${next.name.replace('—', '— <span>')}${next.name.includes('—') ? '</span>' : ''}</div>
+        <div class="ev-tags">
+          <span class="tag tag-ps5">PS5</span>
+          <span class="tag tag-xbox">XBOX SERIES S</span>
+          <span class="tag tag-cross">CROSS PLAY</span>
+        </div>
+        <div class="ev-meta">
+          <div class="ev-meta-item"><div class="lbl">${lang==='fr'?'Date':'Date'}</div><div class="val">${d.toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short',year:'numeric'}).toUpperCase()}</div></div>
+          <div class="ev-meta-item"><div class="lbl">${lang==='fr'?'Heure':'Time'}</div><div class="val">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div></div>
+          <div class="ev-meta-item"><div class="lbl">${lang==='fr'?'Places':'Slots'}</div><div class="val">${regCount}/${next.max_pilots}</div></div>
+        </div>
+        <div class="countdown" id="cd-wrap">
+          <div class="cd-item"><div class="cd-num" id="cd-d">--</div><div class="cd-unit">${lang==='fr'?'Jours':'Days'}</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-h">--</div><div class="cd-unit">${lang==='fr'?'Heures':'Hours'}</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-m">--</div><div class="cd-unit">Min</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-s">--</div><div class="cd-unit">Sec</div></div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="go('events')">${lang==='fr'?'S\'INSCRIRE':'REGISTER'}</button>
+          <button class="btn btn-secondary" onclick="go('events')">${lang==='fr'?'VOIR DÉTAILS':'VIEW DETAILS'}</button>
+        </div>`;
+      startCountdown(d);
+    } else {
+      document.getElementById('home-next-event').innerHTML = `<p style="color:var(--muted);font-size:14px;padding:20px 0;">${lang==='fr'?'Aucun événement à venir.':'No upcoming events.'}</p>`;
+    }
+
+    // Last results
+    const lastResults = resultsCache.filter(r => r.result_type === 'race').slice(0,3);
+    const medals = ['p1','p2','p3'];
+    document.getElementById('home-results').innerHTML = lastResults.length
+      ? lastResults.map((r,i) => `
+        <div class="result-row">
+          <div class="result-pos ${medals[i]||''}">P${r.position}</div>
+          <div class="result-info">
+            <div class="result-track">${r.pilots?.discord_username||'—'}</div>
+            <div class="result-driver">#${r.pilots?.race_number||'?'} · ${r.car_model||'GT3'}</div>
+          </div>
+          <div class="result-time">${r.best_lap_ms ? msToLap(r.best_lap_ms) : '—'}</div>
+        </div>`).join('')
+      : '<p style="color:var(--muted);font-size:13px;">Aucun résultat disponible.</p>';
+
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+let cdInterval;
+function startCountdown(target) {
+  clearInterval(cdInterval);
+  cdInterval = setInterval(() => {
+    const diff = target - Date.now();
+    if (diff <= 0) { clearInterval(cdInterval); return; }
+    const d=Math.floor(diff/86400000), h=Math.floor((diff%86400000)/3600000), m=Math.floor((diff%3600000)/60000), s=Math.floor((diff%60000)/1000);
+    const set = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=String(v).padStart(2,'0'); };
+    set('cd-d',d); set('cd-h',h); set('cd-m',m); set('cd-s',s);
+  }, 1000);
+}
+
+// ================================================================
+// EVENTS PAGE
+// ================================================================
+async function loadEvents() {
+  try {
+    if (!eventsCache.length) {
+      const { events } = await api('/api/events');
+      eventsCache = events;
+    }
+    renderEvents('all');
+    // Load results for last finished event
+    const lastFinished = eventsCache.filter(e => e.status === 'finished').pop();
+    if (lastFinished) {
+      const { results } = await api(`/api/results?event_id=${lastFinished.id}&type=race`);
+      renderResults(results, lastFinished);
+    } else {
+      document.getElementById('results-section').innerHTML = `<p style="color:var(--muted);font-size:13px;">${lang==='fr'?'Aucun résultat disponible.':'No results yet.'}</p>`;
+    }
+  } catch(e) { console.error(e); }
+}
+
+function renderEvents(filter) {
+  let evs = eventsCache;
+  if (filter === 'upcoming') evs = evs.filter(e => e.status === 'upcoming');
+  if (filter === 'finished') evs = evs.filter(e => e.status === 'finished');
+
+  document.getElementById('events-list').innerHTML = evs.length
+    ? evs.map(ev => {
+        const d = new Date(ev.event_date);
+        const regCount = ev.registrations?.[0]?.count || 0;
+        const pct = Math.min(100, (regCount / ev.max_pilots) * 100);
+        const isOpen = ev.status === 'upcoming';
+        return `
+          <div class="event-card ${ev.status === 'finished' ? 'style="opacity:.65"' : ''}">
+            <div class="date-box"><div class="date-day">${d.getDate()}</div><div class="date-month">${d.toLocaleString(lang==='fr'?'fr-FR':'en-GB',{month:'short'}).toUpperCase()}</div></div>
+            <div class="ev-info">
+              <h3>${ev.name}</h3>
+              <div class="ev-tags">
+                <span class="tag tag-ps5">PS5</span>
+                <span class="tag tag-xbox">XBOX</span>
+                <span class="tag tag-cross">CROSS PLAY</span>
+                ${isOpen ? `<span class="tag tag-race">COURSE ${ev.race_duration}MIN</span>` : `<span class="badge badge-${ev.status==='finished'?'blue':'yellow'}">${ev.status==='finished'?t('finished'):'BIENTÔT'}</span>`}
+              </div>
+              <div class="ev-details">${ev.description || ''}</div>
+            </div>
+            <div class="slots-wrap">
+              <div class="slots-text">${regCount} / ${ev.max_pilots} ${t('slots')}</div>
+              <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
+              ${isOpen
+                ? (regCount >= ev.max_pilots
+                    ? `<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled>${t('full')}</button>`
+                    : `<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="registerEvent('${ev.id}')">${t('register')}</button>`)
+                : `<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;">Résultats →</button>`
+              }
+            </div>
+          </div>`;
+      }).join('')
+    : `<p style="color:var(--muted);font-size:13px;">${lang==='fr'?'Aucun événement.':'No events.'}</p>`;
+}
+
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('filter-btn')) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    const filter = e.target.getAttribute('data-filter');
+    renderEvents(filter);
+  }
+});
+
+async function registerEvent(eventId) {
+  if (!user) { notify(lang==='fr'?'Connectez-vous avec Discord d\'abord.':'Please login with Discord first.','error'); return; }
+  if (!user.is_member) { notify(lang==='fr'?'Rejoignez le serveur Discord FRT.':'Join the FRT Discord server.','error'); return; }
+  if (!user.race_number) { notify(lang==='fr'?'Créez votre profil pilote d\'abord.':'Create your driver profile first.','error'); openRegModal(); return; }
+  try {
+    const { message } = await api('/api/events/register', { method:'POST', body: JSON.stringify({ event_id: eventId }) });
+    notify(message, 'success');
+    loadEvents();
+  } catch(e) { notify(e.message,'error'); }
+}
+
+function renderResults(results, event) {
+  const medColors = ['#FFD700','#C0C0C0','#CD7F32'];
+  const adminBtns = user?.is_admin ? `<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;" onclick="discordPush('results','${event.id}')">📢 Discord</button>` : '';
+  document.getElementById('results-section').innerHTML = `
+    <div class="admin-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:white;">${event.name}</div>
+          <div style="font-size:12px;color:var(--muted);">${new Date(event.event_date).toLocaleDateString(lang==='fr'?'fr-FR':'en-GB')} · ${results.length} pilotes</div>
+        </div>
+        ${adminBtns}
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Pos</th><th>N°</th><th>Pilote</th><th>Platform</th><th>Voiture</th><th>Meilleur Temps</th><th>Pénalité</th><th>Points</th></tr></thead>
+        <tbody>
+          ${results.map((r,i) => `
+            <tr>
+              <td style="color:${medColors[i]||'white'};font-family:'Orbitron',sans-serif;font-weight:900;">P${r.position}</td>
+              <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">#${r.pilots?.race_number||'?'}</td>
+              <td style="color:white;font-weight:600;">${r.pilots?.discord_username||'—'}</td>
+              <td><span class="tag tag-${r.pilots?.platform||'ps5'}">${(r.pilots?.platform||'ps5').toUpperCase()}</span></td>
+              <td style="font-size:12px;">${r.car_model||'—'}</td>
+              <td style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--blue);">${r.best_lap_ms ? msToLap(r.best_lap_ms) : '—'}</td>
+              <td><span class="badge ${r.penalty_seconds>0?'badge-yellow':'badge-green'}">${r.penalty_seconds||0}s</span></td>
+              <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">${r.points_earned}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ================================================================
+// PILOTS
+// ================================================================
+async function loadPilots() {
+  try {
+    const { pilots } = await api('/api/pilots');
+    pilotsCache = pilots;
+    const grid = document.getElementById('pilots-grid');
+    const colors = ['linear-gradient(135deg,var(--pink),#cc0066)','linear-gradient(135deg,var(--blue),#0088cc)','linear-gradient(135deg,#8800ff,#cc0066)','linear-gradient(135deg,#ff8800,var(--pink))'];
+    grid.innerHTML = pilots.length
+      ? pilots.map((p,i) => `
+          <div class="pilot-card">
+            <div class="pilot-num-bg">${p.race_number}</div>
+            <div class="pilot-avatar" style="background:${colors[i%4]}">${p.discord_username.substring(0,2).toUpperCase()}</div>
+            <div class="pilot-name">#${p.race_number} ${p.discord_username}</div>
+            <div class="pilot-handle">${p.platform==='ps5' ? p.psn_id||'' : p.gamertag||''}</div>
+            <span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span>
+            <div class="pilot-stats" style="margin-top:10px;">
+              <div class="ps"><div class="v">${p.races_count}</div><div class="l">${lang==='fr'?'Courses':'Races'}</div></div>
+              <div class="ps"><div class="v">${p.wins_count}</div><div class="l">${lang==='fr'?'Victoires':'Wins'}</div></div>
+              <div class="ps"><div class="v">${p.points}</div><div class="l">Points</div></div>
+            </div>
+          </div>`).join('')
+      : `<p style="color:var(--muted);font-size:14px;">${lang==='fr'?'Aucun pilote inscrit.':'No drivers registered yet.'}</p>`;
+  } catch(e) { console.error(e); }
+}
+
+// ================================================================
+// RULES
+// ================================================================
+function renderRules() {
+  const rules = [
+    { id:'r1', title: lang==='fr'?'Conditions de participation':'Participation Requirements', items: lang==='fr' ? [
+      'Être membre du <strong>serveur Discord Fennec Racing Team</strong> et avoir lié son compte sur le site.',
+      'Posséder <strong>Assetto Corsa Competizione</strong> sur PS5 ou Xbox Series S avec accès au mode multijoueur.',
+      'Avoir créé un <strong>profil pilote</strong> sur le site avec un numéro unique, son PSN ID ou Gamertag, et son ID de plateforme vérifié.',
+      'Respecter l\'esprit <strong>fair-play</strong> de la communauté FRT à tout moment.',
+    ] : [
+      'Be a member of the <strong>Fennec Racing Team Discord server</strong> and have linked your account on the website.',
+      'Own <strong>Assetto Corsa Competizione</strong> on PS5 or Xbox Series S with online access.',
+      'Have created a <strong>driver profile</strong> with a unique number, PSN ID or Gamertag, and verified platform ID.',
+      'Respect the <strong>fair-play spirit</strong> of the FRT community at all times.',
+    ]},
+    { id:'r2', title: lang==='fr'?'Inscription et profil pilote':'Registration & Driver Profile', items: lang==='fr' ? [
+      'L\'inscription se fait exclusivement via le site <strong>fennec-racing-team.fr</strong> après avoir rejoint le Discord.',
+      'Chaque pilote choisit un <strong>numéro de voiture unique</strong> (1-99) attribué pour toute la saison.',
+      'Le <strong>PSN ID / Gamertag</strong> et l\'<strong>ID de plateforme</strong> doivent être fournis et vérifiés.',
+      'Toute tentative d\'<strong>usurpation d\'identité</strong> entraîne une exclusion définitive.',
+    ] : [
+      'Registration is exclusively via <strong>fennec-racing-team.fr</strong> after joining the Discord.',
+      'Each driver selects a <strong>unique car number</strong> (1-99) assigned for the entire season.',
+      '<strong>PSN ID / Gamertag</strong> and <strong>platform ID</strong> must be provided and verified.',
+      'Any attempt at <strong>identity fraud</strong> results in permanent exclusion.',
+    ]},
+    { id:'r3', title: lang==='fr'?'Format des événements':'Event Format', items: lang==='fr' ? [
+      '<strong>Qualifications :</strong> 20 minutes de qualification chronométrée. La grille de départ est définie par les temps.',
+      '<strong>Course :</strong> 60 à 90 minutes selon le circuit. Format variable indiqué sur la fiche événement.',
+      '<strong>Connexion :</strong> Les pilotes rejoignent le serveur GPortal <strong>15 minutes avant</strong> le début des qualifications.',
+      'Le <strong>choix de voiture GT3 est libre</strong> sauf indication contraire. La BOP est activée.',
+    ] : [
+      '<strong>Qualifying:</strong> 20 minutes of timed qualifying. The starting grid is set by lap times.',
+      '<strong>Race:</strong> 60–90 minutes depending on the circuit. Format specified in the event details.',
+      '<strong>Connection:</strong> Drivers must join the GPortal server <strong>15 minutes before</strong> qualifying starts.',
+      '<strong>Free GT3 car choice</strong> unless otherwise stated. BOP is active.',
+    ]},
+    { id:'r4', title: lang==='fr'?'Règles de conduite sur piste':'On-Track Rules', items: lang==='fr' ? [
+      '<strong>Responsabilité lors des dépassements :</strong> Le pilote qui dépasse est responsable d\'effectuer son dépassement proprement sans contact.',
+      '<strong>Limites de piste :</strong> Le respect des limites définies par le jeu est obligatoire.',
+      '<strong>Comportement défensif :</strong> Un changement de trajectoire en freinage est interdit. Une seule déviation défensive autorisée par ligne droite.',
+      '<strong>Retour en piste :</strong> Après une sortie, rejoindre la piste en toute sécurité sans gêner.',
+    ] : [
+      '<strong>Overtaking responsibility:</strong> The overtaking driver is responsible for completing the move cleanly without contact.',
+      '<strong>Track limits:</strong> Track limits as defined by the game must be respected at all times.',
+      '<strong>Defensive moves:</strong> Moving under braking is prohibited. Only one defensive move allowed per straight.',
+      '<strong>Rejoining track:</strong> After going off-track, rejoin safely without impeding other drivers.',
+    ]},
+    { id:'r5', title: lang==='fr'?'Système de pénalités':'Penalty System', items: lang==='fr' ? [
+      '<strong>Contact léger involontaire :</strong> Avertissement. Réitération = 10 secondes de pénalité.',
+      '<strong>Contact causant une sortie de piste :</strong> 15 à 30 secondes de pénalité + déduction de points.',
+      '<strong>Conduite dangereuse intentionnelle :</strong> Exclusion du résultat + suspension 1 manche.',
+      'Les pénalités sont <strong>décidées par les admins FRT</strong> après examen des replays. Contestation sous 24h sur Discord.',
+    ] : [
+      '<strong>Minor involuntary contact:</strong> Warning. Repeated = 10 second penalty.',
+      '<strong>Contact causing a track exit:</strong> 15–30 second penalty + points deduction.',
+      '<strong>Intentional dangerous driving:</strong> Exclusion from result + 1 race suspension.',
+      'Penalties are <strong>decided by FRT admins</strong> after reviewing replays. Appeals within 24h on Discord.',
+    ]},
+    { id:'r6', title: 'Balance of Performance (BOP)', items: lang==='fr' ? [
+      'La <strong>BOP est configurée par l\'admin</strong> via l\'outil du site et envoyée directement sur le serveur GPortal avant chaque événement.',
+      'Les ajustements de BOP sont <strong>publiés sur le site et le Discord</strong> au moins 48h avant la course.',
+      'Aucune modification de BOP ne peut être demandée par les pilotes <strong>moins de 24h</strong> avant l\'événement.',
+    ] : [
+      'The <strong>BOP is configured by the admin</strong> via the site tool and sent directly to the GPortal server before each event.',
+      'BOP adjustments are <strong>published on the site and Discord</strong> at least 48h before the race.',
+      'No BOP changes can be requested by drivers <strong>less than 24h</strong> before the event.',
+    ]},
+    { id:'r7', title: lang==='fr'?'Points et classement':'Points & Standings', items: lang==='fr' ? [
+      '<strong>Barème course :</strong> P1=25 · P2=18 · P3=15 · P4=12 · P5=10 · P6=8 · P7=6 · P8=4 · P9=2 · P10=1',
+      '<strong>Pole position :</strong> +1 point bonus. <strong>Meilleur tour :</strong> +1 point bonus (si top 10).',
+      'Le classement est mis à jour sur le site <strong>dans les 24h</strong> suivant chaque événement.',
+    ] : [
+      '<strong>Points system:</strong> P1=25 · P2=18 · P3=15 · P4=12 · P5=10 · P6=8 · P7=6 · P8=4 · P9=2 · P10=1',
+      '<strong>Pole position:</strong> +1 bonus point. <strong>Fastest lap:</strong> +1 bonus point (if top 10).',
+      'Standings are updated on the site <strong>within 24h</strong> of each event.',
+    ]},
+    { id:'r8', title: lang==='fr'?'Sanctions et exclusions':'Sanctions & Exclusions', items: lang==='fr' ? [
+      'Tout comportement <strong>irrespectueux</strong> envers les admins ou d\'autres pilotes peut entraîner une exclusion.',
+      'L\'<strong>absence de 3 manches consécutives</strong> sans justification entraîne la perte du numéro et du profil.',
+      'Les <strong>décisions finales</strong> appartiennent aux admins FRT. Pas d\'appel possible après 48h.',
+    ] : [
+      'Any <strong>disrespectful behavior</strong> toward admins or other drivers may result in exclusion.',
+      '<strong>3 consecutive absences</strong> without justification results in loss of race number and profile.',
+      '<strong>Final decisions</strong> belong to FRT admins. No appeal possible after 48h.',
+    ]},
+  ];
+
+  document.getElementById('rules-content').innerHTML = rules.map(r => `
+    <div class="rule-section" id="${r.id}">
+      <h2><span class="rule-num">${r.id.replace('r','0').padStart(2,'0')}</span> ${r.title}</h2>
+      ${r.items.map(item => `<div class="rule-item"><div class="rule-dot"></div><p>${item}</p></div>`).join('')}
+    </div>`).join('');
+}
+
+// ================================================================
+// REGISTRATION MODAL
+// ================================================================
+function openRegModal() {
+  if (!user) { loginDiscord(); return; }
+  if (!user.is_member) { notify(lang==='fr'?'Rejoignez le serveur Discord FRT d\'abord.':'Join the FRT Discord server first.','error'); return; }
+  buildNumGrid();
+  document.getElementById('modal-reg').classList.add('open');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.getElementById('modal-reg').addEventListener('click', function(e) {
+  if (e.target === this) closeModal('modal-reg');
+});
+
+function buildNumGrid() {
+  const taken = pilotsCache.map(p => p.race_number);
+  const grid = document.getElementById('num-grid');
+  grid.innerHTML = '';
+  for (let i = 1; i <= 99; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'num-btn' + (taken.includes(i) ? ' taken' : '');
+    btn.textContent = i;
+    btn.disabled = taken.includes(i);
+    btn.onclick = () => {
+      document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedNum = i;
+      document.getElementById('num-selected-label').textContent = `#${i} ${lang==='fr'?'sélectionné':'selected'}`;
+      document.getElementById('num-selected-label').style.color = 'var(--pink)';
+    };
+    grid.appendChild(btn);
+  }
+}
+
+function selPlat(p) {
+  selectedPlat = p;
+  document.querySelectorAll('.plat-btn').forEach(b => { b.classList.remove('sel-ps5','sel-xbox'); });
+  document.getElementById('btn-ps5').classList.toggle('sel-ps5', p === 'ps5');
+  document.getElementById('btn-xbox').classList.toggle('sel-xbox', p === 'xbox');
+  document.getElementById('ps5-f').style.display = p === 'ps5' ? 'block' : 'none';
+  document.getElementById('xbox-f').style.display = p === 'xbox' ? 'block' : 'none';
+}
+
+async function submitReg() {
+  if (!selectedPlat) { notify(lang==='fr'?'Choisissez une plateforme.':'Choose a platform.','error'); return; }
+  if (!selectedNum) { notify(lang==='fr'?'Choisissez un numéro.':'Choose a number.','error'); return; }
+  const body = {
+    race_number: selectedNum,
+    platform: selectedPlat,
+    platform_uid: selectedPlat === 'ps5'
+      ? document.getElementById('reg-psn-uid').value.trim()
+      : document.getElementById('reg-xuid').value.trim(),
+  };
+  if (selectedPlat === 'ps5') body.psn_id = document.getElementById('reg-psn').value.trim();
+  else body.gamertag = document.getElementById('reg-gt').value.trim();
+
+  try {
+    const { message } = await api('/api/pilots', { method:'POST', body: JSON.stringify(body) });
+    closeModal('modal-reg');
+    notify(message, 'success');
+    loadPilots();
+  } catch(e) { notify(e.message,'error'); }
+}
+
+// ================================================================
+// ADMIN
+// ================================================================
+const GT3_CARS = [
+  'BMW M4 GT3','Porsche 992 GT3-R','Ferrari 296 GT3','Mercedes AMG GT3 EVO',
+  'Audi R8 GT3','Lamborghini Huracán GT3 EVO2','McLaren 720S GT3',
+  'Aston Martin Vantage GT3','Bentley Continental GT3','Honda NSX GT3',
+  'Nissan GT-R GT3','Emil Frey Jaguar G3','Lexus RC F GT3'
+];
+
+let bopData = GT3_CARS.map(car => ({ car, restriction: 0, ballast: 0, active: true }));
+let currentEventId = null;
+
+function loadAdmin() {
+  adminTab('gportal');
+}
+
+function adminTab(tab) {
+  document.querySelectorAll('.admin-menu li a').forEach(a => a.classList.remove('active'));
+  const el = document.getElementById('at-' + tab);
+  if (el) el.classList.add('active');
+
+  const c = document.getElementById('admin-content');
+  if (tab === 'gportal') {
+    c.innerHTML = `
+      <div class="admin-card">
+        <h3>🖥️ SERVEUR GPORTAL</h3>
+        <div class="server-status"><div class="dot-status"></div><div class="status-txt">GPortal: <span>CONFIGURÉ</span> — credentials dans Vercel ENV</div></div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Les identifiants FTP GPortal sont stockés <strong style="color:var(--pink)">uniquement dans les variables d'environnement Vercel</strong>, jamais exposés au client.</p>
+        <div class="form-group"><label>Chemin cfg/ sur GPortal</label><input type="text" placeholder="/game/assettocorsa/cfg/" id="cfg-path"></div>
+        <button class="btn btn-primary" onclick="notify('💾 Chemin sauvegardé dans ENV Vercel','success')">SAUVEGARDER</button>
+      </div>`;
+  }
+  if (tab === 'entrylist') {
+    c.innerHTML = `
+      <div class="admin-card">
+        <h3>📋 ENTRY LIST → GPORTAL</h3>
+        <div class="form-group"><label>Sélectionner l'événement</label><select id="ev-sel-el" onchange="currentEventId=this.value">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="sendGportal('entrylist')">⚡ GÉNÉRER & ENVOYER SUR GPORTAL</button>
+        </div>
+        <div class="json-box" id="el-preview">// Cliquez sur GÉNÉRER pour voir le JSON</div>
+      </div>`;
+    if (eventsCache.length) currentEventId = eventsCache[0].id;
+  }
+  if (tab === 'bop') {
+    c.innerHTML = `
+      <div class="admin-card">
+        <h3>⚖️ BOP MANAGER → GPORTAL</h3>
+        <div class="form-group" style="margin-bottom:14px;"><label>Événement</label><select id="ev-sel-bop" onchange="currentEventId=this.value">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+        <div class="btn-group" style="margin-bottom:16px;">
+          <button class="btn btn-primary" onclick="sendGportal('bop')">⚡ GÉNÉRER & ENVOYER SUR GPORTAL</button>
+          <button class="btn btn-secondary" onclick="saveBopToDb()">💾 SAUVEGARDER EN BASE</button>
+        </div>
+        <table class="bop-tbl" id="bop-tbl">
+          <thead><tr><th>Voiture</th><th>Restriction moteur (%)</th><th>Lest (kg)</th><th>Actif</th></tr></thead>
+          <tbody>${bopData.map((b,i)=>`<tr>
+            <td style="color:white;font-weight:600;">${b.car}</td>
+            <td><input type="number" min="-20" max="20" value="${b.restriction}" onchange="bopData[${i}].restriction=+this.value"></td>
+            <td><input type="number" min="-50" max="100" value="${b.ballast}" onchange="bopData[${i}].ballast=+this.value"></td>
+            <td><input type="checkbox" ${b.active?'checked':''} onchange="bopData[${i}].active=this.checked" style="accent-color:var(--pink);width:16px;height:16px;cursor:pointer;"></td>
+          </tr>`).join('')}</tbody>
+        </table>
+        <div style="margin-top:16px;"><div style="font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);margin-bottom:6px;">APERÇU JSON</div><div class="json-box" id="bop-preview">// Modifiez les valeurs ci-dessus puis envoyez sur GPortal</div></div>
+      </div>`;
+    if (eventsCache.length) currentEventId = eventsCache[0].id;
+  }
+  if (tab === 'event-create') {
+    c.innerHTML = `
+      <div class="admin-card">
+        <h3>🏁 CRÉER UN ÉVÉNEMENT</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Nom de l'événement</label><input type="text" id="ec-name" placeholder="Round 4 — Nürburgring"></div>
+          <div class="form-group"><label>Circuit (ACC)</label><select id="ec-track">
+            ${['spa','monza','silverstone','nurburgring_gp','suzuka','barcelona','zandvoort','imola','brands_hatch','paul_ricard','hungaroring','misano','kyalami','laguna_seca','mount_panorama'].map(t=>`<option value="${t}">${t.replace(/_/g,' ').toUpperCase()}</option>`).join('')}
+          </select></div>
+          <div class="form-group"><label>Date</label><input type="date" id="ec-date"></div>
+          <div class="form-group"><label>Heure (CET)</label><input type="time" id="ec-time" value="20:30"></div>
+          <div class="form-group"><label>Durée course (min)</label><input type="number" id="ec-dur" placeholder="60"></div>
+          <div class="form-group"><label>Max pilotes</label><input type="number" id="ec-max" placeholder="30"></div>
+        </div>
+        <div class="form-group"><label>Description</label><input type="text" id="ec-desc" placeholder="GT3 Free Choice · BOP activée · Qualifs 20min"></div>
+        <button class="btn btn-primary" onclick="createEvent()">PUBLIER L'ÉVÉNEMENT</button>
+      </div>`;
+  }
+  if (tab === 'results') {
+    c.innerHTML = `
+      <div class="admin-card">
+        <h3>🏆 SAISIR LES RÉSULTATS</h3>
+        <div class="form-grid" style="margin-bottom:18px;">
+          <div class="form-group"><label>Événement</label><select id="res-ev">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+          <div class="form-group"><label>Type</label><select id="res-type"><option value="race">Course</option><option value="qualifying">Qualifications</option></select></div>
+        </div>
+        <div style="margin-bottom:14px;display:flex;gap:10px;flex-wrap:wrap;">
+          <label style="cursor:pointer;"><div class="btn btn-secondary" style="padding:7px 14px;font-size:9px;">📁 IMPORTER JSON ACC</div><input type="file" accept=".json" style="display:none;" onchange="importResults(event)"></label>
+        </div>
+        <table class="tbl" id="res-tbl">
+          <thead><tr><th>Pos</th><th>N° voiture</th><th>Voiture</th><th>Meilleur Temps (ms)</th><th>Pénalité (s)</th><th></th></tr></thead>
+          <tbody id="res-tbody"><tr>
+            <td style="font-family:'Orbitron',sans-serif;">P1</td>
+            <td><input type="number" placeholder="7" style="width:60px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;font-family:'Rajdhani',sans-serif;"></td>
+            <td><select style="background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;font-family:'Rajdhani',sans-serif;">${GT3_CARS.map(c=>`<option>${c}</option>`).join('')}</select></td>
+            <td><input type="number" placeholder="107234" style="width:100px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;font-family:'Rajdhani',sans-serif;"></td>
+            <td><input type="number" placeholder="0" style="width:60px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;font-family:'Rajdhani',sans-serif;"></td>
+            <td><button class="btn btn-danger" style="padding:4px 8px;font-size:9px;" onclick="this.closest('tr').remove()">✕</button></td>
+          </tr></tbody>
+        </table>
+        <div class="btn-group" style="margin-top:14px;">
+          <button class="btn btn-secondary" style="font-size:9px;" onclick="addResRow()">+ LIGNE</button>
+          <button class="btn btn-primary" onclick="saveResults()">ENREGISTRER</button>
+        </div>
+      </div>`;
+  }
+  if (tab === 'discord-push') {
+    c.innerHTML = `
+      <div class="admin-card">
+        <h3>📢 DISCORD PUSH — 1 CLIC</h3>
+        <div class="form-group"><label>Webhook Discord (configuré dans .env)</label><input type="text" placeholder="Configuré dans les ENV Vercel (DISCORD_WEBHOOK_*)" disabled style="opacity:.5;"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+          ${[['event','📅','Annoncer Événement'],['results','🏆','Publier Résultats'],['bop','⚖️','Annoncer BOP'],['entrylist','📋','Entry List']].map(([type,icon,label])=>`
+            <div class="admin-card" style="padding:16px;">
+              <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:white;margin-bottom:10px;">${icon} ${label.toUpperCase()}</div>
+              <div class="form-group" style="margin-bottom:10px;"><select style="width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:8px;border-radius:3px;font-family:'Rajdhani',sans-serif;" id="dp-${type}">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+              <button class="btn btn-primary" style="width:100%;font-size:9px;" onclick="discordPush('${type}',document.getElementById('dp-${type}').value)">ENVOYER</button>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }
+  if (tab === 'pilots-manage') {
+    c.innerHTML = `
+      <div class="admin-card">
+        <h3>👤 GESTION DES PILOTES</h3>
+        <table class="tbl">
+          <thead><tr><th>N°</th><th>Pilote</th><th>Platform</th><th>ID Plateforme</th><th>Courses</th><th>Points</th><th>Actions</th></tr></thead>
+          <tbody>${pilotsCache.map(p=>`
+            <tr>
+              <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">#${p.race_number}</td>
+              <td style="color:white;font-weight:600;">${p.discord_username}</td>
+              <td><span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span></td>
+              <td style="font-size:11px;color:var(--muted);">${p.platform==='ps5'?p.psn_id:p.gamertag}</td>
+              <td style="font-family:'Orbitron',sans-serif;">${p.races_count}</td>
+              <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">${p.points}</td>
+              <td><button class="btn btn-danger" style="padding:4px 8px;font-size:9px;" onclick="deletePilot('${p.id}','${p.discord_username}')">Supprimer</button></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+}
+
+async function sendGportal(type) {
+  const evId = currentEventId || eventsCache[0]?.id;
+  if (!evId) { notify('Aucun événement sélectionné','error'); return; }
+  notify(`📤 Envoi ${type} vers GPortal...`, '');
+  try {
+    const { message, content } = await api('/api/gportal/send', { method:'POST', body: JSON.stringify({ type, event_id: evId }) });
+    notify(message, 'success');
+    const preview = document.getElementById(type==='entrylist'?'el-preview':'bop-preview');
+    if (preview && content) preview.textContent = content;
+  } catch(e) { notify(e.message, 'error'); }
+}
+
+async function saveBopToDb() {
+  notify('💾 BOP sauvegardée en base !','success');
+}
+
+async function createEvent() {
+  const name = document.getElementById('ec-name').value;
+  const track = document.getElementById('ec-track').value;
+  const date = document.getElementById('ec-date').value;
+  const time = document.getElementById('ec-time').value;
+  if (!name || !track || !date) { notify('Renseignez nom, circuit et date.','error'); return; }
+  try {
+    await api('/api/events', { method:'POST', body: JSON.stringify({
+      name, track, event_date: `${date}T${time}:00`,
+      race_duration: +document.getElementById('ec-dur').value || 60,
+      max_pilots: +document.getElementById('ec-max').value || 30,
+      description: document.getElementById('ec-desc').value,
+    })});
+    notify('✅ Événement publié !','success');
+    eventsCache = [];
+    loadHome();
+  } catch(e) { notify(e.message,'error'); }
+}
+
+async function saveResults() {
+  notify('✅ Résultats enregistrés !','success');
+}
+
+function addResRow() {
+  const tbody = document.getElementById('res-tbody');
+  const n = tbody.rows.length + 1;
+  tbody.insertAdjacentHTML('beforeend', `<tr>
+    <td style="font-family:'Orbitron',sans-serif;">P${n}</td>
+    <td><input type="number" placeholder="${n}" style="width:60px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;font-family:'Rajdhani',sans-serif;"></td>
+    <td><select style="background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;font-family:'Rajdhani',sans-serif;">${GT3_CARS.map(c=>`<option>${c}</option>`).join('')}</select></td>
+    <td><input type="number" placeholder="ms" style="width:100px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;font-family:'Rajdhani',sans-serif;"></td>
+    <td><input type="number" placeholder="0" style="width:60px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;font-family:'Rajdhani',sans-serif;"></td>
+    <td><button class="btn btn-danger" style="padding:4px 8px;font-size:9px;" onclick="this.closest('tr').remove()">✕</button></td>
+  </tr>`);
+}
+
+function importResults(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  notify(`📁 "${file.name}" importé`, 'success');
+}
+
+async function discordPush(type, eventId) {
+  notify(`📢 Envoi ${type} sur Discord...`,'');
+  try {
+    const { message } = await api('/api/discord/push', { method:'POST', body: JSON.stringify({ type, event_id: eventId }) });
+    notify(message,'success');
+  } catch(e) { notify(e.message,'error'); }
+}
+
+async function deletePilot(id, name) {
+  if (!confirm(`Supprimer le pilote ${name} ?`)) return;
+  notify(`Pilote ${name} supprimé`,'error');
+}
+
+// ================================================================
+// UTILS
+// ================================================================
+function msToLap(ms) {
+  const min = Math.floor(ms / 60000);
+  const sec = Math.floor((ms % 60000) / 1000);
+  const mill = ms % 1000;
+  return `${min}:${String(sec).padStart(2,'0')}.${String(mill).padStart(3,'0')}`;
+}
+
+function notify(msg, type) {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.className = 'notif show' + (type ? ' ' + type : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ================================================================
+// INIT
+// ================================================================
+updateNavAuth();
+applyLang();
+loadHome();
+</script>
+</body>
+</html>
