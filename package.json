@@ -1,0 +1,12 @@
+{
+"name": "fennec-racing-team",
+"version": "1.0.0",
+"private": true,
+"engines": {
+"node": ">=18.x"
+},
+"dependencies": {
+"@supabase/supabase-js": "^2.39.0",
+"basic-ftp": "^5.0.5"
+}
+}
