@@ -1088,7 +1088,7 @@ function buildNumGrid() {
   const taken = pilotsCache.map(p => p.race_number);
   const grid = document.getElementById('num-grid');
   grid.innerHTML = '';
-  for (let i = 1; i <= 99; i++) {
+  for (let i = 1; i <= 999; i++) {
     const btn = document.createElement('button');
     btn.className = 'num-btn' + (taken.includes(i) ? ' taken' : '');
     btn.textContent = i;
