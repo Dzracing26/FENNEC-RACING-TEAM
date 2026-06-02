@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="fr" data-lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FENNEC RACING TEAM — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --pink: #ff0080; --blue: #00b4ff; --dark: #0a0a0f; --darker: #050508;
+      --mid: #12121a; --card: #16161f; --border: rgba(255,0,128,0.22);
+      --border-blue: rgba(0,180,255,0.22); --text: #e8e8f0; --muted: #777;
+      --green: #00ff88; --orange: #ff6600; --red: #ff2244;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--darker); color:var(--text); font-family:'Rajdhani',sans-serif; min-height:100vh; }
+
+    /* NAV */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:1000; height:64px;
+      background:rgba(5,5,8,0.97); backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between; padding:0 24px;
+    }
+    .nav-logo { font-family:'Orbitron',sans-serif; font-size:16px; font-weight:900; color:var(--pink); letter-spacing:2px; }
+    .nav-logo span { color:var(--blue); }
+    .nav-right { display:flex; align-items:center; gap:16px; }
+    .nav-user { font-size:13px; color:var(--muted); }
+    .btn-back { background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 14px; border-radius:4px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:13px; transition:all .2s; }
+    .btn-back:hover { border-color:var(--pink); color:var(--pink); }
+
+    /* ACCESS DENIED */
+    .access-denied {
+      display:none; flex-direction:column; align-items:center; justify-content:center;
+      height:100vh; gap:16px; text-align:center;
+    }
+    .access-denied h1 { font-family:'Orbitron',sans-serif; font-size:32px; color:var(--red); }
+    .access-denied p { color:var(--muted); font-size:16px; }
+
+    /* MAIN */
+    main { padding-top:80px; max-width:1400px; margin:0 auto; padding-left:24px; padding-right:24px; padding-bottom:40px; }
+
+    .admin-header { margin-bottom:32px; }
+    .admin-header h1 { font-family:'Orbitron',sans-serif; font-size:28px; font-weight:900; color:var(--pink); letter-spacing:2px; }
+    .admin-header p { color:var(--muted); font-size:15px; margin-top:4px; }
+
+    /* TABS */
+    .tabs { display:flex; gap:4px; margin-bottom:32px; flex-wrap:wrap; }
+    .tab {
+      padding:10px 20px; border:1px solid var(--border); background:transparent;
+      color:var(--muted); cursor:pointer; font-family:'Rajdhani',sans-serif;
+      font-size:14px; font-weight:600; letter-spacing:1px; border-radius:4px;
+      transition:all .2s; text-transform:uppercase;
+    }
+    .tab:hover { border-color:var(--pink); color:var(--text); }
+    .tab.active { background:var(--pink); border-color:var(--pink); color:#fff; }
+
+    /* PANELS */
+    .panel { display:none; }
+    .panel.active { display:block; }
+
+    /* CARDS GRID */
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+
+    /* CARD */
+    .card {
+      background:var(--card); border:1px solid var(--border); border-radius:8px;
+      padding:20px; transition:border-color .2s;
+    }
+    .card:hover { border-color:var(--pink); }
+    .card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+    .card-title { font-family:'Orbitron',sans-serif; font-size:14px; font-weight:700; color:var(--text); }
+    .badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:1px; }
+    .badge-green { background:rgba(0,255,136,0.15); color:var(--green); border:1px solid rgba(0,255,136,0.3); }
+    .badge-orange { background:rgba(255,102,0,0.15); color:var(--orange); border:1px solid rgba(255,102,0,0.3); }
+    .badge-red { background:rgba(255,34,68,0.15); color:var(--red); border:1px solid rgba(255,34,68,0.3); }
+    .badge-blue { background:rgba(0,180,255,0.15); color:var(--blue); border:1px solid rgba(0,180,255,0.3); }
+    .card-info { font-size:14px; color:var(--muted); margin-bottom:4px; }
+    .card-info span { color:var(--text); }
+    .card-actions { display:flex; gap:8px; margin-top:16px; flex-wrap:wrap; }
+
+    /* BUTTONS */
+    .btn { padding:7px 14px; border-radius:4px; cursor:pointer; font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; letter-spacing:0.5px; transition:all .2s; border:1px solid transparent; }
+    .btn-primary { background:var(--pink); color:#fff; border-color:var(--pink); }
+    .btn-primary:hover { background:#cc0066; }
+    .btn-success { background:rgba(0,255,136,0.15); color:var(--green); border-color:rgba(0,255,136,0.3); }
+    .btn-success:hover { background:rgba(0,255,136,0.25); }
+    .btn-danger { background:rgba(255,34,68,0.15); color:var(--red); border-color:rgba(255,34,68,0.3); }
+    .btn-danger:hover { background:rgba(255,34,68,0.25); }
+    .btn-warning { background:rgba(255,102,0,0.15); color:var(--orange); border-color:rgba(255,102,0,0.3); }
+    .btn-warning:hover { background:rgba(255,102,0,0.25); }
+    .btn-blue { background:rgba(0,180,255,0.15); color:var(--blue); border-color:rgba(0,180,255,0.3); }
+    .btn-blue:hover { background:rgba(0,180,255,0.25); }
+    .btn-full { width:100%; margin-top:12px; padding:10px; text-align:center; }
+
+    /* FORM */
+    .form-section { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:24px; margin-bottom:24px; }
+    .form-section h2 { font-family:'Orbitron',sans-serif; font-size:16px; color:var(--pink); margin-bottom:20px; letter-spacing:1px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+    .form-row.single { grid-template-columns:1fr; }
+    .form-row.triple { grid-template-columns:1fr 1fr 1fr; }
+    .form-group { display:flex; flex-direction:column; gap:6px; }
+    label { font-size:13px; color:var(--muted); font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
+    input, select, textarea {
+      background:var(--mid); border:1px solid var(--border); color:var(--text);
+      padding:10px 14px; border-radius:4px; font-family:'Rajdhani',sans-serif;
+      font-size:14px; transition:border-color .2s; outline:none;
+    }
+    input:focus, select:focus, textarea:focus { border-color:var(--pink); }
+    textarea { resize:vertical; min-height:80px; }
+    select option { background:var(--mid); }
+
+    /* STATS ROW */
+    .stats-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; margin-bottom:32px; }
+    .stat-card { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:20px; text-align:center; }
+    .stat-num { font-family:'Orbitron',sans-serif; font-size:32px; font-weight:900; color:var(--pink); }
+    .stat-label { font-size:13px; color:var(--muted); margin-top:4px; text-transform:uppercase; letter-spacing:1px; }
+
+    /* NOTIFICATION */
+    .notif {
+      position:fixed; bottom:24px; right:24px; padding:14px 20px;
+      border-radius:6px; font-size:14px; font-weight:600; z-index:9999;
+      transform:translateY(100px); opacity:0; transition:all .3s;
+      max-width:320px;
+    }
+    .notif.show { transform:translateY(0); opacity:1; }
+    .notif.success { background:rgba(0,255,136,0.15); border:1px solid var(--green); color:var(--green); }
+    .notif.error { background:rgba(255,34,68,0.15); border:1px solid var(--red); color:var(--red); }
+
+    /* MODAL */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:5000;
+      display:none; align-items:center; justify-content:center; padding:24px;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal { background:var(--card); border:1px solid var(--border); border-radius:8px; padding:28px; max-width:480px; width:100%; }
+    .modal h3 { font-family:'Orbitron',sans-serif; font-size:16px; color:var(--pink); margin-bottom:20px; }
+    .modal-actions { display:flex; gap:8px; margin-top:20px; justify-content:flex-end; }
+
+    /* RESULTS TABLE */
+    .results-builder { background:var(--mid); border:1px solid var(--border); border-radius:6px; overflow:hidden; margin-top:12px; }
+    .results-builder-header { display:grid; grid-template-columns:50px 1fr 120px 100px 80px 80px; gap:8px; padding:10px 14px; background:rgba(255,0,128,0.1); font-size:12px; color:var(--muted); font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+    .results-builder-row { display:grid; grid-template-columns:50px 1fr 120px 100px 80px 80px; gap:8px; padding:8px 14px; border-top:1px solid rgba(255,255,255,0.05); align-items:center; }
+    .results-builder-row input, .results-builder-row select { padding:6px 8px; font-size:13px; }
+
+    /* EMPTY STATE */
+    .empty { text-align:center; padding:48px; color:var(--muted); }
+    .empty-icon { font-size:48px; margin-bottom:12px; }
+
+    /* LOADING */
+    .loading { text-align:center; padding:48px; color:var(--muted); }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .spinner { width:32px; height:32px; border:2px solid var(--border); border-top-color:var(--pink); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 12px; }
+
+    @media(max-width:768px) {
+      .form-row { grid-template-columns:1fr; }
+      .form-row.triple { grid-template-columns:1fr; }
+      .results-builder-header, .results-builder-row { grid-template-columns:40px 1fr 1fr; }
+      .results-builder-header > *:nth-child(n+4), .results-builder-row > *:nth-child(n+4) { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">FENNEC <span>ADMIN</span></div>
+  <div class="nav-right">
+    <span class="nav-user" id="nav-user"></span>
+    <button class="btn-back" onclick="location.href='/'">← Site</button>
+  </div>
+</nav>
+
+<div class="access-denied" id="access-denied">
+  <h1>⛔ ACCÈS REFUSÉ</h1>
+  <p>Vous n'avez pas les droits administrateur.</p>
+  <button class="btn btn-primary" onclick="location.href='/'">Retour au site</button>
+</div>
+
+<main id="admin-main" style="display:none">
+  <div class="admin-header">
+    <h1>⚡ PANEL ADMIN</h1>
+    <p>Gestion complète de la ligue FENNEC RACING TEAM</p>
+  </div>
+
+  <div class="stats-row" id="stats-row">
+    <div class="stat-card"><div class="stat-num" id="stat-pilots">—</div><div class="stat-label">Pilotes</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-events">—</div><div class="stat-label">Courses</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-pending">—</div><div class="stat-label">En attente</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-results">—</div><div class="stat-label">Résultats</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('pilots')">👥 Pilotes</button>
+    <button class="tab" onclick="switchTab('events')">🏁 Courses</button>
+    <button class="tab" onclick="switchTab('results')">🏆 Résultats</button>
+    <button class="tab" onclick="switchTab('sanctions')">⚠️ Sanctions</button>
+    <button class="tab" onclick="switchTab('discord')">💬 Discord</button>
+  </div>
+
+  <!-- PILOTES -->
+  <div class="panel active" id="panel-pilots">
+    <div class="form-section">
+      <h2>FILTRES</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Statut</label>
+          <select id="filter-status" onchange="loadPilots()">
+            <option value="">Tous les pilotes</option>
+            <option value="active">Actifs</option>
+            <option value="inactive">Inactifs</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Plateforme</label>
+          <select id="filter-platform" onchange="loadPilots()">
+            <option value="">Toutes</option>
+            <option value="ps5">PS5</option>
+            <option value="xbox">Xbox</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="pilots-list"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+  </div>
+
+  <!-- COURSES -->
+  <div class="panel" id="panel-events">
+    <div class="form-section">
+      <h2>CRÉER UNE COURSE</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nom de la course *</label>
+          <input type="text" id="ev-name" placeholder="Ex: Grand Prix de Monaco">
+        </div>
+        <div class="form-group">
+          <label>Circuit *</label>
+          <input type="text" id="ev-track" placeholder="Ex: Circuit de Monaco">
+        </div>
+      </div>
+      <div class="form-row triple">
+        <div class="form-group">
+          <label>Date *</label>
+          <input type="datetime-local" id="ev-date">
+        </div>
+        <div class="form-group">
+          <label>Durée qualifs (min)</label>
+          <input type="number" id="ev-quali" value="20">
+        </div>
+        <div class="form-group">
+          <label>Durée course (min)</label>
+          <input type="number" id="ev-race" value="60">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Max pilotes</label>
+          <input type="number" id="ev-max" value="30">
+        </div>
+        <div class="form-group">
+          <label>Mot de passe serveur</label>
+          <input type="text" id="ev-pass" placeholder="Optionnel">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="ev-desc" placeholder="Informations supplémentaires..."></textarea>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="createEvent()">🏁 CRÉER LA COURSE</button>
+    </div>
+    <div id="events-list"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
+  </div>
+
+  <!-- RÉSULTATS -->
+  <div class="panel" id="panel-results">
+    <div class="form-section">
+      <h2>SAISIR LES RÉSULTATS</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Course *</label>
+          <select id="res-event"><option value="">Sélectionner une course</option></select>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="res-type">
+            <option value="race">Course</option>
+            <option value="quali">Qualification</option>
+          </select>
+        </div>
+      </div>
+      <div id="results-builder">
+        <button class="btn btn-blue btn-full" onclick="initResultsBuilder()">📋 CHARGER LES PILOTES INSCRITS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SANCTIONS -->
+  <div class="panel" id="panel-sanctions">
+    <div class="form-section">
+      <h2>DONNER UNE SANCTION</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Pilote *</label>
+          <select id="sanc-pilot"><option value="">Sélectionner un pilote</option></select>
+        </div>
+        <div class="form-group">
+          <label>Type de sanction *</label>
+          <select id="sanc-type">
+            <option value="warning">Avertissement</option>
+            <option value="penalty_time">Pénalité temps (sec)</option>
+            <option value="penalty_points">Pénalité points</option>
+            <option value="disqualification">Disqualification</option>
+            <option value="ban">Bannissement</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Course concernée</label>
+          <select id="sanc-event"><option value="">Hors course</option></select>
+        </div>
+        <div class="form-group">
+          <label>Valeur (temps/points)</label>
+          <input type="number" id="sanc-value" placeholder="Ex: 10" value="0">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label>Motif *</label>
+          <textarea id="sanc-reason" placeholder="Décrivez la raison de la sanction..."></textarea>
+        </div>
+      </div>
+      <button class="btn btn-warning btn-full" onclick="sendSanction()">⚠️ APPLIQUER LA SANCTION</button>
+    </div>
+    <div id="sanctions-list"></div>
+  </div>
+
+  <!-- DISCORD -->
+  <div class="panel" id="panel-discord">
+    <div class="form-section">
+      <h2>📢 PUBLIER UNE COURSE À VENIR</h2>
+      <div class="form-row single">
+        <div class="form-group">
+          <label>Course à annoncer *</label>
+          <select id="disc-event"><option value="">Sélectionner une course</option></select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label>Message personnalisé (optionnel)</label>
+          <textarea id="disc-msg" placeholder="Ajoutez un message personnalisé..."></textarea>
+        </div>
+      </div>
+      <button class="btn btn-blue btn-full" onclick="postEventToDiscord()">💬 PUBLIER SUR DISCORD</button>
+    </div>
+    <div class="form-section">
+      <h2>🏆 PUBLIER DES RÉSULTATS</h2>
+      <div class="form-row single">
+        <div class="form-group">
+          <label>Course *</label>
+          <select id="disc-result-event"><option value="">Sélectionner une course</option></select>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="postResultsToDiscord()">🏆 PUBLIER LES RÉSULTATS</button>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL SANCTION -->
+<div class="modal-overlay" id="modal-sanction">
+  <div class="modal">
+    <h3>⚠️ CONFIRMER LA SANCTION</h3>
+    <p id="modal-sanction-text" style="color:var(--muted);font-size:14px;line-height:1.6"></p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-sanction')">Annuler</button>
+      <button class="btn btn-warning" onclick="confirmSanction()">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DELETE PILOT -->
+<div class="modal-overlay" id="modal-delete-pilot">
+  <div class="modal">
+    <h3>🗑️ SUPPRIMER LE PILOTE</h3>
+    <p id="modal-delete-text" style="color:var(--muted);font-size:14px;line-height:1.6"></p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('modal-delete-pilot')">Annuler</button>
+      <button class="btn btn-danger" onclick="confirmDeletePilot()">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif" id="notif"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SITE_URL = window.location.origin;
+let currentUser = null;
+let allPilots = [];
+let allEvents = [];
+let pendingAction = null;
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+  const token = getCookie('frt_token');
+  if (!token) { showAccessDenied(); return; }
+  try {
+    const res = await fetch(`${SITE_URL}/api/auth/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data.user || !data.user.is_admin) { showAccessDenied(); return; }
+    currentUser = data.user;
+    document.getElementById('nav-user').textContent = `@${currentUser.discord_username}`;
+    document.getElementById('admin-main').style.display = 'block';
+    loadAll();
+  } catch(e) { showAccessDenied(); }
+}
+
+function showAccessDenied() {
+  document.getElementById('access-denied').style.display = 'flex';
+}
+
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp(`${name}=([^;]+)`));
+  return m ? m[1] : null;
+}
+
+async function loadAll() {
+  await Promise.all([loadPilots(), loadEvents()]);
+  populateSelects();
+}
+
+// ============================================================
+// API HELPER
+// ============================================================
+async function api(url, opts={}) {
+  const token = getCookie('frt_token');
+  const res = await fetch(url, {
+    ...opts,
+    headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${token}`, ...(opts.headers||{}) }
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Erreur serveur');
+  return data;
+}
+
+// ============================================================
+// PILOTS
+// ============================================================
+async function loadPilots() {
+  try {
+    const data = await api(`${SITE_URL}/api/pilots`);
+    allPilots = data.pilots || [];
+    const status = document.getElementById('filter-status').value;
+    const platform = document.getElementById('filter-platform').value;
+    let filtered = allPilots;
+    if (status === 'active') filtered = filtered.filter(p => p.is_active);
+    if (status === 'inactive') filtered = filtered.filter(p => !p.is_active);
+    if (platform) filtered = filtered.filter(p => p.platform === platform);
+    renderPilots(filtered);
+    document.getElementById('stat-pilots').textContent = allPilots.length;
+  } catch(e) { notify('Erreur chargement pilotes', 'error'); }
+}
+
+function renderPilots(pilots) {
+  const el = document.getElementById('pilots-list');
+  if (!pilots.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><p>Aucun pilote</p></div>'; return; }
+  el.innerHTML = `<div class="grid">${pilots.map(p => `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">#${p.race_number} ${p.discord_username}</div>
+        <span class="badge ${p.is_active ? 'badge-green' : 'badge-red'}">${p.is_active ? 'ACTIF' : 'INACTIF'}</span>
+      </div>
+      <div class="card-info">Plateforme: <span>${p.platform?.toUpperCase()}</span></div>
+      <div class="card-info">${p.platform==='ps5' ? 'PSN ID' : 'Gamertag'}: <span>${p.psn_id || p.gamertag || '—'}</span></div>
+      <div class="card-info">Courses: <span>${p.races_count||0}</span> | Victoires: <span>${p.wins_count||0}</span> | Points: <span>${p.points||0}</span></div>
+      <div class="card-info">Discord: <span>${p.discord_id}</span></div>
+      <div class="card-actions">
+        <button class="btn ${p.is_active ? 'btn-warning' : 'btn-success'}" onclick="togglePilot('${p.id}', ${p.is_active})">${p.is_active ? '🔒 Désactiver' : '✅ Activer'}</button>
+        <button class="btn btn-danger" onclick="askDeletePilot('${p.id}','${p.discord_username}')">🗑️ Supprimer</button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+async function togglePilot(id, isActive) {
+  try {
+    await api(`${SITE_URL}/api/admin/pilots`, { method:'PATCH', body:JSON.stringify({ id, is_active:!isActive }) });
+    notify(isActive ? 'Pilote désactivé' : 'Pilote activé', 'success');
+    loadPilots();
+  } catch(e) { notify(e.message, 'error'); }
+}
+
+function askDeletePilot(id, name) {
+  pendingAction = { id };
+  document.getElementById('modal-delete-text').textContent = `Êtes-vous sûr de vouloir supprimer le pilote ${name} ? Cette action est irréversible.`;
+  document.getElementById('modal-delete-pilot').classList.add('open');
+}
+
+async function confirmDeletePilot() {
+  closeModal('modal-delete-pilot');
+  try {
+    await api(`${SITE_URL}/api/admin/pilots`, { method:'DELETE', body:JSON.stringify({ id: pendingAction.id }) });
+    notify('Pilote supprimé', 'success');
+    loadPilots();
+  } catch(e) { notify(e.message, 'error'); }
+}
+
+// ============================================================
+// EVENTS
+// ============================================================
+async function loadEvents() {
+  try {
+    const data = await api(`${SITE_URL}/api/events`);
+    allEvents = data.events || [];
+    renderEvents(allEvents);
+    document.getElementById('stat-events').textContent = allEvents.length;
+  } catch(e) { notify('Erreur chargement courses', 'error'); }
+}
+
+function renderEvents(events) {
+  const el = document.getElementById('events-list');
+  if (!events.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🏁</div><p>Aucune course</p></div>'; return; }
+  el.innerHTML = `<div class="grid">${events.map(e => {
+    const d = new Date(e.event_date);
+    const isPast = d < new Date();
+    return `<div class="card">
+      <div class="card-header">
+        <div class="card-title">${e.name}</div>
+        <span class="badge ${isPast ? 'badge-orange' : 'badge-blue'}">${isPast ? 'TERMINÉE' : 'À VENIR'}</span>
+      </div>
+      <div class="card-info">Circuit: <span>${e.track}</span></div>
+      <div class="card-info">Date: <span>${d.toLocaleString('fr-FR')}</span></div>
+      <div class="card-info">Pilotes: <span>${(e.registrations||[{count:0}])[0]?.count||0} / ${e.max_pilots}</span></div>
+      <div class="card-actions">
+        <button class="btn btn-danger" onclick="deleteEvent('${e.id}','${e.name}')">🗑️ Supprimer</button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+async function createEvent() {
+  const name = document.getElementById('ev-name').value.trim();
+  const track = document.getElementById('ev-track').value.trim();
+  const event_date = document.getElementById('ev-date').value;
+  if (!name || !track || !event_date) { notify('Nom, circuit et date sont requis', 'error'); return; }
+  try {
+    await api(`${SITE_URL}/api/events`, { method:'POST', body:JSON.stringify({
+      name, track, event_date,
+      quali_duration: parseInt(document.getElementById('ev-quali').value)||20,
+      race_duration: parseInt(document.getElementById('ev-race').value)||60,
+      max_pilots: parseInt(document.getElementById('ev-max').value)||30,
+      description: document.getElementById('ev-desc').value,
+      server_password: document.getElementById('ev-pass').value||null
+    })});
+    notify('Course créée avec succès !', 'success');
+    ['ev-name','ev-track','ev-date','ev-desc','ev-pass'].forEach(id => document.getElementById(id).value='');
+    loadEvents(); populateSelects();
+  } catch(e) { notify(e.message, 'error'); }
+}
+
+async function deleteEvent(id, name) {
+  if (!confirm(`Supprimer la course "${name}" ?`)) return;
+  try {
+    await api(`${SITE_URL}/api/admin/events`, { method:'DELETE', body:JSON.stringify({ id }) });
+    notify('Course supprimée', 'success');
+    loadEvents(); populateSelects();
+  } catch(e) { notify(e.message, 'error'); }
+}
+
+// ============================================================
+// RESULTS
+// ============================================================
+async function initResultsBuilder() {
+  const eventId = document.getElementById('res-event').value;
+  if (!eventId) { notify('Sélectionnez une course', 'error'); return; }
+  const pilots = allPilots.filter(p => p.is_active);
+  if (!pilots.length) { notify('Aucun pilote actif', 'error'); return; }
+  const builder = document.getElementById('results-builder');
+  builder.innerHTML = `
+    <div class="results-builder">
+      <div class="results-builder-header">
+        <span>POS</span><span>PILOTE</span><span>VOITURE</span><span>MEILLEUR TPS</span><span>POLE</span><span>FASTEST</span>
+      </div>
+      ${pilots.map((p,i) => `
+      <div class="results-builder-row">
+        <input type="number" value="${i+1}" min="1" id="pos-${p.id}" style="width:100%">
+        <div style="font-size:13px">#${p.race_number} ${p.discord_username}</div>
+        <input type="text" placeholder="Voiture" id="car-${p.id}">
+        <input type="text" placeholder="1:23.456" id="lap-${p.id}">
+        <input type="checkbox" id="pole-${p.id}" style="width:auto">
+        <input type="checkbox" id="fast-${p.id}" style="width:auto">
+      </div>`).join('')}
+    </div>
+    <button class="btn btn-primary btn-full" style="margin-top:12px" onclick="submitResults()">💾 SAUVEGARDER LES RÉSULTATS</button>`;
+}
+
+async function submitResults() {
+  const eventId = document.getElementById('res-event').value;
+  const type = document.getElementById('res-type').value;
+  if (!eventId) { notify('Sélectionnez une course', 'error'); return; }
+  const pilots = allPilots.filter(p => p.is_active);
+  const results = pilots.map(p => ({
+    race_number: p.race_number,
+    position: parseInt(document.getElementById(`pos-${p.id}`)?.value)||99,
+    car_model: document.getElementById(`car-${p.id}`)?.value||null,
+    best_lap_ms: parseLapTime(document.getElementById(`lap-${p.id}`)?.value),
+    pole_position: document.getElementById(`pole-${p.id}`)?.checked||false,
+    fastest_lap: document.getElementById(`fast-${p.id}`)?.checked||false,
+    penalty_seconds: 0
+  })).sort((a,b) => a.position-b.position);
+  try {
+    const data = await api(`${SITE_URL}/api/results`, { method:'POST', body:JSON.stringify({ event_id:eventId, result_type:type, results }) });
+    notify(data.message || 'Résultats sauvegardés !', 'success');
+    document.getElementById('stat-results').textContent = '✓';
+  } catch(e) { notify(e.message, 'error'); }
+}
+
+function parseLapTime(str) {
+  if (!str) return null;
+  const m = str.match(/^(\d+):(\d+\.\d+)$/);
+  if (!m) return null;
+  return Math.round((parseInt(m[1])*60 + parseFloat(m[2]))*1000);
+}
+
+// ============================================================
+// SANCTIONS
+// ============================================================
+let pendingSanction = null;
+
+function sendSanction() {
+  const pilotId = document.getElementById('sanc-pilot').value;
+  const type = document.getElementById('sanc-type').value;
+  const reason = document.getElementById('sanc-reason').value.trim();
+  if (!pilotId || !reason) { notify('Pilote et motif requis', 'error'); return; }
+  const pilot = allPilots.find(p => p.id === pilotId);
+  pendingSanction = { pilotId, type, reason, value: parseInt(document.getElementById('sanc-value').value)||0, eventId: document.getElementById('sanc-event').value||null };
+  document.getElementById('modal-sanction-text').innerHTML = `
+    Pilote: <strong style="color:var(--text)">${pilot?.discord_username}</strong><br>
+    Type: <strong style="color:var(--orange)">${type}</strong><br>
+    Motif: <strong style="color:var(--text)">${reason}</strong>`;
+  document.getElementById('modal-sanction').classList.add('open');
+}
+
+async function confirmSanction() {
+  closeModal('modal-sanction');
+  try {
+    await api(`${SITE_URL}/api/admin/sanctions`, { method:'POST', body:JSON.stringify(pendingSanction) });
+    notify('Sanction appliquée et notifiée !', 'success');
+    document.getElementById('sanc-reason').value = '';
+    document.getElementById('sanc-value').value = '0';
+  } catch(e) { notify(e.message, 'error'); }
+}
+
+// ============================================================
+// DISCORD
+// ============================================================
+async function postEventToDiscord() {
+  const eventId = document.getElementById('disc-event').value;
+  if (!eventId) { notify('Sélectionnez une course', 'error'); return; }
+  const ev = allEvents.find(e => e.id === eventId);
+  const msg = document.getElementById('disc-msg').value;
+  try {
+    await api(`${SITE_URL}/api/discord/announce`, { method:'POST', body:JSON.stringify({ type:'event', eventId, message:msg }) });
+    notify('Annonce publiée sur Discord !', 'success');
+  } catch(e) { notify(e.message, 'error'); }
+}
+
+async function postResultsToDiscord() {
+  const eventId = document.getElementById('disc-result-event').value;
+  if (!eventId) { notify('Sélectionnez une course', 'error'); return; }
+  try {
+    await api(`${SITE_URL}/api/discord/announce`, { method:'POST', body:JSON.stringify({ type:'results', eventId }) });
+    notify('Résultats publiés sur Discord !', 'success');
+  } catch(e) { notify(e.message, 'error'); }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function populateSelects() {
+  const eventSelects = ['res-event','sanc-event','disc-event','disc-result-event'];
+  eventSelects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const current = el.value;
+    el.innerHTML = `<option value="">Sélectionner une course</option>` + allEvents.map(e => `<option value="${e.id}">${e.name} — ${new Date(e.event_date).toLocaleDateString('fr-FR')}</option>`).join('');
+    if (current) el.value = current;
+  });
+  const pilotSelect = document.getElementById('sanc-pilot');
+  if (pilotSelect) {
+    pilotSelect.innerHTML = `<option value="">Sélectionner un pilote</option>` + allPilots.map(p => `<option value="${p.id}">#${p.race_number} ${p.discord_username}</option>`).join('');
+  }
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(`panel-${name}`).classList.add('active');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function notify(msg, type='success') {
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.className = `notif ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+init();
+</script>
+</body>
+</html>
