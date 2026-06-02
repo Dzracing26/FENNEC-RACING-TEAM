@@ -71,7 +71,7 @@ expires_at: expiresAt.toISOString(),
 });
 await supabase.from('sessions').delete().lt('expires_at', new Date().toISOString());
 res.setHeader('Set-Cookie', [
-`frt_token=${jwt}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${7 * 24 * 3600}`,
+`frt_token=${jwt}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${7 * 24 * 3600}`,
 `frt_user=${encodeURIComponent(JSON.stringify({
 username: discordUser.username,
 avatar: discordUser.avatar,
@@ -79,7 +79,7 @@ id: discordUser.id,
 is_admin: isAdmin,
 is_member: isMember,
 race_number: pilot?.race_number ?? null,
-}))}; Secure; SameSite=Strict; Path=/; Max-Age=${7 * 24 * 3600}`
+}))}; Secure; SameSite=Lax; Path=/; Max-Age=${7 * 24 * 3600}`
 ]);
 res.redirect('/?auth=success');
 } catch (err) {
