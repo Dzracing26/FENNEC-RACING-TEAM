@@ -40,7 +40,7 @@ if (!rateLimit(ip)) return res.status(429).json({ error: 'Trop de tentatives.' }
 const user = await requireMember(req, res);
 if (!user) return;
 const { race_number, platform, psn_id, gamertag, platform_uid } = req.body;
-if (!race_number || race_number < 1 || race_number > 99) return res.status(400).json({ error: 'Numéro invalide (1-99).' });
+if (!race_number || race_number < 1 || race_number > 999) return res.status(400).json({ error: 'Numéro invalide (1-99).' });
 if (!['ps5', 'xbox'].includes(platform)) return res.status(400).json({ error: 'Plateforme invalide.' });
 if (!platform_uid || platform_uid.length < 5) return res.status(400).json({ error: 'UID invalide.' });
 if (platform === 'ps5' && !psn_id) return res.status(400).json({ error: 'PSN ID requis.' });
