@@ -42,16 +42,6 @@ if (!payload) {
 res.status(401).json({ error: 'Session expirée.' });
 return null;
 }
-const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-const { data: session } = await supabase
-.from('sessions')
-.select('id')
-.eq('token_hash', tokenHash)
-.single();
-if (!session) {
-res.status(401).json({ error: 'Session révoquée.' });
-return null;
-}
 return payload;
 }
 
