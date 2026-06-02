@@ -544,7 +544,7 @@ function renderEvents(events) {
   }).join('')}</div>`;
 }
 
-async function createEvent() {
+async function submitEvent() {
   const name = document.getElementById('ev-name').value.trim();
   const track = document.getElementById('ev-track').value.trim();
   const event_date = document.getElementById('ev-date').value;
