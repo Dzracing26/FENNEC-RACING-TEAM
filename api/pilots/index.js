@@ -39,6 +39,7 @@ const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 if (!rateLimit(ip)) return res.status(429).json({ error: 'Trop de tentatives.' });
 const user = await requireAuth(req, res);
 if (!user) return;
+console.log('USER:', JSON.stringify(user));
 const { race_number, platform, psn_id, gamertag, platform_uid } = req.body;
 if (!race_number || race_number < 1 || race_number > 999) return res.status(400).json({ error: 'Numéro invalide (1-99).' });
 if (!['ps5', 'xbox'].includes(platform)) return res.status(400).json({ error: 'Plateforme invalide.' });
