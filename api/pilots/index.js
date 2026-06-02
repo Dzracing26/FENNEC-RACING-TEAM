@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { requireMember } from '../_middleware/auth.js';
+import { requireAuth } from '../_middleware/auth.js';
 
 const supabase = createClient(
 process.env.SUPABASE_URL,
@@ -37,7 +37,7 @@ return res.status(200).json({ pilots: data });
 if (req.method === 'POST') {
 const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 if (!rateLimit(ip)) return res.status(429).json({ error: 'Trop de tentatives.' });
-const user = await requireMember(req, res);
+const user = await requireAuth(req, res);
 if (!user) return;
 const { race_number, platform, psn_id, gamertag, platform_uid } = req.body;
 if (!race_number || race_number < 1 || race_number > 999) return res.status(400).json({ error: 'Numéro invalide (1-99).' });
