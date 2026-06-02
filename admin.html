@@ -408,12 +408,9 @@ let pendingAction = null;
 // INIT
 // ============================================================
 async function init() {
-  const token = getCookie('frt_token');
-  if (!token) { showAccessDenied(); return; }
   try {
     const res = await fetch(`${SITE_URL}/api/auth/me`, {
       credentials: 'include',
-      headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) throw new Error();
     const data = await res.json();
