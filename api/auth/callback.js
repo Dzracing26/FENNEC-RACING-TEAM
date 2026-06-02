@@ -69,7 +69,6 @@ discord_id: discordUser.id,
 token_hash: tokenHash,
 expires_at: expiresAt.toISOString(),
 });
-await supabase.from('sessions').delete().lt('expires_at', new Date().toISOString());
 res.setHeader('Set-Cookie', [
 `frt_token=${jwt}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${7 * 24 * 3600}`,
 `frt_user=${encodeURIComponent(JSON.stringify({
