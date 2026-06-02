@@ -412,6 +412,7 @@ async function init() {
   if (!token) { showAccessDenied(); return; }
   try {
     const res = await fetch(`${SITE_URL}/api/auth/me`, {
+      credentials: 'include',
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) throw new Error();
@@ -442,10 +443,10 @@ async function loadAll() {
 // API HELPER
 // ============================================================
 async function api(url, opts={}) {
-  const token = getCookie('frt_token');
   const res = await fetch(url, {
     ...opts,
-    headers: { 'Content-Type':'application/json', 'Authorization':`Bearer ${token}`, ...(opts.headers||{}) }
+    credentials: 'include',
+    headers: { 'Content-Type':'application/json', ...(opts.headers||{}) }
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Erreur serveur');
