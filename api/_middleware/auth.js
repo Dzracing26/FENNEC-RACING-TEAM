@@ -47,7 +47,6 @@ const { data: session } = await supabase
 .from('sessions')
 .select('id')
 .eq('token_hash', tokenHash)
-.gt('expires_at', new Date().toISOString())
 .single();
 if (!session) {
 res.status(401).json({ error: 'Session révoquée.' });
