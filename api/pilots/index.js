@@ -62,8 +62,6 @@ gamertag: gamertag || null,
 platform_uid,
 is_admin: user.discord_id === process.env.ADMIN_DISCORD_ID,
 })
-.select()
-.single();
 if (insertError) return res.status(500).json({ error: 'Erreur création profil.' });
 return res.status(201).json({ pilot: newPilot, message: 'Profil créé avec succès !' });
 }
