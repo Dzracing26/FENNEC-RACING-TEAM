@@ -268,7 +268,7 @@
           <textarea id="ev-desc" placeholder="Informations supplémentaires..."></textarea>
         </div>
       </div>
-      <button class="btn btn-primary btn-full" onclick="submitEvent()">🏁 CRÉER LA COURSE</button>
+      <button class="btn btn-primary btn-full" onclick="publierEvenement()">🏁 CRÉER LA COURSE</button>
     </div>
     <div id="events-list"><div class="loading"><div class="spinner"></div>Chargement...</div></div>
   </div>
@@ -544,7 +544,7 @@ function renderEvents(events) {
   }).join('')}</div>`;
 }
 
-async function submitEvent() {
+async function publierEvenement() {
   const name = document.getElementById('ev-name').value.trim();
   const track = document.getElementById('ev-track').value.trim();
   const event_date = document.getElementById('ev-date').value;
