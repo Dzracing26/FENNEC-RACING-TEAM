@@ -395,23 +395,15 @@
 <div class="notif" id="notif"></div>
 
 <script>
-// ============================================================
-// CONFIG
-// ============================================================
 const SITE_URL = window.location.origin;
 let currentUser = null;
 let allPilots = [];
 let allEvents = [];
 let pendingAction = null;
 
-// ============================================================
-// INIT
-// ============================================================
 async function init() {
   try {
-    const res = await fetch(`${SITE_URL}/api/auth/me`, {
-      credentials: 'include',
-    });
+    const res = await fetch(`${SITE_URL}/api/auth/me`, { credentials: 'include' });
     if (!res.ok) throw new Error();
     const data = await res.json();
     if (!data.user || !data.user.is_admin) { showAccessDenied(); return; }
@@ -436,9 +428,6 @@ async function loadAll() {
   populateSelects();
 }
 
-// ============================================================
-// API HELPER
-// ============================================================
 async function api(url, opts={}) {
   const res = await fetch(url, {
     ...opts,
@@ -450,9 +439,6 @@ async function api(url, opts={}) {
   return data;
 }
 
-// ============================================================
-// PILOTS
-// ============================================================
 async function loadPilots() {
   try {
     const data = await api(`${SITE_URL}/api/pilots`);
@@ -511,9 +497,6 @@ async function confirmDeletePilot() {
   } catch(e) { notify(e.message, 'error'); }
 }
 
-// ============================================================
-// EVENTS
-// ============================================================
 async function loadEvents() {
   try {
     const data = await api(`${SITE_URL}/api/events`);
@@ -567,15 +550,12 @@ async function creerCourse() {
 async function deleteEvent(id, name) {
   if (!confirm(`Supprimer la course "${name}" ?`)) return;
   try {
-    await api(`${SITE_URL}/api/admin/events`, { method:'DELETE', body:JSON.stringify({ id }) });
+    await api(`${SITE_URL}/api/events`, { method:'DELETE', body:JSON.stringify({ id }) });
     notify('Course supprimée', 'success');
     loadEvents(); populateSelects();
   } catch(e) { notify(e.message, 'error'); }
 }
 
-// ============================================================
-// RESULTS
-// ============================================================
 async function initResultsBuilder() {
   const eventId = document.getElementById('res-event').value;
   if (!eventId) { notify('Sélectionnez une course', 'error'); return; }
@@ -628,9 +608,6 @@ function parseLapTime(str) {
   return Math.round((parseInt(m[1])*60 + parseFloat(m[2]))*1000);
 }
 
-// ============================================================
-// SANCTIONS
-// ============================================================
 let pendingSanction = null;
 
 function sendSanction() {
@@ -657,13 +634,9 @@ async function confirmSanction() {
   } catch(e) { notify(e.message, 'error'); }
 }
 
-// ============================================================
-// DISCORD
-// ============================================================
 async function postEventToDiscord() {
   const eventId = document.getElementById('disc-event').value;
   if (!eventId) { notify('Sélectionnez une course', 'error'); return; }
-  const ev = allEvents.find(e => e.id === eventId);
   const msg = document.getElementById('disc-msg').value;
   try {
     await api(`${SITE_URL}/api/discord/announce`, { method:'POST', body:JSON.stringify({ type:'event', eventId, message:msg }) });
@@ -680,9 +653,6 @@ async function postResultsToDiscord() {
   } catch(e) { notify(e.message, 'error'); }
 }
 
-// ============================================================
-// HELPERS
-// ============================================================
 function populateSelects() {
   const eventSelects = ['res-event','sanc-event','disc-event','disc-result-event'];
   eventSelects.forEach(id => {
