@@ -66,8 +66,7 @@ if (!event_id) return res.status(400).json({ error: 'event_id requis' });
 const { data, error } = await supabase
 .from('registrations')
 .select('pilot_id, pilots(id, race_number, discord_username, platform)')
-.eq('event_id', event_id)
-.eq('status', 'confirmed');
+.eq('event_id', event_id);
 if (error) return res.status(500).json({ error: error.message });
 return res.status(200).json({ pilots: data.map(r => r.pilots).filter(Boolean) });
 }
