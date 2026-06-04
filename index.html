@@ -29,7 +29,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba
 .page{display:none;padding-top:68px;min-height:100vh;}
 .page.active{display:block;animation:fadeUp .35s ease;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-.hero{position:relative;height:320px;overflow:hidden;background:url('/image.jpg') center/cover no-repeat;display:flex;align-items:center;justify-content:center;}
+.hero{position:relative;height:320px;overflow:hidden;background:url('/image.jpg') center/cover no-repeat;display:flex;align-items:flex-end;justify-content:flex-end;}
 .hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,0,128,.12) 0%,transparent 50%,rgba(0,180,255,.08) 100%);}
 .hero-stripes{position:absolute;inset:0;overflow:hidden;opacity:.12;}
 .hero-stripes span{position:absolute;top:-80px;width:3px;height:500px;transform:rotate(22deg);}
@@ -250,17 +250,11 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-stripes"><span></span><span></span><span></span></div>
-    <div class="hero-scanlines"></div>
-    <div class="hero-content">
-      <div class="hero-title">FENNEC<span>RACING</span></div>
-      <div class="hero-sub">Assetto Corsa Competizione</div>
-      <div class="hero-tags">
-        <span class="tag tag-ps5">PS5</span><span class="tag">×</span>
-        <span class="tag tag-xbox">XBOX SERIES S</span><span class="tag">×</span>
-        <span class="tag tag-cross">CROSS PLAY</span>
-      </div>
+    <div class="hero-content" style="position:absolute;bottom:20px;right:24px;display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.45);padding:10px 16px;border-radius:6px;backdrop-filter:blur(4px);">
+      <img src="/acc-logo.png" alt="ACC" style="height:36px;filter:drop-shadow(0 0 6px rgba(0,0,0,0.8));">
+      <span class="tag tag-ps5">PS5</span>
+      <span class="tag tag-xbox">XBOX SERIES S</span>
+      <span class="tag tag-cross">CROSS PLAY</span>
     </div>
   </div>
   <div class="container">
