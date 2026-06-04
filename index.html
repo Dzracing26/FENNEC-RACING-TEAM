@@ -210,8 +210,8 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
 .footer-bottom{max-width:1360px;margin:26px auto 0;padding-top:18px;border-top:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
 .modal-edit{background:var(--mid);border:1px solid var(--border);border-radius:8px;padding:32px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;position:relative;}
 .modal-edit::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink),var(--blue));}
-@media(max-width:900px){nav{padding:0 16px;}.nav-links{display:none;}.grid-2,.footer-grid,.admin-wrap{grid-template-columns:1fr;}.event-card{grid-template-columns:66px 1fr;}.slots-wrap{display:none;}.hero-title{font-size:28px;}.hero-sub{font-size:10px;letter-spacing:4px;}.container{padding:20px 16px;}.next-event{padding:16px;}.countdown{gap:6px;}.cd-item{min-width:44px;padding:8px 10px;}.cd-num{font-size:20px;}.btn-group{flex-direction:column;}.btn{width:100%;text-align:center;}}
-
+@media(max-width:900px){nav{padding:0 16px;}.nav-links{display:none;}.grid-2,.footer-grid,.admin-wrap{grid-template-columns:1fr;}.event-card{grid-template-columns:66px 1fr;}.slots-wrap{display:none;}.hero-title{font-size:28px;}.hero-sub{font-size:10px;letter-spacing:4px;}.container{padding:20px 16px;}.next-event{padding:16px;}.countdown{gap:6px;}.cd-item{min-width:44px;padding:8px 10px;}.cd-num{font-size:20px;}.btn-group{flex-direction:column;}.btn{width:100%;text-align:center;}.hamburger{display:flex!important;}.mobile-menu.open{display:flex!important;}.btn-lang{display:none;}}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;z-index:1100;}.hamburger span{display:block;width:24px;height:2px;background:var(--pink);border-radius:2px;transition:all .3s;}.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px);}.hamburger.open span:nth-child(2){opacity:0;}.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px);}.mobile-menu{display:none;flex-direction:column;position:fixed;top:68px;left:0;right:0;background:rgba(5,5,8,0.98);border-bottom:1px solid var(--border);z-index:999;padding:16px;gap:4px;backdrop-filter:blur(20px);}.mobile-menu a{color:var(--muted);text-decoration:none;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;padding:12px 16px;border:1px solid transparent;border-radius:4px;transition:all .25s;cursor:pointer;text-transform:uppercase;display:block;}.mobile-menu a:hover,.mobile-menu a.active{color:var(--pink);border-color:var(--border);background:rgba(255,0,128,.07);}
 </style>
 </head>
 <body>
@@ -221,6 +221,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
     <div class="logo-circle">FRT</div>
     <div class="logo-text">FENNEC<br><span>RACING TEAM</span></div>
   </a>
+  <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
   <ul class="nav-links">
     <li><a onclick="go('home')" id="nl-home" class="active">Accueil</a></li>
     <li><a onclick="go('events')" id="nl-events">Événements</a></li>
@@ -239,6 +240,13 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
   </div>
 </nav>
 
+<div class="mobile-menu" id="mobile-menu">
+  <a onclick="go('home');closeMobileMenu()" id="ml-home" class="active">Accueil</a>
+  <a onclick="go('events');closeMobileMenu()" id="ml-events">Événements</a>
+  <a onclick="go('profiles');closeMobileMenu()" id="ml-profiles">Profils</a>
+  <a onclick="go('rules');closeMobileMenu()" id="ml-rules">Règlement</a>
+  <a onclick="go('admin');closeMobileMenu()" id="ml-admin" style="display:none;color:var(--pink)">⚙ Admin</a>
+</div>
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="hero">
@@ -494,6 +502,7 @@ function go(page){
   const nl=document.getElementById('nl-'+page);
   if(nl)nl.classList.add('active');
   window.scrollTo(0,0);
+  updateMobileNav(page);
   if(page==='events')loadEvents();
   if(page==='profiles')loadPilots();
   if(page==='rules')renderRules();
@@ -512,7 +521,7 @@ function updateNavAuth(){
   if(user){
     const avatar=user.discord_avatar?`<img class="avatar-sm" src="https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png">`:'';
     area.innerHTML=`<div style="display:flex;align-items:center;gap:8px;"><div class="btn-user">${avatar} ${user.discord_username}</div><button class="btn-logout" onclick="logout()">Déco</button></div>`;
-    if(user.is_admin)document.getElementById('admin-nav-li').style.display='block';
+    if(user.is_admin){document.getElementById('admin-nav-li').style.display='block';document.getElementById('ml-admin').style.display='block';}
     document.getElementById('discord-required-banner').style.display='none';
     document.getElementById('discord-join-card').style.display='none';
   }else{
@@ -640,7 +649,7 @@ async function voirDetails(eventId){
       const pct=Math.min(100,(regCount/ev.max_pilots)*100);
       let pilotesList='<p style="color:var(--muted);font-size:13px;">Aucun pilote inscrit.</p>';
       try{
-        const data=await api(`/api/events/register?event_id=${eventId}`);
+        const data=await api(`/api/pilots?event_id=${eventId}`);
         if(data.pilots?.length){
           pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(255,0,128,.07);border:1px solid var(--border);border-radius:4px;padding:10px;display:flex;align-items:center;gap:10px;"><div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--pink);">#${p.race_number}</div><div><div style="font-size:13px;color:white;">${p.discord_username}</div><div style="font-size:10px;color:var(--muted);">${p.platform?.toUpperCase()}</div></div></div>`).join('')}</div>`;
         }
@@ -1064,6 +1073,21 @@ function notify(msg,type){
   el._t=setTimeout(()=>el.classList.remove('show'),3500);
 }
 
+function toggleMobileMenu(){
+  const menu=document.getElementById('mobile-menu');
+  const btn=document.getElementById('hamburger');
+  menu.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+function closeMobileMenu(){
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+function updateMobileNav(page){
+  document.querySelectorAll('.mobile-menu a').forEach(a=>a.classList.remove('active'));
+  const ml=document.getElementById('ml-'+page);
+  if(ml)ml.classList.add('active');
+}
 updateNavAuth();
 loadHome();
 </script>
