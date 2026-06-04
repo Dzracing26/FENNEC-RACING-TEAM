@@ -823,6 +823,8 @@ function adminTab(tab){
     loadEventsAdmin();
   }
 
+  if(tab==='results'){
+    c.innerHTML=`<div class="admin-card"><h3>🏆 SAISIR LES RÉSULTATS</h3>
       <div class="form-grid" style="margin-bottom:18px;">
         <div class="form-group"><label>Événement</label><select id="res-ev">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
         <div class="form-group"><label>Type</label><select id="res-type"><option value="race">Course</option><option value="qualifying">Qualifications</option></select></div>
@@ -844,16 +846,16 @@ function adminTab(tab){
   }
 
   if(tab==='discord-push'){
-    c.innerHTML=`<div class="admin-card"><h3>📢 DISCORD PUSH — 1 CLIC</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
-        ${[['event','📅','Annoncer Événement'],['results','🏆','Publier Résultats'],['bop','⚖️','Annoncer BOP'],['entrylist','📋','Entry List']].map(([type,icon,label])=>`
-          <div class="admin-card" style="padding:16px;">
-            <div style="font-family:'Orbitron',sans-serif;font-size:10px;color:white;margin-bottom:10px;">${icon} ${label.toUpperCase()}</div>
-            <select style="width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:8px;border-radius:3px;margin-bottom:10px;" id="dp-${type}">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select>
-            <button class="btn btn-primary" style="width:100%;font-size:9px;" onclick="discordPush('${type}',document.getElementById('dp-${type}').value)">ENVOYER</button>
-          </div>`).join('')}
-      </div>
-    </div>`;
+    const evOpts=eventsCache.map(e=>'<option value="'+e.id+'">'+e.name+'</option>').join('');
+    c.innerHTML='<div class="admin-card"><h3>📢 DISCORD PUSH</h3>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">'
+      +'<div class="admin-card" style="padding:16px;"><div style="font-family:Orbitron,sans-serif;font-size:10px;color:white;margin-bottom:10px;">📅 ANNONCER ÉVÉNEMENT</div>'
+      +'<select style="width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:8px;border-radius:3px;margin-bottom:10px;" id="dp-event">'+evOpts+'</select>'
+      +'<button class="btn btn-primary" style="width:100%;font-size:9px;" onclick="discordPush(\'event\',document.getElementById(\'dp-event\').value)">ENVOYER</button></div>'
+      +'<div class="admin-card" style="padding:16px;"><div style="font-family:Orbitron,sans-serif;font-size:10px;color:white;margin-bottom:10px;">🏆 PUBLIER RÉSULTATS</div>'
+      +'<select style="width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:8px;border-radius:3px;margin-bottom:10px;" id="dp-results">'+evOpts+'</select>'
+      +'<button class="btn btn-primary" style="width:100%;font-size:9px;" onclick="discordPush(\'results\',document.getElementById(\'dp-results\').value)">ENVOYER</button></div>'
+      +'</div></div>';
   }
 
   if(tab==='pilots-manage'){
@@ -926,8 +928,8 @@ async function saveEditEvent(){
   }catch(e){notify(e.message,'error');}
 }
 
-async function supprimerEvenement(id,nom){
-  if(!confirm(`Supprimer "${nom}" ? Cette action est irréversible.`))return;
+async function supprimerEvenement(id){
+  if(!confirm('Supprimer cet événement ? Cette action est irréversible.'))return;
   try{
     await api('/api/events',{method:'DELETE',body:JSON.stringify({id})});
     notify('Événement supprimé !','success');
