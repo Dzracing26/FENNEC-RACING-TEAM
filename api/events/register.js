@@ -63,12 +63,21 @@ return res.status(200).json({ message: 'Désinscription effectuée.' });
 if (req.method === 'GET') {
 const { event_id } = req.query;
 if (!event_id) return res.status(400).json({ error: 'event_id requis' });
-const { data, error } = await supabase
+const { data: regs, error: err1 } = await supabase
 .from('registrations')
-.select('pilot_id, pilots(id, race_number, discord_username, platform)')
-.eq('event_id', event_id);
-if (error) return res.status(500).json({ error: error.message });
-return res.status(200).json({ pilots: data.map(r => r.pilots).filter(Boolean) });
+.select('pilot_id')
+.eq('event_id', event_id)
+.eq('status', 'confirmed');
+if (err1) return res.status(500).json({ error: err1.message });
+if (!regs.length) return res.status(200).json({ pilots: [] });
+const pilotIds = regs.map(r => r.pilot_id);
+const { data: pilots, error: err2 } = await supabase
+.from('pilots')
+.select('id, race_number, discord_username, platform')
+.in('id', pilotIds);
+if (err2) return res.status(500).json({ error: err2.message });
+return res.status(200).json({ pilots });
 }
+
 res.status(405).json({ error: 'Méthode non autorisée' });
 }
