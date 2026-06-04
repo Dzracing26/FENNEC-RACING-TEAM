@@ -649,7 +649,7 @@ let data = null;
           pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(255,0,128,.07);border:1px solid var(--border);border-radius:4px;padding:10px;display:flex;align-items:center;gap:10px;"><div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--pink);">#${p.race_number}</div><div><div style="font-size:13px;color:white;">${p.discord_username}</div><div style="font-size:10px;color:var(--muted);">${p.platform?.toUpperCase()}</div></div></div>`).join('')}</div>`;
         }
       }catch(e){}
-      const isRegistered = data.pilots?.some(p => p.discord_username === user?.username);
+      const isRegistered = data?.pilots?.some(p => p.discord_username === user?.username);
 const canUnregister = (new Date(ev.event_date) - new Date()) > 45 * 60 * 1000;
       document.getElementById('events-list').innerHTML=`
         <div style="background:var(--card);border:1px solid var(--pink);border-radius:8px;padding:28px;margin-bottom:24px;">
