@@ -73,7 +73,7 @@ if (!regs.length) return res.status(200).json({ pilots: [] });
 const pilotIds = regs.map(r => r.pilot_id);
 const { data: pilots, error: err2 } = await supabase
 .from('pilots')
-.select('id, race_number, discord_username, platform')
+.select('id, race_number, discord_username, platform, psn_id, gamertag')
 .in('id', pilotIds);
 if (err2) return res.status(500).json({ error: err2.message });
 return res.status(200).json({ pilots });
