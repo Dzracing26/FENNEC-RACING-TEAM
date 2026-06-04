@@ -61,7 +61,9 @@ is_member: isMember,
 is_admin: isAdmin || (pilot?.is_admin ?? false),
 pilot_id: pilot?.id ?? null,
 race_number: pilot?.race_number ?? null,
-});
+psn_id: pilot?.psn_id ?? null, 
+})
+;psn_id: pilot?.psn_id ?? null,
 const tokenHash = crypto.createHash('sha256').update(jwt).digest('hex');
 const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 await supabase.from('sessions').insert({
