@@ -507,26 +507,62 @@ async function loadEvents() {
 }
 
 function renderEvents(events) {
-  const el = document.getElementById('events-list');
-  if (!events.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🏁</div><p>Aucune course</p></div>'; return; }
-  el.innerHTML = `<div class="grid">${events.map(e => {
-    const d = new Date(e.event_date);
-    const isPast = d < new Date();
-    return `<div class="card">
-      <div class="card-header">
-        <div class="card-title">${e.name}</div>
-        <span class="badge ${isPast ? 'badge-orange' : 'badge-blue'}">${isPast ? 'TERMINÉE' : 'À VENIR'}</span>
-      </div>
-      <div class="card-info">Circuit: <span>${e.track}</span></div>
-      <div class="card-info">Date: <span>${d.toLocaleString('fr-FR')}</span></div>
-      <div class="card-info">Pilotes: <span>${(e.registrations||[{count:0}])[0]?.count||0} / ${e.max_pilots}</span></div>
-      <div class="card-actions">
-        <button class="btn btn-danger" onclick="deleteEvent('${e.id}','${e.name}')">🗑️ Supprimer</button>
-      </div>
-    </div>`;
-  }).join('')}</div>`;
+const el = document.getElementById('events-list');
+if (!events.length) { el.innerHTML = '<div class="empty"><div class="empty-icon">🏁</div><p>Aucune course</p></div>'; return; }
+el.innerHTML = `<div class="grid">${events.map(e => {
+const d = new Date(e.event_date);
+const isPast = d < new Date();
+return `<div class="card">
+<div class="card-header">
+<div class="card-title">${e.name}</div>
+<span class="badge ${isPast ? 'badge-orange' : 'badge-blue'}">${isPast ? 'TERMINÉE' : 'À VENIR'}</span>
+</div>
+<div class="card-info">Circuit: <span>${e.track}</span></div>
+<div class="card-info">Date: <span>${d.toLocaleString('fr-FR')}</span></div>
+<div class="card-info">Pilotes: <span>${(e.registrations||[{count:0}])[0]?.count||0} / ${e.max_pilots}</span></div>
+<div class="card-actions">
+<button class="btn btn-blue" onclick="editEvent('${e.id}','${e.name}','${e.track}','${e.event_date}',${e.race_duration},${e.max_pilots},'${e.description||''}')">✏️ Modifier</button>
+<button class="btn btn-danger" onclick="deleteEvent('${e.id}','${e.name}')">🗑️ Supprimer</button>
+</div>
+</div>`;
+}).join('')}</div>`;
+}
+function editEvent(id, name, track, date, race_duration, max_pilots, description) {
+document.getElementById('ev-name').value = name;
+document.getElementById('ev-track').value = track;
+document.getElementById('ev-date').value = date.slice(0,16);
+document.getElementById('ev-race').value = race_duration;
+document.getElementById('ev-max').value = max_pilots;
+document.getElementById('ev-desc').value = description;
+window._editingEventId = id;
+document.querySelector('#panel-events .btn-full').textContent = '💾 MODIFIER LA COURSE';
+document.querySelector('#panel-events .btn-full').onclick = updateEvent;
+window.scrollTo(0,0);
+notify('Modifiez les champs puis cliquez sur MODIFIER LA COURSE', 'success');
 }
 
+async function updateEvent() {
+const id = window._editingEventId;
+if (!id) return;
+const name = document.getElementById('ev-name').value.trim();
+const track = document.getElementById('ev-track').value.trim();
+const event_date = document.getElementById('ev-date').value;
+if (!name || !track || !event_date) { notify('Nom, circuit et date sont requis', 'error'); return; }
+try {
+await api(`${SITE_URL}/api/events`, { method:'PUT', body:JSON.stringify({
+id, name, track, event_date,
+race_duration: parseInt(document.getElementById('ev-race').value)||60,
+max_pilots: parseInt(document.getElementById('ev-max').value)||30,
+description: document.getElementById('ev-desc').value
+})});
+notify('Course modifiée !', 'success');
+window._editingEventId = null;
+document.querySelector('#panel-events .btn-full').textContent = '🏁 CRÉER LA COURSE';
+document.querySelector('#panel-events .btn-full').onclick = creerCourse;
+['ev-name','ev-track','ev-date','ev-desc'].forEach(id => document.getElementById(id).value='');
+loadEvents(); populateSelects();
+} catch(e) { notify(e.message, 'error'); }
+}
 async function creerCourse() {
   const name = document.getElementById('ev-name').value.trim();
   const track = document.getElementById('ev-track').value.trim();
