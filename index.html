@@ -484,10 +484,7 @@ const urlParams=new URLSearchParams(location.search);
 if(urlParams.get('auth')==='success'){notify('Connexion réussie !','success');history.replaceState({},'','/');}
 if(urlParams.get('auth')==='error'){notify('Erreur de connexion Discord.','error');history.replaceState({},'','/');}
 
-function toggleLang(){
-  lang=lang==='fr'?'en':'fr';
-  document.getElementById('langBtn').textContent=lang==='fr'?'🇬🇧 EN':'🇫🇷 FR';
-}
+function toggleLang(){lang=lang==='fr'?'en':'fr';document.getElementById('langBtn').textContent=lang==='fr'?'🇬🇧 EN':'🇫🇷 FR';}
 
 function go(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -562,7 +559,7 @@ async function loadHome(){
         </div>
         <div class="btn-group">
           <button class="btn btn-primary" onclick="go('events')">S'INSCRIRE</button>
-          <button class="btn btn-secondary" onclick="go('events')">VOIR DÉTAILS</button>
+          <button class="btn btn-secondary" onclick="voirDetails('${next.id}')">VOIR DÉTAILS</button>
         </div>`;
       startCountdown(d);
     }else{
@@ -612,7 +609,7 @@ function renderEvents(filter){
         const regCount=ev.registrations?.[0]?.count||0;
         const pct=Math.min(100,(regCount/ev.max_pilots)*100);
         const isOpen=ev.status==='upcoming';
-        return`<div class="event-card">
+        return`<div class="event-card" onclick="voirDetails('${ev.id}')" style="cursor:pointer;">
           <div class="date-box"><div class="date-day">${d.getDate()}</div><div class="date-month">${d.toLocaleString('fr-FR',{month:'short'}).toUpperCase()}</div></div>
           <div class="ev-info">
             <h3>${ev.name}</h3>
@@ -624,11 +621,72 @@ function renderEvents(filter){
           <div class="slots-wrap">
             <div class="slots-text">${regCount}/${ev.max_pilots} places</div>
             <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
-            ${isOpen?(regCount>=ev.max_pilots?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled>COMPLET</button>`:`<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="registerEvent('${ev.id}')">S'INSCRIRE</button>`):`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;">Résultats →</button>`}
+            ${isOpen?(regCount>=ev.max_pilots?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled>COMPLET</button>`:`<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();registerEvent('${ev.id}')">S'INSCRIRE</button>`):`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;">Détails →</button>`}
           </div>
         </div>`;
       }).join('')
     :'<p style="color:var(--muted);font-size:13px;">Aucun événement.</p>';
+}
+
+async function voirDetails(eventId){
+  go('events');
+  setTimeout(async()=>{
+    try{
+      const ev=eventsCache.find(e=>e.id===eventId);
+      if(!ev)return;
+      const d=new Date(ev.event_date);
+      const regCount=ev.registrations?.[0]?.count||0;
+      const pct=Math.min(100,(regCount/ev.max_pilots)*100);
+      let pilotesList='<p style="color:var(--muted);font-size:13px;">Aucun pilote inscrit.</p>';
+      try{
+        const data=await api(`/api/pilots?event_id=${eventId}`);
+        if(data.pilots?.length){
+          pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(255,0,128,.07);border:1px solid var(--border);border-radius:4px;padding:10px;display:flex;align-items:center;gap:10px;"><div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--pink);">#${p.race_number}</div><div><div style="font-size:13px;color:white;">${p.discord_username}</div><div style="font-size:10px;color:var(--muted);">${p.platform?.toUpperCase()}</div></div></div>`).join('')}</div>`;
+        }
+      }catch(e){}
+      document.getElementById('events-list').innerHTML=`
+        <div style="background:var(--card);border:1px solid var(--pink);border-radius:8px;padding:28px;margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+            <div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:white;">${ev.name}</div>
+              <div style="font-size:13px;color:var(--muted);margin-top:4px;">${ev.description||''}</div>
+            </div>
+            <span class="badge badge-${d<new Date()?'yellow':'blue'}" style="font-size:11px;padding:5px 12px;">${d<new Date()?'TERMINÉE':'À VENIR'}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px;">
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
+              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">DATE</div>
+              <div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+            </div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
+              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">HEURE</div>
+              <div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div>
+            </div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
+              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">CIRCUIT</div>
+              <div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${(ev.track||'').toUpperCase()}</div>
+            </div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
+              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">DURÉE</div>
+              <div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${ev.race_duration||60} MIN</div>
+            </div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
+              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">PLACES</div>
+              <div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${regCount} / ${ev.max_pilots}</div>
+              <div style="width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:6px;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));border-radius:2px;"></div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S'INSCRIRE</button>
+            <button class="btn btn-secondary" onclick="loadEvents()">← Retour au calendrier</button>
+          </div>
+          <div style="margin-top:24px;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--pink);margin-bottom:8px;">PILOTES INSCRITS (${regCount})</div>
+            ${pilotesList}
+          </div>
+        </div>`;
+    }catch(e){console.error(e);}
+  },300);
 }
 
 document.addEventListener('click',e=>{
@@ -891,7 +949,7 @@ async function loadEventsAdmin(){
         </div>
         <div style="display:flex;gap:8px;flex-shrink:0;">
           <button class="btn btn-secondary" style="padding:6px 12px;font-size:9px;" onclick="openEditEvent('${e.id}')">✏️ Modifier</button>
-          <button class="btn btn-danger" style="padding:6px 12px;font-size:9px;" onclick="supprimerEvenement('${e.id}','${e.name.replace(/'/g,"\\'").replace(/"/g,'\\"')}')">🗑️ Supprimer</button>
+          <button class="btn btn-danger" style="padding:6px 12px;font-size:9px;" onclick="supprimerEvenement('${e.id}')">🗑️ Supprimer</button>
         </div>
       </div>`;
     }).join('');
