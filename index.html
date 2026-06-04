@@ -514,7 +514,7 @@ function updateNavAuth(){
   const area=document.getElementById('nav-auth-area');
   if(user){
     const avatar=user.discord_avatar?`<img class="avatar-sm" src="https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png">`:'';
-    area.innerHTML=`<div style="display:flex;align-items:center;gap:8px;"><div class="btn-user">${avatar} ${user.psn_id||user.discord_username||'Pilote'}</div><button class="btn-logout" onclick="logout()">Déco</button></div>`;
+    area.innerHTML=`<div style="display:flex;align-items:center;gap:8px;"><div class="btn-user">${avatar} ${user.psn_id||'Pilote'}</div><button class="btn-logout" onclick="logout()">Déco</button></div>`;
     if(user.is_admin){document.getElementById('admin-nav-li').style.display='block';document.getElementById('ml-admin').style.display='block';}
     document.getElementById('discord-required-banner').style.display='none';
     document.getElementById('discord-join-card').style.display='none';
