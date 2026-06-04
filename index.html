@@ -641,9 +641,10 @@ async function voirDetails(eventId){
       const d=new Date(ev.event_date);
       const regCount=ev.registrations?.[0]?.count||0;
       const pct=Math.min(100,(regCount/ev.max_pilots)*100);
-      let pilotesList='<p style="color:var(--muted);font-size:13px;">Aucun pilote inscrit.</p>';
+      let pilotesList=`<p style="color:var(--muted);font-size:13px;">Aucun pilote inscrit.</p>`;
+let data = null;
       try{
-      const data = await api(`/api/events/register?event_id=${eventId}`);
+      data = await api(`/api/events/register?event_id=${eventId}`);
         if(data.pilots?.length){
           pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(255,0,128,.07);border:1px solid var(--border);border-radius:4px;padding:10px;display:flex;align-items:center;gap:10px;"><div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--pink);">#${p.race_number}</div><div><div style="font-size:13px;color:white;">${p.discord_username}</div><div style="font-size:10px;color:var(--muted);">${p.platform?.toUpperCase()}</div></div></div>`).join('')}</div>`;
         }
