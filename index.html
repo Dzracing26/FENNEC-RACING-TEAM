@@ -641,13 +641,16 @@ async function voirDetails(eventId){
       const d=new Date(ev.event_date);
       const regCount=ev.registrations?.[0]?.count||0;
       const pct=Math.min(100,(regCount/ev.max_pilots)*100);
-      let pilotesList='<p style="color:var(--muted);font-size:13px;">Aucun pilote inscrit.</p>';
-      try{
-        const data=await api(`/api/pilots?event_id=${eventId}`);
-        if(data.pilots?.length){
-          pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(255,0,128,.07);border:1px solid var(--border);border-radius:4px;padding:10px;display:flex;align-items:center;gap:10px;"><div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;color:var(--pink);">#${p.race_number}</div><div><div style="font-size:13px;color:white;">${p.discord_username}</div><div style="font-size:10px;color:var(--muted);">${p.platform?.toUpperCase()}</div></div></div>`).join('')}</div>`;
-        }
-      }catch(e){}
+      let pilotesList=`<p style="color:var(--muted);font-size:13px;">Aucun pilote inscrit.</p>`;
+let isRegistered=false;
+const canUnregister=(new Date(ev.event_date)-new Date())>45*60*1000;
+try{
+const data=await api(`/api/events/register?event_id=${eventId}`);
+if(data.pilots?.length){
+pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:13px;font-weight:600;color:var(--pink);">#${p.race_number||'?'}</div><div style="font-size:12px;">${p.discord_username||'-'}</div></div>`).join('')}</div>`;
+isRegistered=data.pilots.some(p=>p.discord_username===user?.username);
+}
+}catch(e){}
       document.getElementById('events-list').innerHTML=`
         <div style="background:var(--card);border:1px solid var(--pink);border-radius:8px;padding:28px;margin-bottom:24px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
@@ -681,7 +684,7 @@ async function voirDetails(eventId){
             </div>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S'INSCRIRE</button>
+           ${isRegistered?`<button class="btn btn-danger" onclick="unregisterEvent('${ev.id}')" ${canUnregister?'':'disabled'}>${canUnregister?'SE DÉSINSCRIRE':'Désinscription fermée'}</button>`:`<button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S\'INSCRIRE</button>`}
             <button class="btn btn-secondary" onclick="loadEvents()">← Retour au calendrier</button>
           </div>
           <div style="margin-top:24px;">
@@ -709,6 +712,13 @@ async function registerEvent(eventId){
     const{message}=await api('/api/events/register',{method:'POST',body:JSON.stringify({event_id:eventId})});
     notify(message,'success');loadEvents();
   }catch(e){notify(e.message,'error');}
+}
+async function unregisterEvent(eventId){
+if(!user){notify('Connectez-vous avec Discord.','error');return;}
+try{
+const{message}=await api('/api/events/register',{method:'DELETE',body:JSON.stringify({event_id:eventId})});
+notify(message,'success');voirDetails(eventId);
+}catch(e){notify(e.message,'error');}
 }
 
 function renderResults(results,event){
