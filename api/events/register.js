@@ -60,6 +60,16 @@ const { error } = await supabase.from('registrations').delete().eq('event_id', e
 if (error) return res.status(500).json({ error: 'Erreur désinscription.' });
 return res.status(200).json({ message: 'Désinscription effectuée.' });
 }
-
+if (req.method === 'GET') {
+const { event_id } = req.query;
+if (!event_id) return res.status(400).json({ error: 'event_id requis' });
+const { data, error } = await supabase
+.from('registrations')
+.select('pilots(id, race_number, discord_username, platform)')
+.eq('event_id', event_id)
+.eq('status', 'confirmed');
+if (error) return res.status(500).json({ error: error.message });
+return res.status(200).json({ pilots: data.map(r => r.pilots) });
+}
 res.status(405).json({ error: 'Méthode non autorisée' });
 }
