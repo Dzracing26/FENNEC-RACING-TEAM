@@ -247,6 +247,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
   <a onclick="go('rules');closeMobileMenu()" id="ml-rules">Règlement</a>
   <a onclick="go('admin');closeMobileMenu()" id="ml-admin" style="display:none;color:var(--pink)">⚙ Admin</a>
 </div>
+
 <!-- HOME -->
 <div class="page active" id="page-home">
   <div class="hero">
@@ -367,6 +368,24 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
       </div>
       <div id="admin-content"></div>
     </div>
+  </div>
+</div>
+
+<!-- MODAL MODIFIER PROFIL -->
+<div class="modal-overlay" id="modal-edit-profile">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-edit-profile')">✕</button>
+    <h2>MODIFIER MON <span>PROFIL</span></h2>
+    <p class="modal-sub">Mettez à jour votre PSN ID ou Gamertag</p>
+    <div id="edit-profile-ps5" style="display:none">
+      <div class="form-group"><label>PSN ID</label><input type="text" id="edit-psn" placeholder="Votre_PSN_ID"></div>
+      <div class="form-group"><label>PSN UID</label><input type="text" id="edit-psn-uid" placeholder="1234567890123456789"></div>
+    </div>
+    <div id="edit-profile-xbox" style="display:none">
+      <div class="form-group"><label>Gamertag</label><input type="text" id="edit-gt" placeholder="VotreGamertag"></div>
+      <div class="form-group"><label>XUID</label><input type="text" id="edit-xuid" placeholder="12345678901234567"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="submitEditProfile()">💾 SAUVEGARDER</button>
   </div>
 </div>
 
@@ -642,15 +661,15 @@ async function voirDetails(eventId){
       const regCount=ev.registrations?.[0]?.count||0;
       const pct=Math.min(100,(regCount/ev.max_pilots)*100);
       let pilotesList=`<p style="color:var(--muted);font-size:13px;">Aucun pilote inscrit.</p>`;
-let isRegistered=false;
-const canUnregister=(new Date(ev.event_date)-new Date())>45*60*1000;
-try{
-const data=await api(`/api/events/register?event_id=${eventId}`);
-if(data.pilots?.length){
-pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:13px;font-weight:600;color:var(--pink);">#${p.race_number||'?'}</div><div style="font-size:12px;">${p.psn_id||p.discord_username||'-'||'-'}</div></div>`).join('')}</div>`;
-isRegistered=data.pilots.some(p=>p.discord_username===user?.username||p.discord_username===user?.discord_username);
-}
-}catch(e){}
+      let isRegistered=false;
+      const canUnregister=(new Date(ev.event_date)-new Date())>45*60*1000;
+      try{
+        const data=await api(`/api/events/register?event_id=${eventId}`);
+        if(data.pilots?.length){
+          pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:13px;font-weight:600;color:var(--pink);">#${p.race_number||'?'}</div><div style="font-size:12px;">${p.psn_id||p.discord_username||'-'}</div></div>`).join('')}</div>`;
+          isRegistered=data.pilots.some(p=>p.discord_username===user?.username||p.discord_username===user?.discord_username);
+        }
+      }catch(e){}
       document.getElementById('events-list').innerHTML=`
         <div style="background:var(--card);border:1px solid var(--pink);border-radius:8px;padding:28px;margin-bottom:24px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
@@ -661,30 +680,14 @@ isRegistered=data.pilots.some(p=>p.discord_username===user?.username||p.discord_
             <span class="badge badge-${d<new Date()?'yellow':'blue'}" style="font-size:11px;padding:5px 12px;">${d<new Date()?'TERMINÉE':'À VENIR'}</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px;">
-            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
-              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">DATE</div>
-              <div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
-            </div>
-            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
-              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">HEURE</div>
-              <div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div>
-            </div>
-            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
-              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">CIRCUIT</div>
-              <div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${(ev.track||'').toUpperCase()}</div>
-            </div>
-            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
-              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">DURÉE</div>
-              <div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${ev.race_duration||60} MIN</div>
-            </div>
-            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;">
-              <div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">PLACES</div>
-              <div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${regCount} / ${ev.max_pilots}</div>
-              <div style="width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:6px;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));border-radius:2px;"></div></div>
-            </div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">DATE</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div></div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">HEURE</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div></div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">CIRCUIT</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${(ev.track||'').toUpperCase()}</div></div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">DURÉE</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${ev.race_duration||60} MIN</div></div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">PLACES</div><div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${regCount} / ${ev.max_pilots}</div><div style="width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:6px;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));border-radius:2px;"></div></div></div>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-           ${isRegistered?`<button class="btn btn-danger" onclick="unregisterEvent('${ev.id}')" ${canUnregister?'':'disabled'}>${canUnregister?'SE DÉSINSCRIRE':'Désinscription fermée'}</button>`:`<button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S\'INSCRIRE</button>`}
+            ${isRegistered?`<button class="btn btn-danger" onclick="unregisterEvent('${ev.id}')" ${canUnregister?'':'disabled'}>${canUnregister?'SE DÉSINSCRIRE':'Désinscription fermée'}</button>`:`<button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S'INSCRIRE</button>`}
             <button class="btn btn-secondary" onclick="loadEvents()">← Retour au calendrier</button>
           </div>
           <div style="margin-top:24px;">
@@ -713,12 +716,13 @@ async function registerEvent(eventId){
     notify(message,'success');loadEvents();
   }catch(e){notify(e.message,'error');}
 }
+
 async function unregisterEvent(eventId){
-if(!user){notify('Connectez-vous avec Discord.','error');return;}
-try{
-const{message}=await api('/api/events/register',{method:'DELETE',body:JSON.stringify({event_id:eventId})});
-notify(message,'success');voirDetails(eventId);
-}catch(e){notify(e.message,'error');}
+  if(!user){notify('Connectez-vous avec Discord.','error');return;}
+  try{
+    const{message}=await api('/api/events/register',{method:'DELETE',body:JSON.stringify({event_id:eventId})});
+    notify(message,'success');voirDetails(eventId);
+  }catch(e){notify(e.message,'error');}
 }
 
 function renderResults(results,event){
@@ -745,20 +749,54 @@ async function loadPilots(){
     const grid=document.getElementById('pilots-grid');
     const colors=['linear-gradient(135deg,var(--pink),#cc0066)','linear-gradient(135deg,var(--blue),#0088cc)','linear-gradient(135deg,#8800ff,#cc0066)','linear-gradient(135deg,#ff8800,var(--pink))'];
     grid.innerHTML=pilots.length
-      ?pilots.map((p,i)=>`<div class="pilot-card">
-          <div class="pilot-num-bg">${p.race_number}</div>
-          <div class="pilot-avatar" style="background:${colors[i%4]}">${p.discord_username.substring(0,2).toUpperCase()}</div>
-          <div class="pilot-name">#${p.race_number} ${p.discord_username}</div>
-          <div class="pilot-handle">${p.platform==='ps5'?p.psn_id||'':p.gamertag||''}</div>
-          <span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span>
-          <div class="pilot-stats" style="margin-top:10px;">
-            <div class="ps"><div class="v">${p.races_count}</div><div class="l">Courses</div></div>
-            <div class="ps"><div class="v">${p.wins_count}</div><div class="l">Victoires</div></div>
-            <div class="ps"><div class="v">${p.points}</div><div class="l">Points</div></div>
-          </div>
-        </div>`).join('')
+      ?pilots.map((p,i)=>{
+          const isMe = user && (user.discord_username === p.discord_username || user.username === p.discord_username);
+          const handle = p.platform==='ps5' ? (p.psn_id||'⚠️ PSN ID manquant') : (p.gamertag||'⚠️ Gamertag manquant');
+          return `<div class="pilot-card">
+            <div class="pilot-num-bg">${p.race_number}</div>
+            <div class="pilot-avatar" style="background:${colors[i%4]}">${p.discord_username.substring(0,2).toUpperCase()}</div>
+            <div class="pilot-name">#${p.race_number} ${p.discord_username}</div>
+            <div class="pilot-handle">${handle}</div>
+            <span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span>
+            <div class="pilot-stats" style="margin-top:10px;">
+              <div class="ps"><div class="v">${p.races_count}</div><div class="l">Courses</div></div>
+              <div class="ps"><div class="v">${p.wins_count}</div><div class="l">Victoires</div></div>
+              <div class="ps"><div class="v">${p.points}</div><div class="l">Points</div></div>
+            </div>
+            ${isMe ? `<button class="btn btn-secondary" style="width:100%;margin-top:12px;font-size:9px;padding:8px;" onclick="openEditProfile('${p.platform}','${(p.psn_id||'').replace(/'/g,"\\'")}','${(p.platform_uid||'').replace(/'/g,"\\'")}','${(p.gamertag||'').replace(/'/g,"\\'")}')">✏️ MODIFIER MON PROFIL</button>` : ''}
+          </div>`;
+        }).join('')
       :'<p style="color:var(--muted);font-size:14px;">Aucun pilote inscrit.</p>';
   }catch(e){console.error(e);}
+}
+
+function openEditProfile(platform, psnId, platformUid, gamertag) {
+  document.getElementById('edit-profile-ps5').style.display = platform==='ps5' ? 'block' : 'none';
+  document.getElementById('edit-profile-xbox').style.display = platform==='xbox' ? 'block' : 'none';
+  if(platform==='ps5'){
+    document.getElementById('edit-psn').value = psnId || '';
+    document.getElementById('edit-psn-uid').value = platformUid || '';
+  } else {
+    document.getElementById('edit-gt').value = gamertag || '';
+    document.getElementById('edit-xuid').value = platformUid || '';
+  }
+  document.getElementById('modal-edit-profile').classList.add('open');
+}
+
+async function submitEditProfile() {
+  const isPsn = document.getElementById('edit-profile-ps5').style.display !== 'none';
+  const body = isPsn
+    ? { psn_id: document.getElementById('edit-psn').value.trim(), platform_uid: document.getElementById('edit-psn-uid').value.trim() }
+    : { gamertag: document.getElementById('edit-gt').value.trim(), platform_uid: document.getElementById('edit-xuid').value.trim() };
+  if(isPsn && !body.psn_id){ notify('PSN ID requis.','error'); return; }
+  if(!isPsn && !body.gamertag){ notify('Gamertag requis.','error'); return; }
+  if(!body.platform_uid || body.platform_uid.length < 5){ notify('UID invalide (trop court).','error'); return; }
+  try{
+    await api('/api/pilots',{method:'PATCH',body:JSON.stringify(body)});
+    closeModal('modal-edit-profile');
+    notify('Profil mis à jour !','success');
+    loadPilots();
+  }catch(e){ notify(e.message,'error'); }
 }
 
 function renderRules(){
@@ -786,6 +824,7 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 
 document.getElementById('modal-reg').addEventListener('click',function(e){if(e.target===this)closeModal('modal-reg');});
 document.getElementById('modal-edit-event').addEventListener('click',function(e){if(e.target===this)closeModal('modal-edit-event');});
+document.getElementById('modal-edit-profile').addEventListener('click',function(e){if(e.target===this)closeModal('modal-edit-profile');});
 
 function buildNumGrid(){
   const taken=pilotsCache.map(p=>p.race_number);
@@ -937,7 +976,7 @@ function adminTab(tab){
         <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">#${p.race_number}</td>
         <td style="color:white;font-weight:600;">${p.discord_username}</td>
         <td><span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span></td>
-        <td style="font-size:11px;color:var(--muted);">${p.platform==='ps5'?p.psn_id:p.gamertag}</td>
+        <td style="font-size:11px;color:var(--muted);">${p.platform==='ps5'?p.psn_id||'⚠️ manquant':p.gamertag||'⚠️ manquant'}</td>
         <td>${p.races_count}</td>
         <td style="color:var(--pink);">${p.points}</td>
         <td><button class="btn btn-danger" style="padding:4px 8px;font-size:9px;" onclick="deletePilot('${p.id}','${p.discord_username}')">Supprimer</button></td>
