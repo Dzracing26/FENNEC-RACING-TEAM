@@ -70,7 +70,6 @@ defaultGridPosition: -1,
 forcedCarModel: -1,
 overrideDriverInfo: 1,
 isServerAdmin: 0,
-configVersion: 0
 };
 }),
 configVersion: 1
