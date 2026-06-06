@@ -87,5 +87,5 @@ return res.status(200).json({ message: 'Profil mis à jour !' });
 
 res.status(405).json({ error: 'Méthode non autorisée' });
 }
-res.status(405).json({ error: 'Méthode non autorisée' });
 }
+
