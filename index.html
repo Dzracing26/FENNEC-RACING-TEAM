@@ -562,7 +562,7 @@ async function loadHome(){
           <div class="cd-item"><div class="cd-num" id="cd-s">--</div><div class="cd-unit">Sec</div></div>
         </div>
         <div class="btn-group">
-          <button class="btn btn-primary" onclick="go('events')">S'INSCRIRE</button>
+          <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;"><input type="checkbox" id="accept-rules" onchange="document.getElementById('btn-register').disabled=!this.checked"> J'accepte le <a href="#" onclick="go('rules')" style="color:var(--pink)">règlement</a></label><button id="btn-register" disabled class="btn btn-primary" onclick="go('events')">S'INSCRIRE</button>
           <button class="btn btn-secondary" onclick="voirDetails('${next.id}')">VOIR DÉTAILS</button>
         </div>`;
       startCountdown(d);
