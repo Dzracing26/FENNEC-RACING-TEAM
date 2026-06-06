@@ -62,7 +62,7 @@ glovesTemplateKey: 2,
 suitTemplateKey: 500,
 suitDetailColor1: 40,
 suitDetailColor2: 160,
-playerID: p.platform_uid || ''
+playerID: p.psn_id || p.platform_uid || ''
 }
 ],
 raceNumber: p.race_number,
