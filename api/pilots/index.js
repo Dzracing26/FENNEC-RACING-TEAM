@@ -20,14 +20,14 @@ return true;
 
 export default async function handler(req, res) {
 res.setHeader('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_SITE_URL);
-res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
 res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 if (req.method === 'OPTIONS') return res.status(200).end();
 
 if (req.method === 'GET') {
 const { data, error } = await supabase
 .from('pilots')
-.select('id, race_number, discord_username, platform, psn_id, gamertag, races_count, wins_count, points, created_at')
+.select('id, race_number, discord_username, platform, psn_id, gamertag, platform_uid, races_count, wins_count, points, created_at')
 .eq('is_active', true)
 .order('race_number', { ascending: true });
 if (error) return res.status(500).json({ error: 'Erreur base de données' });
@@ -62,9 +62,30 @@ gamertag: gamertag || null,
 platform_uid,
 is_admin: user.discord_id === process.env.ADMIN_DISCORD_ID,
 })
+.select()
+.single();
 if (insertError) return res.status(500).json({ error: insertError.message });
 return res.status(201).json({ pilot: newPilot, message: 'Profil créé avec succès !' });
 }
 
+if (req.method === 'PATCH') {
+const user = await requireAuth(req, res);
+if (!user) return;
+const { psn_id, gamertag, platform_uid } = req.body;
+if (!platform_uid || platform_uid.length < 5) return res.status(400).json({ error: 'UID invalide.' });
+if (psn_id !== undefined && !psn_id) return res.status(400).json({ error: 'PSN ID requis.' });
+if (gamertag !== undefined && !gamertag) return res.status(400).json({ error: 'Gamertag requis.' });
+const { data: pilot } = await supabase.from('pilots').select('id').eq('discord_id', user.discord_id).single();
+if (!pilot) return res.status(404).json({ error: 'Pilote introuvable.' });
+const updates = { platform_uid };
+if (psn_id !== undefined) updates.psn_id = psn_id;
+if (gamertag !== undefined) updates.gamertag = gamertag;
+const { error } = await supabase.from('pilots').update(updates).eq('id', pilot.id);
+if (error) return res.status(500).json({ error: error.message });
+return res.status(200).json({ message: 'Profil mis à jour !' });
+}
+
+res.status(405).json({ error: 'Méthode non autorisée' });
+}
 res.status(405).json({ error: 'Méthode non autorisée' });
 }
