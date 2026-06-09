@@ -1,66 +1,98 @@
-import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
+const { requireAuth, requireAdmin } = require('../_middleware/auth.js');
 
 const supabase = createClient(
 process.env.SUPABASE_URL,
 process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-export function verifyJWT(token) {
-try {
-const [header, payload, sig] = token.split('.');
-const expectedSig = crypto
-.createHmac('sha256', process.env.JWT_SECRET)
-.update(`${header}.${payload}`)
-.digest('base64url');
-if (sig !== expectedSig) return null;
-const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
-if (data.exp < Math.floor(Date.now() / 1000)) return null;
-return data;
-} catch {
-return null;
-}
+const createAttempts = new Map();
+
+function rateLimit(ip) {
+const now = Date.now();
+const attempts = createAttempts.get(ip) || [];
+const recent = attempts.filter(t => now - t < 60000);
+if (recent.length >= 3) return false;
+recent.push(now);
+createAttempts.set(ip, recent);
+return true;
 }
 
-export function getTokenFromRequest(req) {
-const cookies = req.headers.cookie || '';
-const match = cookies.match(/frt_token=([^;]+)/);
-if (match) return match[1];
-const auth = req.headers.authorization || '';
-if (auth.startsWith('Bearer ')) return auth.slice(7);
-return null;
+module.exports = async function handler(req, res) {
+res.setHeader('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_SITE_URL);
+res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
+res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+if (req.method === 'OPTIONS') return res.status(200).end();
+
+if (req.method === 'GET') {
+const { data, error } = await supabase
+.from('pilots')
+.select('id, race_number, discord_username, platform, psn_id, gamertag, platform_uid, races_count, wins_count, points, created_at')
+.eq('is_active', true)
+.order('race_number', { ascending: true });
+if (error) return res.status(500).json({ error: 'Erreur base de données' });
+return res.status(200).json({ pilots: data });
 }
 
-export async function requireAuth(req, res) {
-const token = getTokenFromRequest(req);
-if (!token) {
-res.status(401).json({ error: 'Non authentifié.' });
-return null;
-}
-const payload = verifyJWT(token);
-if (!payload) {
-res.status(401).json({ error: 'Session expirée.' });
-return null;
-}
-return payload;
-}
-
-export async function requireAdmin(req, res) {
+if (req.method === 'POST') {
+const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+if (!rateLimit(ip)) return res.status(429).json({ error: 'Trop de tentatives.' });
 const user = await requireAuth(req, res);
-if (!user) return null;
-if (!user.is_admin) {
-res.status(403).json({ error: 'Accès refusé.' });
-return null;
-}
-return user;
+if (!user) return;
+const { race_number, platform, psn_id, gamertag, platform_uid } = req.body;
+if (!race_number || race_number < 1 || race_number > 999) return res.status(400).json({ error: 'Numéro invalide (1-999).' });
+if (!['ps5', 'xbox'].includes(platform)) return res.status(400).json({ error: 'Plateforme invalide.' });
+if (!platform_uid || platform_uid.length < 5) return res.status(400).json({ error: 'UID invalide.' });
+if (platform === 'ps5' && !psn_id) return res.status(400).json({ error: 'PSN ID requis.' });
+if (platform === 'xbox' && !gamertag) return res.status(400).json({ error: 'Gamertag requis.' });
+const { data: existing } = await supabase.from('pilots').select('id').eq('race_number', race_number).single();
+if (existing) return res.status(409).json({ error: `Le numéro #${race_number} est déjà pris.` });
+const { data: alreadyPilot } = await supabase.from('pilots').select('id').eq('discord_id', user.discord_id).single();
+if (alreadyPilot) return res.status(409).json({ error: 'Vous avez déjà un profil pilote.' });
+const { data: newPilot, error: insertError } = await supabase
+.from('pilots')
+.insert({
+discord_id: user.discord_id,
+discord_username: user.discord_username,
+race_number: parseInt(race_number),
+platform,
+psn_id: psn_id || null,
+gamertag: gamertag || null,
+platform_uid,
+is_admin: user.discord_id === process.env.ADMIN_DISCORD_ID,
+})
+.select()
+.single();
+if (insertError) return res.status(500).json({ error: insertError.message });
+return res.status(201).json({ pilot: newPilot, message: 'Profil créé avec succès !' });
 }
 
-export async function requireMember(req, res) {
+if (req.method === 'PATCH') {
 const user = await requireAuth(req, res);
-if (!user) return null;
-if (!user.is_member) {
-res.status(403).json({ error: 'Vous devez être membre du Discord FRT.' });
-return null;
+if (!user) return;
+const { psn_id, gamertag, platform_uid } = req.body;
+if (!platform_uid || platform_uid.length < 5) return res.status(400).json({ error: 'UID invalide.' });
+if (psn_id !== undefined && !psn_id) return res.status(400).json({ error: 'PSN ID requis.' });
+if (gamertag !== undefined && !gamertag) return res.status(400).json({ error: 'Gamertag requis.' });
+const { data: pilot } = await supabase.from('pilots').select('id').eq('discord_id', user.discord_id).single();
+if (!pilot) return res.status(404).json({ error: 'Pilote introuvable.' });
+const updates = { platform_uid };
+if (psn_id !== undefined) updates.psn_id = psn_id;
+if (gamertag !== undefined) updates.gamertag = gamertag;
+const { error } = await supabase.from('pilots').update(updates).eq('id', pilot.id);
+if (error) return res.status(500).json({ error: error.message });
+return res.status(200).json({ message: 'Profil mis à jour !' });
 }
-return user;
+
+if (req.method === 'DELETE') {
+const user = await requireAdmin(req, res);
+if (!user) return;
+const { id } = req.body;
+if (!id) return res.status(400).json({ error: 'ID requis.' });
+const { error } = await supabase.from('pilots').delete().eq('id', id);
+if (error) return res.status(500).json({ error: error.message });
+return res.status(200).json({ message: 'Pilote supprimé.' });
 }
+
+return res.status(405).json({ error: 'Méthode non autorisée' });
+};
