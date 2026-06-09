@@ -491,7 +491,7 @@ function askDeletePilot(id, name) {
 async function confirmDeletePilot() {
   closeModal('modal-delete-pilot');
   try {
-    await api(`${SITE_URL}/api/admin/pilots`, { method:'DELETE', body:JSON.stringify({ id: pendingAction.id }) });
+   await api(`${SITE_URL}/api/pilots`, { method:'DELETE', body:JSON.stringify({ id: pendingAction.id }) });
     notify('Pilote supprimé', 'success');
     loadPilots();
   } catch(e) { notify(e.message, 'error'); }
