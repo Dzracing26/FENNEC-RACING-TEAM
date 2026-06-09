@@ -26,7 +26,7 @@ const pilotIds = regs.map(r => r.pilot_id);
 
 const { data: pilots, error: err2 } = await supabase
 .from('pilots')
-.select('race_number, psn_id, discord_username, platform_uid')
+.select('race_number, psn_id, discord_username, platform_uid, platform')
 .in('id', pilotIds);
 
 if (err2) return res.status(500).json({ error: err2.message });
