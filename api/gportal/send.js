@@ -37,7 +37,7 @@ entries: pilots.map(p => ({
 drivers: [
 {
 playerID: (p.platform === 'xbox' ? 'M' : 'S') + p.platform_uid,
-lastName: p.psn_id || p.discord_username || 'Pilote',
+lastName: p.gamertag || p.psn_id || p.discord_username || 'Pilote',
 driverCategory: 2
 }
 ],
