@@ -36,7 +36,7 @@ const entrylist = {
 entries: pilots.map(p => ({
 drivers: [
 {
-playerID: 'P' + p.platform_uid,
+playerID: (p.platform === 'xbox' ? 'M' : 'S') + p.platform_uid,
 lastName: p.psn_id || p.discord_username || 'Pilote',
 driverCategory: 2
 }
