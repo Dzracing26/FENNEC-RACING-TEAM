@@ -87,7 +87,8 @@ if (req.method === 'DELETE') {
 const user = await requireAuth(req, res);
 if (!user) return;
 if (!user.is_admin) return res.status(403).json({ error: 'Non autorisé.' });
-const { id } = req.body;
+const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+const { id } = body;
 if (!id) return res.status(400).json({ error: 'ID requis.' });
 const { error } = await supabase.from('pilots').delete().eq('id', id);
 if (error) return res.status(500).json({ error: error.message });
