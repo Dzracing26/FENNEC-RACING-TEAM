@@ -20,7 +20,7 @@ return true;
 
 module.exports = async function handler(req, res) {
 res.setHeader('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_SITE_URL);
-res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
+res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS');
 res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -83,6 +83,15 @@ const { error } = await supabase.from('pilots').update(updates).eq('id', pilot.i
 if (error) return res.status(500).json({ error: error.message });
 return res.status(200).json({ message: 'Profil mis à jour !' });
 }
-
+if (req.method === 'DELETE') {
+const user = await requireAuth(req, res);
+if (!user) return;
+if (!user.is_admin) return res.status(403).json({ error: 'Non autorisé.' });
+const { id } = req.body;
+if (!id) return res.status(400).json({ error: 'ID requis.' });
+const { error } = await supabase.from('pilots').delete().eq('id', id);
+if (error) return res.status(500).json({ error: error.message });
+return res.status(200).json({ message: 'Pilote supprimé.' });
+}
 return res.status(405).json({ error: 'Méthode non autorisée' });
 };
