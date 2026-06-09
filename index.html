@@ -1097,8 +1097,14 @@ async function discordPush(type,eventId){
 }
 
 async function deletePilot(id,name){
-  if(!confirm(`Supprimer le pilote ${name} ?`))return;
-  notify(`Pilote ${name} supprimé`,'success');
+if(!confirm(`Supprimer le pilote ${name} ?`))return;
+try{
+await api('/api/pilots',{method:'DELETE',body:JSON.stringify({id})});
+notify(`Pilote ${name} supprimé`,'success');
+const{pilots}=await api('/api/pilots');
+pilotsCache=pilots;
+adminTab('pilots-manage');
+}catch(e){notify(e.message,'error');}
 }
 
 function msToLap(ms){
