@@ -61,9 +61,6 @@ client.close();
 let rawContent = Buffer.concat(chunks).toString('utf-8');
 rawContent = rawContent.replace(/^\uFEFF/, '').trim();
 
-// Nettoyer les caractères de contrôle invalides
-rawContent = rawContent.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-
 // Trouver le premier '{' et le dernier '}'
 const startIndex = rawContent.indexOf('{');
 const endIndex = rawContent.lastIndexOf('}');
@@ -85,7 +82,7 @@ error: `Fichier JSON invalide: ${parseErr.message}`
 
 const lines = resultData?.sessionResult?.leaderBoardLines || [];
 
-if (!lines.length) {
+if (!Array.isArray(lines) || !lines.length) {
 return res.status(200).json({ message: 'Fichier trouvé mais aucun classement dedans', file: bestFile.name });
 }
 
@@ -101,11 +98,11 @@ if (p.platform_uid) pilotsById[p.platform_uid] = p.id;
 });
 
 const rows = lines.map((line, index) => {
-const currentDriver = line.currentDriver || '';
+const currentDriver = String(line.currentDriver || '');
 const uid = currentDriver.replace(/^[A-Z]_/, '');
 const pilotId = pilotsById[uid] || pilotsById[currentDriver] || null;
 
-const totalTimeMs = (line.driverTotalTimes && line.driverTotalTimes[0])
+const totalTimeMs = (line.driverTotalTimes && Array.isArray(line.driverTotalTimes) && line.driverTotalTimes[0])
 ? Math.round(line.driverTotalTimes[0])
 : (line.timing?.totalTime ?? null);
 
