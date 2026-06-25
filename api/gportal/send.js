@@ -82,7 +82,15 @@ write(chunk, encoding, callback) { chunks.push(chunk); callback(); }
 await client2.downloadTo(writable, `/results/${bestFile.name}`);
 client2.close();
 
-const resultData = JSON.parse(Buffer.concat(chunks).toString('utf-8'));
+const rawContent = Buffer.concat(chunks).toString('utf-8');
+let resultData;
+try {
+resultData = JSON.parse(rawContent);
+} catch (parseErr) {
+return res.status(404).json({
+error: `Le fichier ${bestFile.name} trouvé sur le serveur n'est pas un JSON valide (course probablement non jouée ou fichier corrompu).`
+});
+}
 const lines = resultData?.sessionResult?.leaderBoardLines || [];
 
 if (!lines.length) {
