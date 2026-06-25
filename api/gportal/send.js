@@ -82,14 +82,17 @@ write(chunk, encoding, callback) { chunks.push(chunk); callback(); }
 await client2.downloadTo(writable, `/results/${bestFile.name}`);
 client2.close();
 
-const rawContent = Buffer.concat(chunks).toString('utf-8');
-let resultData;
+let rawContent = Buffer.concat(chunks).toString('utf-8');
+rawContent = rawContent.replace(/^\uFEFF/, '').trim();
+
 try {
 resultData = JSON.parse(rawContent);
 } catch (parseErr) {
-return res.status(404).json({
-error: `Le fichier ${bestFile.name} trouvé sur le serveur n'est pas un JSON valide (course probablement non jouée ou fichier corrompu).`
+console.error('JSON Parse Error:', parseErr.message);
+return res.status(400).json({
+error: `Fichier JSON invalide: ${parseErr.message}`
 });
+}
 }
 const lines = resultData?.sessionResult?.leaderBoardLines || [];
 
