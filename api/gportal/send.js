@@ -84,6 +84,8 @@ client2.close();
 
 let rawContent = Buffer.concat(chunks).toString('utf-8');
 rawContent = rawContent.replace(/^\uFEFF/, '').trim();
+  console.log('Raw content (first 100 chars):', rawContent.substring(0, 100));
+console.log('Raw content length:', rawContent.length);
 
 try {
 resultData = JSON.parse(rawContent);
