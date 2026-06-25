@@ -37,7 +37,6 @@ const client = new Client();
 client.ftp.verbose = false;
 await client.access(ftpConfig);
 const list = await client.list('/results');
-client.close();
 
 const raceFiles = list
 .filter(f => f.name.endsWith('_R.json'))
@@ -45,6 +44,7 @@ const raceFiles = list
 .sort((a, b) => Math.abs(b.date - event.event_date) - Math.abs(a.date - event.event_date));
 
 if (!raceFiles.length) {
+client.close();
 return res.status(404).json({ error: 'Aucun fichier de résultats de course trouvé sur le serveur' });
 }
 
@@ -55,8 +55,8 @@ const writable = new Writable({
 write(chunk, encoding, callback) { chunks.push(chunk); callback(); }
 });
 
-await client2.downloadTo(writable, `/results/${bestFile.name}`);
-client2.close();
+await client.downloadTo(writable, `/results/${bestFile.name}`);
+client.close();
 
 let rawContent = Buffer.concat(chunks).toString('utf-8');
 rawContent = rawContent.replace(/^\uFEFF/, '').trim();
