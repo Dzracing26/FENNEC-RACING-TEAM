@@ -561,7 +561,7 @@ async function loadHome(){
     document.getElementById('home-standings').innerHTML=sorted.length
       ?sorted.map((p,i)=>`<div class="standings-row"><div class="st-pos" style="color:${medColors[i]||'var(--muted)'}">${i+1}</div><div class="st-name">#${p.race_number} ${p.discord_username}</div><div class="st-pts">${p.points}</div></div>`).join('')
       :'<p style="color:var(--muted);font-size:13px;">Aucun pilote encore inscrit.</p>';
-    const next=events.find(e=>e.status==='upcoming');
+    const next=events.find(e=>e.status==='upcoming'&&new Date(e.event_date)>new Date());
     if(next){
       const d=new Date(next.event_date);
       const regCount=next.registrations?.[0]?.count||0;
@@ -624,14 +624,14 @@ async function loadEvents(){
 
 function renderEvents(filter){
   let evs=eventsCache;
-  if(filter==='upcoming')evs=evs.filter(e=>e.status==='upcoming');
-  if(filter==='finished')evs=evs.filter(e=>e.status==='finished');
+  if(filter==='upcoming')evs=evs.filter(e=>e.status==='upcoming'&&new Date(e.event_date)>new Date());
+if(filter==='finished')evs=evs.filter(e=>e.status==='finished'||(e.status==='upcoming'&&new Date(e.event_date)<=new Date()));
   document.getElementById('events-list').innerHTML=evs.length
     ?evs.map(ev=>{
         const d=new Date(ev.event_date);
         const regCount=ev.registrations?.[0]?.count||0;
         const pct=Math.min(100,(regCount/ev.max_pilots)*100);
-        const isOpen=ev.status==='upcoming';
+        const isOpen=ev.status==='upcoming'&&new Date(ev.event_date)>new Date();
         return`<div class="event-card" onclick="voirDetails('${ev.id}')" style="cursor:pointer;">
           <div class="date-box"><div class="date-day">${d.getDate()}</div><div class="date-month">${d.toLocaleString('fr-FR',{month:'short'}).toUpperCase()}</div></div>
           <div class="ev-info">
