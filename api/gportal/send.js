@@ -185,6 +185,11 @@ content: JSON.stringify(entrylist, null, 2)
 return res.status(400).json({ error: 'Type invalide' });
 
 } catch (e) {
-return res.status(500).json({ error: e.message });
+console.error('GPORTAL/SEND ERROR:', e);
+return res.status(500).json({
+error: e.message || 'Erreur inconnue',
+stack: e.stack ? e.stack.split('\n').slice(0, 5).join(' | ') : null,
+name: e.name || null
+});
 }
 };
