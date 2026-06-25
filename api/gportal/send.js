@@ -82,20 +82,7 @@ write(chunk, encoding, callback) { chunks.push(chunk); callback(); }
 await client2.downloadTo(writable, `/results/${bestFile.name}`);
 client2.close();
 
-let rawContent = Buffer.concat(chunks).toString('utf-8');
-rawContent = rawContent.replace(/^\uFEFF/, '').trim();
-  console.log('Raw content (first 100 chars):', rawContent.substring(0, 100));
-console.log('Raw content length:', rawContent.length);
-
-try {
-resultData = JSON.parse(rawContent);
-} catch (parseErr) {
-console.error('JSON Parse Error:', parseErr.message);
-return res.status(400).json({
-error: `Fichier JSON invalide: ${parseErr.message}`
-});
-}
-}
+const resultData = JSON.parse(Buffer.concat(chunks).toString('utf-8'));
 const lines = resultData?.sessionResult?.leaderBoardLines || [];
 
 if (!lines.length) {
@@ -141,12 +128,9 @@ published_at: new Date().toISOString()
 };
 });
 
-try {
 const { error: errInsert } = await supabase.from('results').insert(rows);
 if (errInsert) return res.status(500).json({ error: errInsert.message });
-} catch (errCatch) {
-return res.status(500).json({ error: errCatch.message });
-}
+
 return res.status(200).json({
 message: `Résultats importés (${rows.length} pilotes)`,
 file: bestFile.name,
@@ -197,6 +181,15 @@ message: 'Entry list générée avec succès !',
 content: JSON.stringify(entrylist, null, 2)
 });
 }
+
 return res.status(400).json({ error: 'Type invalide' });
 
+} catch (e) {
+console.error('GPORTAL/SEND ERROR:', e);
+return res.status(500).json({
+error: e.message || 'Erreur inconnue',
+stack: e.stack ? e.stack.split('\n').slice(0, 5).join(' | ') : null,
+name: e.name || null
+});
+}
 };
