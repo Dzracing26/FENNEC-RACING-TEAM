@@ -61,6 +61,9 @@ client.close();
 let rawContent = Buffer.concat(chunks).toString('utf-8');
 rawContent = rawContent.replace(/^\uFEFF/, '').trim();
 
+// Nettoyer les caractères de contrôle invalides
+rawContent = rawContent.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+
 // Trouver le premier '{' et le dernier '}'
 const startIndex = rawContent.indexOf('{');
 const endIndex = rawContent.lastIndexOf('}');
