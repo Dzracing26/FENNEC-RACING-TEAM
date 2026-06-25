@@ -141,9 +141,12 @@ published_at: new Date().toISOString()
 };
 });
 
+try {
 const { error: errInsert } = await supabase.from('results').insert(rows);
 if (errInsert) return res.status(500).json({ error: errInsert.message });
-
+} catch (errCatch) {
+return res.status(500).json({ error: errCatch.message });
+}
 return res.status(200).json({
 message: `Résultats importés (${rows.length} pilotes)`,
 file: bestFile.name,
