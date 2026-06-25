@@ -61,12 +61,15 @@ client.close();
 let rawContent = Buffer.concat(chunks).toString('utf-8');
 rawContent = rawContent.replace(/^\uFEFF/, '').trim();
 
-// Trouver le premier '{' et commencer de là
+// Trouver le premier '{' et le dernier '}'
 const startIndex = rawContent.indexOf('{');
-if (startIndex === -1) {
-return res.status(400).json({ error: 'No JSON object found in file' });
+const endIndex = rawContent.lastIndexOf('}');
+
+if (startIndex === -1 || endIndex === -1 || startIndex >= endIndex) {
+return res.status(400).json({ error: 'No valid JSON object found in file' });
 }
-rawContent = rawContent.substring(startIndex);
+
+rawContent = rawContent.substring(startIndex, endIndex + 1);
 
 let resultData;
 try {
