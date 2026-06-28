@@ -561,7 +561,7 @@ async function loadHome(){
     document.getElementById('home-standings').innerHTML=sorted.length
       ?sorted.map((p,i)=>`<div class="standings-row"><div class="st-pos" style="color:${medColors[i]||'var(--muted)'}">${i+1}</div><div class="st-name">#${p.race_number} ${p.discord_username}</div><div class="st-pts">${p.points}</div></div>`).join('')
       :'<p style="color:var(--muted);font-size:13px;">Aucun pilote encore inscrit.</p>';
-    const next=events.find(e=>e.status==='upcoming'&&new Date(e.event_date)>new Date());
+    const next=events.find(e=>e.status==='upcoming');
     if(next){
       const d=new Date(next.event_date);
       const regCount=next.registrations?.[0]?.count||0;
@@ -624,14 +624,14 @@ async function loadEvents(){
 
 function renderEvents(filter){
   let evs=eventsCache;
-  if(filter==='upcoming')evs=evs.filter(e=>e.status==='upcoming'&&new Date(e.event_date)>new Date());
-if(filter==='finished')evs=evs.filter(e=>e.status==='finished'||(e.status==='upcoming'&&new Date(e.event_date)<=new Date()));
+  if(filter==='upcoming')evs=evs.filter(e=>e.status==='upcoming');
+  if(filter==='finished')evs=evs.filter(e=>e.status==='finished');
   document.getElementById('events-list').innerHTML=evs.length
     ?evs.map(ev=>{
         const d=new Date(ev.event_date);
         const regCount=ev.registrations?.[0]?.count||0;
         const pct=Math.min(100,(regCount/ev.max_pilots)*100);
-        const isOpen=ev.status==='upcoming'&&new Date(ev.event_date)>new Date();
+        const isOpen=ev.status==='upcoming';
         return`<div class="event-card" onclick="voirDetails('${ev.id}')" style="cursor:pointer;">
           <div class="date-box"><div class="date-day">${d.getDate()}</div><div class="date-month">${d.toLocaleString('fr-FR',{month:'short'}).toUpperCase()}</div></div>
           <div class="ev-info">
@@ -687,8 +687,8 @@ async function voirDetails(eventId){
             <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">PLACES</div><div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${regCount} / ${ev.max_pilots}</div><div style="width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:6px;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));border-radius:2px;"></div></div></div>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-           ${d<new Date()?`<button class="btn btn-primary" onclick="chargerResultats('${ev.id}')">🏆 CHARGER LES RÉSULTATS</button>`:(isRegistered?`<button class="btn btn-danger" onclick="unregisterEvent('${ev.id}')" ${canUnregister?'':'disabled'}>${canUnregister?'SE DÉSINSCRIRE':'Désinscription fermée'}</button>`:`<button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S'INSCRIRE</button>`)}
-<button class="btn btn-secondary" onclick="loadEvents()">← Retour au calendrier</button>
+            ${isRegistered?`<button class="btn btn-danger" onclick="unregisterEvent('${ev.id}')" ${canUnregister?'':'disabled'}>${canUnregister?'SE DÉSINSCRIRE':'Désinscription fermée'}</button>`:`<button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S'INSCRIRE</button>`}
+            <button class="btn btn-secondary" onclick="loadEvents()">← Retour au calendrier</button>
           </div>
           <div style="margin-top:24px;">
             <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--pink);margin-bottom:8px;">PILOTES INSCRITS (${regCount})</div>
@@ -723,14 +723,6 @@ async function unregisterEvent(eventId){
     const{message}=await api('/api/events/register',{method:'DELETE',body:JSON.stringify({event_id:eventId})});
     notify(message,'success');voirDetails(eventId);
   }catch(e){notify(e.message,'error');}
-}
-  async function chargerResultats(eventId){
-notify('Récupération des résultats sur GPortal...','');
-try{
-const{message}=await api('/api/gportal/send',{method:'POST',body:JSON.stringify({type:'results',event_id:eventId})});
-notify(message,'success');
-voirDetails(eventId);
-}catch(e){notify(e.message,'error');}
 }
 
 function renderResults(results,event){
