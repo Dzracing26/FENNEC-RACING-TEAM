@@ -670,6 +670,25 @@ async function voirDetails(eventId){
           isRegistered=data.pilots.some(p=>p.discord_username===user?.username||p.discord_username===user?.discord_username);
         }
       }catch(e){}
+      let resultsHtml='';
+      try{
+        const{results}=await api(`/api/results?event_id=${eventId}&type=race`);
+        if(results&&results.length){
+          const medColors=['#FFD700','#C0C0C0','#CD7F32'];
+          resultsHtml=`<div style="margin-top:24px;">
+            <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--pink);margin-bottom:8px;">RÉSULTATS DE COURSE</div>
+            <table class="tbl"><thead><tr><th>Pos</th><th>N°</th><th>Pilote</th><th>Voiture</th><th>Meilleur Temps</th><th>Points</th></tr></thead>
+            <tbody>${results.map((r,i)=>`<tr>
+              <td style="color:${medColors[i]||'white'};font-family:'Orbitron',sans-serif;font-weight:900;">P${r.position}</td>
+              <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">#${r.pilots?.race_number||'?'}</td>
+              <td style="color:white;font-weight:600;">${r.pilots?.discord_username||'—'}</td>
+              <td style="font-size:12px;">${r.car_model||'—'}</td>
+              <td style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--blue);">${r.best_lap_ms?msToLap(r.best_lap_ms):'—'}</td>
+              <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">${r.points_earned||0}</td>
+            </tr>`).join('')}</tbody></table>
+          </div>`;
+        }
+      }catch(e){}
       document.getElementById('events-list').innerHTML=`
         <div style="background:var(--card);border:1px solid var(--pink);border-radius:8px;padding:28px;margin-bottom:24px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
@@ -694,6 +713,7 @@ async function voirDetails(eventId){
             <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--pink);margin-bottom:8px;">PILOTES INSCRITS (${regCount})</div>
             ${pilotesList}
           </div>
+          ${resultsHtml}
         </div>`;
     }catch(e){console.error(e);}
   },300);
