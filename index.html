@@ -109,7 +109,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba
 .pilot-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:22px;position:relative;overflow:hidden;transition:all .3s;}
 .pilot-card:hover{border-color:rgba(255,0,128,.45);transform:translateY(-3px);}
 .pilot-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink),var(--blue));}
-.pilot-num-bg{font-family:'Orbitron',sans-serif;font-size:46px;font-weight:900;color:rgba(255,255,255,.05);position:absolute;top:8px;right:14px;line-height:1;pointer-events:none;}
+.pilot-num-bg{font-family:'Orbitron',sans-serif;font-size:46px;font-weight:900;color:rgba(255,255,255,.35);position:absolute;top:8px;right:14px;line-height:1;pointer-events:none;}
 .pilot-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:white;margin-bottom:12px;border:2px solid rgba(255,255,255,.1);}
 .pilot-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:white;margin-bottom:3px;}
 .pilot-handle{font-size:11px;color:var(--muted);letter-spacing:.5px;margin-bottom:10px;}
@@ -389,15 +389,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
     <input type="hidden" id="edit-ev-id">
     <div class="form-grid">
       <div class="form-group"><label>Nom</label><input type="text" id="edit-ev-name"></div>
-      <div class="form-group"><label>Circuit</label><select id="edit-ev-track">
-        <option value="spa">SPA</option><option value="monza">MONZA</option><option value="silverstone">SILVERSTONE</option>
-        <option value="nurburgring_gp">NURBURGRING GP</option><option value="suzuka">SUZUKA</option>
-        <option value="barcelona">BARCELONA</option><option value="zandvoort">ZANDVOORT</option>
-        <option value="imola">IMOLA</option><option value="brands_hatch">BRANDS HATCH</option>
-        <option value="paul_ricard">PAUL RICARD</option><option value="hungaroring">HUNGARORING</option>
-        <option value="misano">MISANO</option><option value="kyalami">KYALAMI</option>
-        <option value="laguna_seca">LAGUNA SECA</option><option value="mount_panorama">MOUNT PANORAMA</option>
-      </select></div>
+      <div class="form-group"><label>Circuit</label><select id="edit-ev-track"></select></div>
       <div class="form-group"><label>Date</label><input type="date" id="edit-ev-date"></div>
       <div class="form-group"><label>Heure (CET)</label><input type="time" id="edit-ev-time"></div>
       <div class="form-group"><label>Durée course (min)</label><input type="number" id="edit-ev-dur"></div>
@@ -492,6 +484,9 @@ let selectedPlat=null;
 let eventsCache=[];
 let pilotsCache=[];
 let resultsCache=[];
+const ACC_TRACKS=[{k:'barcelona',n:'BARCELONA',km:'4.655'},{k:'brands_hatch',n:'BRANDS HATCH',km:'3.916'},{k:'cota',n:'COTA',km:'5.513'},{k:'donington',n:'DONINGTON',km:'4.020'},{k:'hungaroring',n:'HUNGARORING',km:'4.381'},{k:'indianapolis',n:'INDIANAPOLIS',km:'3.925'},{k:'imola',n:'IMOLA',km:'4.909'},{k:'kyalami',n:'KYALAMI',km:'4.580'},{k:'laguna_seca',n:'LAGUNA SECA',km:'3.602'},{k:'misano',n:'MISANO',km:'4.226'},{k:'monza',n:'MONZA',km:'5.793'},{k:'mount_panorama',n:'MOUNT PANORAMA',km:'6.213'},{k:'nurburgring',n:'NÜRBURGRING GP',km:'5.137'},{k:'nurburgring_24h',n:'NORDSCHLEIFE 24H',km:'25.378'},{k:'oulton_park',n:'OULTON PARK',km:'4.333'},{k:'paul_ricard',n:'PAUL RICARD',km:'5.791'},{k:'red_bull_ring',n:'RED BULL RING',km:'4.318'},{k:'silverstone',n:'SILVERSTONE',km:'5.891'},{k:'snetterton',n:'SNETTERTON',km:'4.779'},{k:'spa',n:'SPA',km:'7.004'},{k:'suzuka',n:'SUZUKA',km:'5.807'},{k:'watkins_glen',n:'WATKINS GLEN',km:'5.435'},{k:'valencia',n:'VALENCIA',km:'4.005'},{k:'zandvoort',n:'ZANDVOORT',km:'4.307'},{k:'zolder',n:'ZOLDER',km:'4.011'}];
+function trackOptions(){return ACC_TRACKS.map(t=>`<option value="${t.k}">${t.n} (${t.km} km)</option>`).join('');}
+function trackInfo(key){return ACC_TRACKS.find(t=>t.k===key)||{k:key||'',n:(key||'').replace(/_/g,' ').toUpperCase(),km:''};}
 let autoRefreshInterval=null;
 
 try{const c=document.cookie.match(/frt_user=([^;]+)/);if(c)user=JSON.parse(decodeURIComponent(c[1]));}catch(e){}
@@ -565,9 +560,13 @@ async function loadHome(){
     if(next){
       const d=new Date(next.event_date);
       const regCount=next.registrations?.[0]?.count||0;
+      const ninfo=trackInfo(next.track);
       document.getElementById('home-next-event').innerHTML=`
         <div class="ev-badge" data-en="● NEXT EVENT">● PROCHAIN ÉVÉNEMENT</div>
         <div class="ev-title">${next.name}</div>
+        <img src="/circuits/${next.track}.jpg" alt="${ninfo.n}" onerror="this.style.display='none'" style="width:100%;height:180px;object-fit:cover;border-radius:6px;border:1px solid var(--border);margin:4px 0 10px;display:block;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--blue);margin-bottom:12px;">${ninfo.n}${ninfo.km?` <span style="color:var(--muted);font-weight:400;">· ${ninfo.km} km</span>`:''}</div>
+        ${next.description?`<div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">${next.description}</div>`:''}
         <div class="ev-tags"><span class="tag tag-ps5">PS5</span><span class="tag tag-xbox">XBOX SERIES S / X</span><span class="tag tag-cross">CROSS PLAY</span></div>
         <div class="ev-meta">
           <div class="ev-meta-item"><div class="lbl" data-en="Date">Date</div><div class="val">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}).toUpperCase()}</div></div>
@@ -921,7 +920,7 @@ function adminTab(tab){
         <div class="form-grid">
           <div class="form-group"><label>Nom de l'événement</label><input type="text" id="ec-name" placeholder="Round 4 — Nürburgring"></div>
           <div class="form-group"><label>Circuit (ACC)</label><select id="ec-track">
-            ${['spa','monza','silverstone','nurburgring_gp','suzuka','barcelona','zandvoort','imola','brands_hatch','paul_ricard','hungaroring','misano','kyalami','laguna_seca','mount_panorama'].map(t=>`<option value="${t}">${t.replace(/_/g,' ').toUpperCase()}</option>`).join('')}
+            ${trackOptions()}
           </select></div>
           <div class="form-group"><label>Date</label><input type="date" id="ec-date"></div>
           <div class="form-group"><label>Heure (CET)</label><input type="time" id="ec-time" value="20:30"></div>
@@ -993,6 +992,7 @@ function openEditEvent(id){
   if(!ev)return;
   document.getElementById('edit-ev-id').value=ev.id;
   document.getElementById('edit-ev-name').value=ev.name;
+  document.getElementById('edit-ev-track').innerHTML=trackOptions();
   document.getElementById('edit-ev-track').value=ev.track;
   const d=new Date(ev.event_date);
   document.getElementById('edit-ev-date').value=d.toISOString().split('T')[0];
