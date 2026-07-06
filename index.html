@@ -29,8 +29,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba
 .page{display:none;padding-top:68px;min-height:100vh;}
 .page.active{display:block;animation:fadeUp .35s ease;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-.hero{position:relative;width:100%;aspect-ratio:2.5;overflow:hidden;background:url('/image.jpg') center/contain no-repeat;display:flex;align-items:flex-end;justify-content:flex-end;}
-@media(max-width:900px){.hero{height:auto;aspect-ratio:2.5;}}
+.hero{position:relative;height:320px;overflow:hidden;background:url('/image.jpg') center/cover no-repeat;display:flex;align-items:flex-end;justify-content:flex-end;}
+@media(max-width:900px){.hero{height:auto;aspect-ratio:2.5;background:url('/image.jpg') center/contain no-repeat;}.hero-content{left:50%!important;right:auto!important;bottom:6px!important;transform:translateX(-50%);gap:6px!important;padding:5px 9px!important;flex-wrap:wrap!important;justify-content:center!important;max-width:92%!important;}.hero-content img{height:15px!important;}.hero-content .tag{font-size:8px!important;padding:2px 6px!important;letter-spacing:1px!important;}}
 .hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,0,128,.12) 0%,transparent 50%,rgba(0,180,255,.08) 100%);}
 .hero-stripes{position:absolute;inset:0;overflow:hidden;opacity:.12;}
 .hero-stripes span{position:absolute;top:-80px;width:3px;height:500px;transform:rotate(22deg);}
