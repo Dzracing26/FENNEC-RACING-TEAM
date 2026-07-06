@@ -224,10 +224,10 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
   </a>
   <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
   <ul class="nav-links">
-    <li><a onclick="go('home')" id="nl-home" class="active">Accueil</a></li>
-    <li><a onclick="go('events')" id="nl-events">Événements</a></li>
-    <li><a onclick="go('profiles')" id="nl-profiles">Profils</a></li>
-    <li><a onclick="go('rules')" id="nl-rules">Règlement</a></li>
+    <li><a onclick="go('home')" id="nl-home" class="active" data-en="Home">Accueil</a></li>
+    <li><a onclick="go('events')" id="nl-events" data-en="Events">Événements</a></li>
+    <li><a onclick="go('profiles')" id="nl-profiles" data-en="Profiles">Profils</a></li>
+    <li><a onclick="go('rules')" id="nl-rules" data-en="Rules">Règlement</a></li>
     <li id="admin-nav-li" style="display:none"><a onclick="go('admin')" id="nl-admin" style="color:var(--pink)">⚙ Admin</a></li>
   </ul>
   <div class="nav-right">
@@ -242,10 +242,10 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
 </nav>
 
 <div class="mobile-menu" id="mobile-menu">
-  <a onclick="go('home');closeMobileMenu()" id="ml-home" class="active">Accueil</a>
-  <a onclick="go('events');closeMobileMenu()" id="ml-events">Événements</a>
-  <a onclick="go('profiles');closeMobileMenu()" id="ml-profiles">Profils</a>
-  <a onclick="go('rules');closeMobileMenu()" id="ml-rules">Règlement</a>
+  <a onclick="go('home');closeMobileMenu()" id="ml-home" class="active" data-en="Home">Accueil</a>
+  <a onclick="go('events');closeMobileMenu()" id="ml-events" data-en="Events">Événements</a>
+  <a onclick="go('profiles');closeMobileMenu()" id="ml-profiles" data-en="Profiles">Profils</a>
+  <a onclick="go('rules');closeMobileMenu()" id="ml-rules" data-en="Rules">Règlement</a>
   <a onclick="go('admin');closeMobileMenu()" id="ml-admin" style="display:none;color:var(--pink)">⚙ Admin</a>
 </div>
 
@@ -266,22 +266,22 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
       </div>
       <div>
         <div class="stat-grid">
-          <div class="stat-box"><div class="stat-num" id="stat-pilots">—</div><div class="stat-lbl">Pilotes</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-events">—</div><div class="stat-lbl">Courses</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-seasons">1</div><div class="stat-lbl">Saisons</div></div>
-          <div class="stat-box"><div class="stat-num" id="stat-races">—</div><div class="stat-lbl">Rounds</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-pilots">—</div><div class="stat-lbl" data-en="Drivers">Pilotes</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-events">—</div><div class="stat-lbl" data-en="Races">Courses</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-seasons">1</div><div class="stat-lbl" data-en="Seasons">Saisons</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-races">—</div><div class="stat-lbl" data-en="Rounds">Rounds</div></div>
         </div>
         <div class="card" style="text-align:center;margin-bottom:20px;" id="discord-join-card">
           <div style="font-size:28px;margin-bottom:10px;">🎮</div>
-          <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:white;margin-bottom:8px;">REJOIGNEZ LA COMMUNAUTÉ</div>
-          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Connectez Discord pour rejoindre la ligue et vous inscrire aux courses</p>
+          <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:white;margin-bottom:8px;" data-en="JOIN THE COMMUNITY">REJOIGNEZ LA COMMUNAUTÉ</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;" data-en="Connect Discord to join the league and register for races">Connectez Discord pour rejoindre la ligue et vous inscrire aux courses</p>
           <button class="btn-discord-nav" style="width:100%;justify-content:center;display:flex;" onclick="loginDiscord()">
             <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
             Discord FRT
           </button>
         </div>
         <div class="card">
-          <div class="section-label">PILOTES</div>
+          <div class="section-label" data-en="DRIVERS">PILOTES</div>
           <div id="home-standings"><div class="loading"><div class="spinner"></div></div></div>
         </div>
       </div>
@@ -291,12 +291,12 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
 
 <!-- EVENTS -->
 <div class="page" id="page-events">
-  <div class="page-header"><h1>CALENDRIER <span>ÉVÉNEMENTS</span></h1><p>Saison 2025 — ACC · PS5 × XBOX SERIES S / X · Cross-Play</p></div>
+  <div class="page-header"><h1 data-en="CALENDAR &lt;span&gt;EVENTS&lt;/span&gt;">CALENDRIER <span>ÉVÉNEMENTS</span></h1><p data-en="Season 2025 — ACC · PS5 × XBOX SERIES S / X · Cross-Play">Saison 2025 — ACC · PS5 × XBOX SERIES S / X · Cross-Play</p></div>
   <div class="container">
     <div class="filters">
-      <button class="filter-btn active" data-filter="all">Tous</button>
-      <button class="filter-btn" data-filter="upcoming">À venir</button>
-      <button class="filter-btn" data-filter="finished">Terminés</button>
+      <button class="filter-btn active" data-filter="all" data-en="All">Tous</button>
+      <button class="filter-btn" data-filter="upcoming" data-en="Upcoming">À venir</button>
+      <button class="filter-btn" data-filter="finished" data-en="Finished">Terminés</button>
     </div>
     <div id="events-list"><div class="loading"><div class="spinner"></div></div></div>
     <div style="margin-top:44px;">
@@ -306,18 +306,18 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
 
 <!-- PROFILES -->
 <div class="page" id="page-profiles">
-  <div class="page-header"><h1>PROFILS <span>PILOTES</span></h1><p>Entry List officielle — Saison 2025 FRT</p></div>
+  <div class="page-header"><h1 data-en="DRIVER &lt;span&gt;PROFILES&lt;/span&gt;">PROFILS <span>PILOTES</span></h1><p data-en="Official Entry List — 2025 FRT Season">Entry List officielle — Saison 2025 FRT</p></div>
   <div class="container">
     <div class="discord-banner" id="discord-required-banner">
-      <div><h3>🔗 Compte Discord requis</h3><p>Rejoignez le serveur FRT et liez votre compte pour créer un profil et vous inscrire.</p></div>
+      <div><h3 data-en="🔗 Discord account required">🔗 Compte Discord requis</h3><p data-en="Join the FRT server and link your account to create a profile and register.">Rejoignez le serveur FRT et liez votre compte pour créer un profil et vous inscrire.</p></div>
       <button class="btn-discord-nav" onclick="loginDiscord()">
         <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
-        Rejoindre Discord
+        <span data-en="Join Discord">Rejoindre Discord</span>
       </button>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px;">
-      <div class="section-label" style="margin-bottom:0;flex:1;">PILOTES INSCRITS</div>
-      <button class="btn btn-primary" onclick="openRegModal()">+ CRÉER MON PROFIL</button>
+      <div class="section-label" style="margin-bottom:0;flex:1;" data-en="REGISTERED DRIVERS">PILOTES INSCRITS</div>
+      <button class="btn btn-primary" onclick="openRegModal()" data-en="+ CREATE MY PROFILE">+ CRÉER MON PROFIL</button>
     </div>
     <div class="pilots-grid" id="pilots-grid"><div class="loading"><div class="spinner"></div></div></div>
   </div>
@@ -444,7 +444,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
   <div class="footer-grid">
     <div class="footer-brand">
       <h4>FENNEC <span>RACING TEAM</span></h4>
-      <p>Ligue simulation automobile sur ACC. PS5 × XBOX SERIES S / X· Cross-Play. Rejoignez notre Discord et participez aux courses hebdomadaires.</p>
+      <p data-en="Sim racing league on ACC. PS5 × XBOX SERIES S / X · Cross-Play. Join our Discord and take part in weekly races.">Ligue simulation automobile sur ACC. PS5 × XBOX SERIES S / X· Cross-Play. Rejoignez notre Discord et participez aux courses hebdomadaires.</p>
       <div class="footer-socials">
         <a class="social-btn" href="https://discord.gg/kJHzMKeER2" target="_blank" title="Discord">
           <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
@@ -454,17 +454,17 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
     <div class="footer-col">
       <h5>Navigation</h5>
       <ul>
-        <li><a onclick="go('home')">Accueil</a></li>
-        <li><a onclick="go('events')">Événements</a></li>
-        <li><a onclick="go('profiles')">Profils</a></li>
-        <li><a onclick="go('rules')">Règlement</a></li>
+        <li><a onclick="go('home')" data-en="Home">Accueil</a></li>
+        <li><a onclick="go('events')" data-en="Events">Événements</a></li>
+        <li><a onclick="go('profiles')" data-en="Profiles">Profils</a></li>
+        <li><a onclick="go('rules')" data-en="Rules">Règlement</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h5>Inscription</h5>
+      <h5 data-en="Registration">Inscription</h5>
       <ul>
         <li><a href="https://discord.gg/kJHzMKeER2" target="_blank">Discord FRT</a></li>
-        <li><a onclick="openRegModal()">Créer mon profil</a></li>
+        <li><a onclick="openRegModal()" data-en="Create my profile">Créer mon profil</a></li>
         <li><a href="https://www.psntools.com/psn/checker/" target="_blank">PSN UID Checker</a></li>
         <li><a href="https://www.cxkes.me/xbox/xuid" target="_blank">Xbox XUID Finder</a></li>
       </ul>
@@ -472,8 +472,8 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
     <div class="footer-col">
       <h5>Admin</h5>
       <ul>
-        <li><a onclick="loginDiscord()">Connexion Discord</a></li>
-        <li><a onclick="go('admin')">Panneau Admin</a></li>
+        <li><a onclick="loginDiscord()" data-en="Discord login">Connexion Discord</a></li>
+        <li><a onclick="go('admin')" data-en="Admin panel">Panneau Admin</a></li>
       </ul>
     </div>
   </div>
@@ -485,6 +485,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
 
 <script>
 let lang='fr';
+try{var _sl=localStorage.getItem('frt_lang');if(_sl==='en'||_sl==='fr')lang=_sl;}catch(e){}
 let user=null;
 let selectedNum=null;
 let selectedPlat=null;
@@ -499,7 +500,13 @@ const urlParams=new URLSearchParams(location.search);
 if(urlParams.get('auth')==='success'){notify('Connexion réussie !','success');history.replaceState({},'','/');}
 if(urlParams.get('auth')==='error'){notify('Erreur de connexion Discord.','error');history.replaceState({},'','/');}
 
-function toggleLang(){lang=lang==='fr'?'en':'fr';document.getElementById('langBtn').textContent=lang==='fr'?'🇬🇧 EN':'🇫🇷 FR';}
+function applyLang(){
+  try{document.querySelectorAll('[data-en]').forEach(function(el){if(!el.hasAttribute('data-fr'))el.setAttribute('data-fr',el.innerHTML);el.innerHTML=(lang==='en')?el.getAttribute('data-en'):el.getAttribute('data-fr');});}catch(e){}
+  var lb=document.getElementById('langBtn');if(lb)lb.textContent=(lang==='fr')?'🇬🇧 EN':'🇫🇷 FR';
+  document.documentElement.setAttribute('lang',lang);
+  try{localStorage.setItem('frt_lang',lang);}catch(e){}
+}
+function toggleLang(){lang=(lang==='fr')?'en':'fr';applyLang();}
 
 function go(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -559,33 +566,34 @@ async function loadHome(){
       const d=new Date(next.event_date);
       const regCount=next.registrations?.[0]?.count||0;
       document.getElementById('home-next-event').innerHTML=`
-        <div class="ev-badge">● PROCHAIN ÉVÉNEMENT</div>
+        <div class="ev-badge" data-en="● NEXT EVENT">● PROCHAIN ÉVÉNEMENT</div>
         <div class="ev-title">${next.name}</div>
         <div class="ev-tags"><span class="tag tag-ps5">PS5</span><span class="tag tag-xbox">XBOX SERIES S / X</span><span class="tag tag-cross">CROSS PLAY</span></div>
         <div class="ev-meta">
-          <div class="ev-meta-item"><div class="lbl">Date</div><div class="val">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}).toUpperCase()}</div></div>
-          <div class="ev-meta-item"><div class="lbl">Heure</div><div class="val">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div></div>
-          <div class="ev-meta-item"><div class="lbl">Places</div><div class="val">${regCount}/${next.max_pilots}</div></div>
+          <div class="ev-meta-item"><div class="lbl" data-en="Date">Date</div><div class="val">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}).toUpperCase()}</div></div>
+          <div class="ev-meta-item"><div class="lbl" data-en="Time">Heure</div><div class="val">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div></div>
+          <div class="ev-meta-item"><div class="lbl" data-en="Slots">Places</div><div class="val">${regCount}/${next.max_pilots}</div></div>
         </div>
         <div class="countdown" id="cd-wrap">
-          <div class="cd-item"><div class="cd-num" id="cd-d">--</div><div class="cd-unit">Jours</div></div>
-          <div class="cd-item"><div class="cd-num" id="cd-h">--</div><div class="cd-unit">Heures</div></div>
-          <div class="cd-item"><div class="cd-num" id="cd-m">--</div><div class="cd-unit">Min</div></div>
-          <div class="cd-item"><div class="cd-num" id="cd-s">--</div><div class="cd-unit">Sec</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-d">--</div><div class="cd-unit" data-en="Days">Jours</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-h">--</div><div class="cd-unit" data-en="Hours">Heures</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-m">--</div><div class="cd-unit" data-en="Min">Min</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-s">--</div><div class="cd-unit" data-en="Sec">Sec</div></div>
         </div>
         <div class="btn-group">
-          <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;"><input type="checkbox" id="accept-rules" onchange="document.getElementById('btn-register').disabled=!this.checked"> J'accepte le <a href="#" onclick="go('rules')" style="color:var(--pink)">règlement</a></label><button id="btn-register" disabled class="btn btn-primary" onclick="go('events')">S'INSCRIRE</button>
-          <button class="btn btn-secondary" onclick="voirDetails('${next.id}')">VOIR DÉTAILS</button>
+          <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;"><input type="checkbox" id="accept-rules" onchange="document.getElementById('btn-register').disabled=!this.checked"> J'accepte le <a href="#" onclick="go('rules')" style="color:var(--pink)">règlement</a></label><button id="btn-register" disabled class="btn btn-primary" onclick="go('events')" data-en="REGISTER">S'INSCRIRE</button>
+          <button class="btn btn-secondary" onclick="voirDetails('${next.id}')" data-en="VIEW DETAILS">VOIR DÉTAILS</button>
         </div>`;
       startCountdown(d);
     }else{
-      document.getElementById('home-next-event').innerHTML='<p style="color:var(--muted);font-size:14px;padding:20px 0;">Aucun événement à venir.</p>';
+      document.getElementById('home-next-event').innerHTML='<p style="color:var(--muted);font-size:14px;padding:20px 0;" data-en="No upcoming events.">Aucun événement à venir.</p>';
     }
     const lastResults=resultsCache.filter(r=>r.result_type==='race').slice(0,3);
     const medals=['p1','p2','p3'];
     document.getElementById('home-results').innerHTML=lastResults.length
       ?lastResults.map((r,i)=>`<div class="result-row"><div class="result-pos ${medals[i]||''}">P${r.position}</div><div class="result-info"><div class="result-track">${r.pilots?.discord_username||'—'}</div><div class="result-driver">#${r.pilots?.race_number||'?'} · ${r.car_model||'GT3'}</div></div><div class="result-time">${r.best_lap_ms?msToLap(r.best_lap_ms):'—'}</div></div>`).join('')
-      :'<p style="color:var(--muted);font-size:13px;">Aucun résultat disponible.</p>';
+      :'<p style="color:var(--muted);font-size:13px;" data-en="No results available.">Aucun résultat disponible.</p>';
+    applyLang();
   }catch(e){console.error(e);}
 }
 
@@ -613,8 +621,9 @@ async function loadEvents(){
       const{results}=await api(`/api/results?event_id=${lastFinished.id}&type=race`);
       renderResults(results,lastFinished);
     }else{
-      document.getElementById('results-section').innerHTML='<p style="color:var(--muted);font-size:13px;">Aucun résultat disponible.</p>';
+      document.getElementById('results-section').innerHTML='<p style="color:var(--muted);font-size:13px;" data-en="No results available.">Aucun résultat disponible.</p>';
     }
+    applyLang();
   }catch(e){console.error(e);}
 }
 
@@ -633,18 +642,19 @@ function renderEvents(filter){
           <div class="ev-info">
             <h3>${ev.name}</h3>
             <div class="ev-tags"><span class="tag tag-ps5">PS5</span><span class="tag tag-xbox">XBOX</span><span class="tag tag-cross">CROSS PLAY</span>
-              ${isOpen?`<span class="tag tag-race">COURSE ${ev.race_duration}MIN</span>`:`<span class="badge badge-blue">TERMINÉE</span>`}
+              ${isOpen?`<span class="tag tag-race">COURSE ${ev.race_duration}MIN</span>`:`<span class="badge badge-blue" data-en="FINISHED">TERMINÉE</span>`}
             </div>
             <div class="ev-details">${ev.description||''}</div>
           </div>
           <div class="slots-wrap">
             <div class="slots-text">${regCount}/${ev.max_pilots} places</div>
             <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
-            ${isOpen?(regCount>=ev.max_pilots?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled>COMPLET</button>`:`<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();registerEvent('${ev.id}')">S'INSCRIRE</button>`):`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;">Détails →</button>`}
+            ${isOpen?(regCount>=ev.max_pilots?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled data-en="FULL">COMPLET</button>`:`<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();registerEvent('${ev.id}')" data-en="REGISTER">S'INSCRIRE</button>`):`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" data-en="Details →">Détails →</button>`}
           </div>
         </div>`;
       }).join('')
-    :'<p style="color:var(--muted);font-size:13px;">Aucun événement.</p>';
+    :'<p style="color:var(--muted);font-size:13px;" data-en="No events.">Aucun événement.</p>';
+  applyLang();
 }
 
 async function voirDetails(eventId){
@@ -1108,6 +1118,7 @@ function updateMobileNav(page){
 }
 updateNavAuth();
 loadHome();
+applyLang();
 </script>
 </body>
 </html>
