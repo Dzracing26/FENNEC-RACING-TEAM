@@ -13,6 +13,12 @@ res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 if (req.method === 'OPTIONS') return res.status(200).end();
 
 if (req.method === 'GET') {
+await supabase
+.from('events')
+.update({ status: 'finished' })
+.eq('status', 'upcoming')
+.lt('event_date', new Date().toISOString());
+
 const { data, error } = await supabase
 .from('events')
 .select('*, registrations(count)')
@@ -28,7 +34,7 @@ const { name, track, event_date, race_duration, max_pilots, description } = req.
 if (!name || !track || !event_date) return res.status(400).json({ error: 'Nom, circuit et date requis.' });
 const { data, error } = await supabase
 .from('events')
-.insert({ name, track, event_date, race_duration: race_duration || 60, max_pilots: max_pilots || 30, description: description || '', created_by: admin.discord_username })
+.insert({ name, track, event_date, race_duration: race_duration || 60, max_pilots: max_pilots || 30, description: description || '', created_by: admin.discord_username, status: 'upcoming' })
 .select().single();
 if (error) return res.status(500).json({ error: error.message });
 return res.status(201).json({ event: data });
@@ -57,5 +63,5 @@ if (error) return res.status(500).json({ error: error.message });
 return res.status(200).json({ success: true });
 }
 
-res.status(405).json({ error: 'Méthode non autorisée' });
+return res.status(405).json({ error: 'Method not allowed' });
 }
