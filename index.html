@@ -764,11 +764,6 @@ async function loadPilots(){
             <div class="pilot-name">#${p.race_number} ${p.discord_username}</div>
             <div class="pilot-handle">${handle}</div>
             <span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span>
-            <div class="pilot-stats" style="margin-top:10px;">
-              <div class="ps"><div class="v">${p.races_count}</div><div class="l">Courses</div></div>
-              <div class="ps"><div class="v">${p.wins_count}</div><div class="l">Victoires</div></div>
-              <div class="ps"><div class="v">${p.points}</div><div class="l">Points</div></div>
-            </div>
             ${isMe ? `<button class="btn btn-secondary" style="width:100%;margin-top:12px;font-size:9px;padding:8px;" onclick="openEditProfile('${p.platform}','${(p.psn_id||'').replace(/'/g,"\\'")}','${(p.platform_uid||'').replace(/'/g,"\\'")}','${(p.gamertag||'').replace(/'/g,"\\'")}')">✏️ MODIFIER MON PROFIL</button>` : ''}
           </div>`;
         }).join('')
