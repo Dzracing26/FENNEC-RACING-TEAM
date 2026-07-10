@@ -627,9 +627,10 @@ async function loadEvents(){
 }
 
 function renderEvents(filter){
-  let evs=eventsCache;
+  let evs=[...eventsCache];
   if(filter==='upcoming')evs=evs.filter(e=>e.status==='upcoming');
   if(filter==='finished')evs=evs.filter(e=>e.status==='finished');
+  evs.sort((a,b)=>new Date(b.event_date)-new Date(a.event_date));
   document.getElementById('events-list').innerHTML=evs.length
     ?evs.map(ev=>{
         const d=new Date(ev.event_date);
@@ -641,7 +642,7 @@ function renderEvents(filter){
           <div class="ev-info">
             <h3>${ev.name}</h3>
             <div class="ev-tags"><span class="tag tag-ps5">PS5</span><span class="tag tag-xbox">XBOX</span><span class="tag tag-cross">CROSS PLAY</span>
-              ${isOpen?`<span class="tag tag-race">COURSE ${ev.race_duration}MIN</span>`:`<span class="badge badge-blue" data-en="FINISHED">TERMINÉE</span>`}
+              ${isOpen?`<span class="tag tag-race">COURSE ${ev.race_duration}MIN</span>`:`<span class="badge badge-yellow" data-en="FINISHED">TERMINÉE</span>`}
             </div>
             <div class="ev-details">${ev.description||''}</div>
           </div>
