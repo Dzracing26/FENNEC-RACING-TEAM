@@ -484,6 +484,7 @@ let selectedPlat=null;
 let eventsCache=[];
 let pilotsCache=[];
 let resultsCache=[];
+let myRegs=new Set();
 const ACC_TRACKS=[{k:'barcelona',n:'BARCELONA',km:'4.655'},{k:'brands_hatch',n:'BRANDS HATCH',km:'3.916'},{k:'cota',n:'COTA',km:'5.513'},{k:'donington',n:'DONINGTON',km:'4.020'},{k:'hungaroring',n:'HUNGARORING',km:'4.381'},{k:'indianapolis',n:'INDIANAPOLIS',km:'3.925'},{k:'imola',n:'IMOLA',km:'4.909'},{k:'kyalami',n:'KYALAMI',km:'4.580'},{k:'laguna_seca',n:'LAGUNA SECA',km:'3.602'},{k:'misano',n:'MISANO',km:'4.226'},{k:'monza',n:'MONZA',km:'5.793'},{k:'mount_panorama',n:'MOUNT PANORAMA',km:'6.213'},{k:'nurburgring',n:'NÜRBURGRING GP',km:'5.137'},{k:'nurburgring_24h',n:'NORDSCHLEIFE 24H',km:'25.378'},{k:'oulton_park',n:'OULTON PARK',km:'4.333'},{k:'paul_ricard',n:'PAUL RICARD',km:'5.791'},{k:'red_bull_ring',n:'RED BULL RING',km:'4.318'},{k:'silverstone',n:'SILVERSTONE',km:'5.891'},{k:'snetterton',n:'SNETTERTON',km:'4.779'},{k:'spa',n:'SPA',km:'7.004'},{k:'suzuka',n:'SUZUKA',km:'5.807'},{k:'watkins_glen',n:'WATKINS GLEN',km:'5.435'},{k:'valencia',n:'VALENCIA',km:'4.005'},{k:'zandvoort',n:'ZANDVOORT',km:'4.307'},{k:'zolder',n:'ZOLDER',km:'4.011'}];
 function trackOptions(){return ACC_TRACKS.map(t=>`<option value="${t.k}">${t.n} (${t.km} km)</option>`).join('');}
 function trackInfo(key){return ACC_TRACKS.find(t=>t.k===key)||{k:key||'',n:(key||'').replace(/_/g,' ').toUpperCase(),km:''};}
@@ -544,6 +545,18 @@ async function api(url,options={}){
   return data;
 }
 
+async function refreshMyRegistrations(events){
+  myRegs=new Set();
+  if(!user)return;
+  const ups=(events||[]).filter(e=>e.status==='upcoming');
+  await Promise.all(ups.map(async ev=>{
+    try{
+      const data=await api(`/api/events/register?event_id=${ev.id}`);
+      if((data.pilots||[]).some(p=>p.discord_username===user?.username||p.discord_username===user?.discord_username))myRegs.add(ev.id);
+    }catch(e){}
+  }));
+}
+
 async function loadHome(){
   try{
     const[{events},{pilots},{results}]=await Promise.all([api('/api/events'),api('/api/pilots'),api('/api/results')]);
@@ -557,6 +570,7 @@ async function loadHome(){
       ?sorted.map((p,i)=>`<div class="standings-row"><div class="st-pos" style="color:${medColors[i]||'var(--muted)'}">${i+1}</div><div class="st-name">#${p.race_number} ${p.discord_username}</div><div class="st-pts">${p.points}</div></div>`).join('')
       :'<p style="color:var(--muted);font-size:13px;">Aucun pilote encore inscrit.</p>';
     const upcoming=events.filter(e=>e.status==='upcoming').sort((a,b)=>new Date(a.event_date)-new Date(b.event_date)).slice(0,2);
+    await refreshMyRegistrations(upcoming);
     if(upcoming.length){
       document.getElementById('home-next-event').innerHTML=upcoming.map((ev,i)=>{
         const d=new Date(ev.event_date);
@@ -581,7 +595,9 @@ async function loadHome(){
           <div class="cd-item"><div class="cd-num" id="cd-s-${i}">--</div><div class="cd-unit" data-en="Sec">Sec</div></div>
         </div>
         <div class="btn-group">
-          <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;"><input type="checkbox" id="accept-rules-${i}" onchange="document.getElementById('btn-register-${i}').disabled=!this.checked"> J'accepte le <a href="#" onclick="go('rules')" style="color:var(--pink)">règlement</a></label><button id="btn-register-${i}" disabled class="btn btn-primary" onclick="go('events')" data-en="REGISTER">S'INSCRIRE</button>
+          ${myRegs.has(ev.id)
+            ?`<span class="badge badge-green" style="padding:10px 16px;font-size:10px;display:inline-flex;align-items:center;" data-en="✅ REGISTERED">✅ INSCRIT</span><button class="btn btn-danger" onclick="unregisterEvent('${ev.id}','home')" data-en="UNREGISTER">SE DÉSINSCRIRE</button>`
+            :`<label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;"><input type="checkbox" id="accept-rules-${i}" onchange="document.getElementById('btn-register-${i}').disabled=!this.checked"> J'accepte le <a href="#" onclick="go('rules')" style="color:var(--pink)">règlement</a></label><button id="btn-register-${i}" disabled class="btn btn-primary" onclick="go('events')" data-en="REGISTER">S'INSCRIRE</button>`}
           <button class="btn btn-secondary" onclick="voirDetails('${ev.id}')" data-en="VIEW DETAILS">VOIR DÉTAILS</button>
         </div>
       </div>`;
@@ -620,7 +636,8 @@ async function loadEvents(){
     const{events}=await api('/api/events');
     eventsCache=events;
     clearInterval(autoRefreshInterval);
-    autoRefreshInterval=setInterval(async()=>{try{const{events:ev}=await api('/api/events');eventsCache=ev;if(document.getElementById('page-events').classList.contains('active')){const activeFilter=document.querySelector('.filter-btn.active');renderEvents(activeFilter?.getAttribute('data-filter')||'all');}}catch(e){}},120000);
+    autoRefreshInterval=setInterval(async()=>{try{const{events:ev}=await api('/api/events');eventsCache=ev;await refreshMyRegistrations(ev);if(document.getElementById('page-events').classList.contains('active')){const activeFilter=document.querySelector('.filter-btn.active');renderEvents(activeFilter?.getAttribute('data-filter')||'all');}}catch(e){}},120000);
+    await refreshMyRegistrations(events);
     renderEvents('all');
     const lastFinished=eventsCache.filter(e=>e.status==='finished').pop();
     if(lastFinished){
@@ -661,7 +678,7 @@ function renderEvents(filter){
           <div class="slots-wrap">
             <div class="slots-text">${regCount}/${ev.max_pilots} places</div>
             <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
-            ${isOpen?(regCount>=ev.max_pilots?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled data-en="FULL">COMPLET</button>`:`<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();registerEvent('${ev.id}')" data-en="REGISTER">S'INSCRIRE</button>`):`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" data-en="Details →">Détails →</button>`}
+            ${isOpen?(myRegs.has(ev.id)?`<button class="btn btn-danger" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();unregisterEvent('${ev.id}','list')" data-en="UNREGISTER">SE DÉSINSCRIRE</button>`:(regCount>=ev.max_pilots?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled data-en="FULL">COMPLET</button>`:`<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();registerEvent('${ev.id}')" data-en="REGISTER">S'INSCRIRE</button>`)):`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" data-en="Details →">Détails →</button>`}
           </div>
         </div>`;
       }).join('')
@@ -688,6 +705,7 @@ async function voirDetails(eventId){
           isRegistered=data.pilots.some(p=>p.discord_username===user?.username||p.discord_username===user?.discord_username);
         }
       }catch(e){}
+      if(ev.status==='upcoming'){if(isRegistered)myRegs.add(eventId);else myRegs.delete(eventId);}
       document.getElementById('events-list').innerHTML=`
         <div style="background:var(--card);border:1px solid var(--pink);border-radius:8px;padding:28px;margin-bottom:24px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
@@ -731,15 +749,20 @@ async function registerEvent(eventId){
   if(!user.race_number){notify('Créez votre profil pilote.','error');openRegModal();return;}
   try{
     const{message}=await api('/api/events/register',{method:'POST',body:JSON.stringify({event_id:eventId})});
+    myRegs.add(eventId);
     notify(message,'success');loadEvents();
   }catch(e){notify(e.message,'error');}
 }
 
-async function unregisterEvent(eventId){
+async function unregisterEvent(eventId,back){
   if(!user){notify('Connectez-vous avec Discord.','error');return;}
   try{
     const{message}=await api('/api/events/register',{method:'DELETE',body:JSON.stringify({event_id:eventId})});
-    notify(message,'success');voirDetails(eventId);
+    myRegs.delete(eventId);
+    notify(message,'success');
+    if(back==='home')loadHome();
+    else if(back==='list')loadEvents();
+    else voirDetails(eventId);
   }catch(e){notify(e.message,'error');}
 }
 
