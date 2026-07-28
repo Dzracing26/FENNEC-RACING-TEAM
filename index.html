@@ -525,6 +525,7 @@ function go(page){
   if(nl)nl.classList.add('active');
   window.scrollTo(0,0);
   updateMobileNav(page);
+  if(page==='home')loadHome();
   if(page==='events')loadEvents();
   if(page==='profiles')loadPilots();
   if(page==='rules')renderRules();
@@ -692,7 +693,7 @@ function renderEvents(filter){
           <div class="slots-wrap">
             <div class="slots-text">${regCount}/${ev.max_pilots} places</div>
             <div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>
-            ${isOpen?(myRegs.has(ev.id)?`<button class="btn btn-danger" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();unregisterEvent('${ev.id}','list')" data-en="UNREGISTER">SE DÉSINSCRIRE</button>`:(regCount>=ev.max_pilots?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled data-en="FULL">COMPLET</button>`:`<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();registerEvent('${ev.id}')" data-en="REGISTER">S'INSCRIRE</button>`)):`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" data-en="Details →">Détails →</button>`}
+            ${isOpen?(myRegs.has(ev.id)?`<button class="btn btn-danger" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();unregisterEvent('${ev.id}','list')" data-en="UNREGISTER">SE DÉSINSCRIRE</button>`:(regCount>=ev.max_pilots?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled data-en="FULL">COMPLET</button>`:`<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();registerEvent('${ev.id}')" data-en="REGISTER">S'INSCRIRE</button>`)):`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();voirDetails('${ev.id}')" data-en="Details →">Détails →</button>`}
           </div>
         </div>`;
       }).join('')
