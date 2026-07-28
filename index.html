@@ -783,10 +783,30 @@ function confirmRules(){
   if(id)registerEvent(id,true);
 }
 
+async function ensureProfile(){
+  if(!user)return false;
+  if(user.race_number)return true;
+  try{
+    const{pilots}=await api('/api/pilots');
+    pilotsCache=pilots||[];
+    const me=pilotsCache.find(p=>
+      (user.discord_id&&p.discord_id&&String(p.discord_id)===String(user.discord_id))||
+      (user.discord_username&&p.discord_username===user.discord_username)||
+      (user.username&&p.discord_username===user.username));
+    if(me){
+      user.race_number=me.race_number;
+      user.platform=me.platform;
+      if(me.is_member!==undefined&&me.is_member)user.is_member=true;
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
 async function registerEvent(eventId,rulesOk){
   if(!user){notify('Connectez-vous avec Discord.','error');return;}
   if(!user.is_member){notify('Rejoignez le serveur Discord FRT.','error');return;}
-  if(!user.race_number){notify('Créez votre profil pilote.','error');openRegModal();return;}
+  if(!user.race_number&&!(await ensureProfile())){notify('Créez votre profil pilote.','error');openRegModal();return;}
   if(!rulesOk){askRules(eventId);return;}
   try{
     const{message}=await api('/api/events/register',{method:'POST',body:JSON.stringify({event_id:eventId})});
@@ -890,9 +910,11 @@ function renderRules(){
   document.getElementById('rules-content').innerHTML=rules.map(r=>`<div class="rule-section" id="${r.id}"><h2><span class="rule-num">${r.id.replace('r','0').padStart(2,'0')}</span> ${r.title}</h2>${r.items.map(item=>`<div class="rule-item"><div class="rule-dot"></div><p>${item}</p></div>`).join('')}</div>`).join('');
 }
 
-function openRegModal(){
+async function openRegModal(){
   if(!user){loginDiscord();return;}
   if(!user.is_member){notify('Rejoignez le serveur Discord FRT.','error');return;}
+  if(!user.race_number&&await ensureProfile()){notify('Votre profil pilote #'+user.race_number+' est déjà créé.','success');return;}
+  if(user.race_number){notify('Votre profil pilote #'+user.race_number+' existe déjà.','success');return;}
   buildNumGrid();
   document.getElementById('modal-reg').classList.add('open');
 }
@@ -941,7 +963,16 @@ async function submitReg(){
   else body.gamertag=document.getElementById('reg-gt').value.trim();
   try{
     const{message}=await api('/api/pilots',{method:'POST',body:JSON.stringify(body)});
+    if(user){
+      user.race_number=selectedNum;
+      user.platform=selectedPlat;
+      if(selectedPlat==='ps5')user.psn_id=body.psn_id;else user.gamertag=body.gamertag;
+      user.platform_uid=body.platform_uid;
+    }
+    try{const c=document.cookie.match(/frt_user=([^;]+)/);const u=c?JSON.parse(decodeURIComponent(c[1])):null;if(u&&u.race_number)user=u;}catch(e){}
+    updateNavAuth();
     closeModal('modal-reg');notify(message,'success');loadPilots();
+    if(document.getElementById('page-home').classList.contains('active'))loadHome();
   }catch(e){notify(e.message,'error');}
 }
 
