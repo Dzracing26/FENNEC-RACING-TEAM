@@ -262,7 +262,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
   <div class="container">
     <div class="grid-2">
       <div>
-        <div class="next-event" id="home-next-event"><div class="loading"><div class="spinner"></div></div></div>
+        <div id="home-next-event"><div class="loading"><div class="spinner"></div></div></div>
       </div>
       <div>
         <div class="stat-grid">
@@ -556,55 +556,62 @@ async function loadHome(){
     document.getElementById('home-standings').innerHTML=sorted.length
       ?sorted.map((p,i)=>`<div class="standings-row"><div class="st-pos" style="color:${medColors[i]||'var(--muted)'}">${i+1}</div><div class="st-name">#${p.race_number} ${p.discord_username}</div><div class="st-pts">${p.points}</div></div>`).join('')
       :'<p style="color:var(--muted);font-size:13px;">Aucun pilote encore inscrit.</p>';
-    const next=events.find(e=>e.status==='upcoming');
-    if(next){
-      const d=new Date(next.event_date);
-      const regCount=next.registrations?.[0]?.count||0;
-      const ninfo=trackInfo(next.track);
-      document.getElementById('home-next-event').innerHTML=`
-        <div class="ev-badge" data-en="● NEXT EVENT">● PROCHAIN ÉVÉNEMENT</div>
-        <div class="ev-title">${next.name}</div>
-        <img src="/circuits/${next.track}.jpg" alt="${ninfo.n}" onerror="this.style.display='none'" style="width:100%;height:180px;object-fit:cover;border-radius:6px;border:1px solid var(--border);margin:4px 0 10px;display:block;">
+    const upcoming=events.filter(e=>e.status==='upcoming').sort((a,b)=>new Date(a.event_date)-new Date(b.event_date)).slice(0,2);
+    if(upcoming.length){
+      document.getElementById('home-next-event').innerHTML=upcoming.map((ev,i)=>{
+        const d=new Date(ev.event_date);
+        const regCount=ev.registrations?.[0]?.count||0;
+        const ninfo=trackInfo(ev.track);
+        return`<div class="next-event">
+        <div class="ev-badge" data-en="${i===0?'● NEXT EVENT':'● THEN'}">${i===0?'● PROCHAIN ÉVÉNEMENT':'● ENSUITE'}</div>
+        <div class="ev-title">${ev.name}</div>
+        <img src="/circuits/${ev.track}.jpg" alt="${ninfo.n}" onerror="this.style.display='none'" style="width:100%;height:180px;object-fit:cover;border-radius:6px;border:1px solid var(--border);margin:4px 0 10px;display:block;">
         <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--blue);margin-bottom:12px;">${ninfo.n}${ninfo.km?` <span style="color:var(--muted);font-weight:400;">· ${ninfo.km} km</span>`:''}</div>
-        ${next.description?`<div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">${next.description}</div>`:''}
+        ${ev.description?`<div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">${ev.description}</div>`:''}
         <div class="ev-tags"><span class="tag tag-ps5">PS5</span><span class="tag tag-xbox">XBOX SERIES S / X</span><span class="tag tag-cross">CROSS PLAY</span></div>
         <div class="ev-meta">
           <div class="ev-meta-item"><div class="lbl" data-en="Date">Date</div><div class="val">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}).toUpperCase()}</div></div>
           <div class="ev-meta-item"><div class="lbl" data-en="Time">Heure</div><div class="val">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div></div>
-          <div class="ev-meta-item"><div class="lbl" data-en="Slots">Places</div><div class="val">${regCount}/${next.max_pilots}</div></div>
+          <div class="ev-meta-item"><div class="lbl" data-en="Slots">Places</div><div class="val">${regCount}/${ev.max_pilots}</div></div>
         </div>
-        <div class="countdown" id="cd-wrap">
-          <div class="cd-item"><div class="cd-num" id="cd-d">--</div><div class="cd-unit" data-en="Days">Jours</div></div>
-          <div class="cd-item"><div class="cd-num" id="cd-h">--</div><div class="cd-unit" data-en="Hours">Heures</div></div>
-          <div class="cd-item"><div class="cd-num" id="cd-m">--</div><div class="cd-unit" data-en="Min">Min</div></div>
-          <div class="cd-item"><div class="cd-num" id="cd-s">--</div><div class="cd-unit" data-en="Sec">Sec</div></div>
+        <div class="countdown">
+          <div class="cd-item"><div class="cd-num" id="cd-d-${i}">--</div><div class="cd-unit" data-en="Days">Jours</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-h-${i}">--</div><div class="cd-unit" data-en="Hours">Heures</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-m-${i}">--</div><div class="cd-unit" data-en="Min">Min</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-s-${i}">--</div><div class="cd-unit" data-en="Sec">Sec</div></div>
         </div>
         <div class="btn-group">
-          <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;"><input type="checkbox" id="accept-rules" onchange="document.getElementById('btn-register').disabled=!this.checked"> J'accepte le <a href="#" onclick="go('rules')" style="color:var(--pink)">règlement</a></label><button id="btn-register" disabled class="btn btn-primary" onclick="go('events')" data-en="REGISTER">S'INSCRIRE</button>
-          <button class="btn btn-secondary" onclick="voirDetails('${next.id}')" data-en="VIEW DETAILS">VOIR DÉTAILS</button>
-        </div>`;
-      startCountdown(d);
+          <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;"><input type="checkbox" id="accept-rules-${i}" onchange="document.getElementById('btn-register-${i}').disabled=!this.checked"> J'accepte le <a href="#" onclick="go('rules')" style="color:var(--pink)">règlement</a></label><button id="btn-register-${i}" disabled class="btn btn-primary" onclick="go('events')" data-en="REGISTER">S'INSCRIRE</button>
+          <button class="btn btn-secondary" onclick="voirDetails('${ev.id}')" data-en="VIEW DETAILS">VOIR DÉTAILS</button>
+        </div>
+      </div>`;
+      }).join('');
+      upcoming.forEach((ev,i)=>startCountdown(new Date(ev.event_date),i));
     }else{
       document.getElementById('home-next-event').innerHTML='<p style="color:var(--muted);font-size:14px;padding:20px 0;" data-en="No upcoming events.">Aucun événement à venir.</p>';
     }
-    const lastResults=resultsCache.filter(r=>r.result_type==='race').slice(0,3);
-    const medals=['p1','p2','p3'];
-    document.getElementById('home-results').innerHTML=lastResults.length
-      ?lastResults.map((r,i)=>`<div class="result-row"><div class="result-pos ${medals[i]||''}">P${r.position}</div><div class="result-info"><div class="result-track">${r.pilots?.discord_username||'—'}</div><div class="result-driver">#${r.pilots?.race_number||'?'} · ${r.car_model||'GT3'}</div></div><div class="result-time">${r.best_lap_ms?msToLap(r.best_lap_ms):'—'}</div></div>`).join('')
-      :'<p style="color:var(--muted);font-size:13px;" data-en="No results available.">Aucun résultat disponible.</p>';
+    const homeRes=document.getElementById('home-results');
+    if(homeRes){
+      const lastResults=resultsCache.filter(r=>r.result_type==='race').slice(0,3);
+      const medals=['p1','p2','p3'];
+      homeRes.innerHTML=lastResults.length
+        ?lastResults.map((r,i)=>`<div class="result-row"><div class="result-pos ${medals[i]||''}">P${r.position}</div><div class="result-info"><div class="result-track">${r.pilots?.discord_username||'—'}</div><div class="result-driver">#${r.pilots?.race_number||'?'} · ${r.car_model||'GT3'}</div></div><div class="result-time">${r.best_lap_ms?msToLap(r.best_lap_ms):'—'}</div></div>`).join('')
+        :'<p style="color:var(--muted);font-size:13px;" data-en="No results available.">Aucun résultat disponible.</p>';
+    }
     applyLang();
   }catch(e){console.error(e);}
 }
 
-let cdInterval;
-function startCountdown(target){
-  clearInterval(cdInterval);
-  cdInterval=setInterval(()=>{
+let cdIntervals=[];
+function startCountdown(target,idx){
+  const i=idx||0;
+  if(cdIntervals[i])clearInterval(cdIntervals[i]);
+  cdIntervals[i]=setInterval(()=>{
     const diff=target-Date.now();
-    if(diff<=0){clearInterval(cdInterval);return;}
+    if(diff<=0){clearInterval(cdIntervals[i]);return;}
     const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
     const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v).padStart(2,'0');};
-    set('cd-d',d);set('cd-h',h);set('cd-m',m);set('cd-s',s);
+    set('cd-d-'+i,d);set('cd-h-'+i,h);set('cd-m-'+i,m);set('cd-s-'+i,s);
   },1000);
 }
 
@@ -630,7 +637,12 @@ function renderEvents(filter){
   let evs=[...eventsCache];
   if(filter==='upcoming')evs=evs.filter(e=>e.status==='upcoming');
   if(filter==='finished')evs=evs.filter(e=>e.status==='finished');
-  evs.sort((a,b)=>new Date(b.event_date)-new Date(a.event_date));
+  evs.sort((a,b)=>{
+    const au=a.status==='upcoming',bu=b.status==='upcoming';
+    if(au!==bu)return au?-1:1;
+    const da=new Date(a.event_date),db=new Date(b.event_date);
+    return au?da-db:db-da;
+  });
   document.getElementById('events-list').innerHTML=evs.length
     ?evs.map(ev=>{
         const d=new Date(ev.event_date);
