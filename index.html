@@ -649,7 +649,7 @@ async function loadEvents(){
     const{events}=await api('/api/events');
     eventsCache=events;
     clearInterval(autoRefreshInterval);
-    autoRefreshInterval=setInterval(async()=>{try{const{events:ev}=await api('/api/events');eventsCache=ev;await refreshMyRegistrations(ev);if(document.getElementById('page-events').classList.contains('active')){const activeFilter=document.querySelector('.filter-btn.active');renderEvents(activeFilter?.getAttribute('data-filter')||'all');}}catch(e){}},120000);
+    autoRefreshInterval=setInterval(async()=>{try{const{events:ev}=await api('/api/events');eventsCache=ev;await refreshMyRegistrations(ev);if(!detailEventId&&document.getElementById('page-events').classList.contains('active')){const activeFilter=document.querySelector('.filter-btn.active');renderEvents(activeFilter?.getAttribute('data-filter')||'all');}}catch(e){}},120000);
     await refreshMyRegistrations(events);
     renderEvents('all');
     const lastFinished=eventsCache.filter(e=>e.status==='finished').pop();
@@ -664,6 +664,7 @@ async function loadEvents(){
 }
 
 function renderEvents(filter){
+  detailEventId=null;
   let evs=[...eventsCache];
   if(filter==='upcoming')evs=evs.filter(e=>e.status==='upcoming');
   if(filter==='finished')evs=evs.filter(e=>e.status==='finished');
@@ -699,12 +700,23 @@ function renderEvents(filter){
   applyLang();
 }
 
+let detailEventId=null;
+
 async function voirDetails(eventId){
-  go('events');
-  setTimeout(async()=>{
+  detailEventId=eventId;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('page-events').classList.add('active');
+  const nlv=document.getElementById('nl-events');if(nlv)nlv.classList.add('active');
+  window.scrollTo(0,0);
+  updateMobileNav('events');
+  document.getElementById('events-list').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  {
     try{
-      const ev=eventsCache.find(e=>e.id===eventId);
-      if(!ev)return;
+      let ev=eventsCache.find(e=>e.id===eventId);
+      if(!ev){try{const{events}=await api('/api/events');eventsCache=events||[];ev=eventsCache.find(e=>e.id===eventId);}catch(e){}}
+      if(!ev){notify('Événement introuvable.','error');loadEvents();return;}
+      if(detailEventId!==eventId)return;
       const d=new Date(ev.event_date);
       const regCount=ev.registrations?.[0]?.count||0;
       const pct=Math.min(100,(regCount/ev.max_pilots)*100);
@@ -745,7 +757,7 @@ async function voirDetails(eventId){
           </div>
         </div>`;
     }catch(e){console.error(e);}
-  },300);
+  }
 }
 
 document.addEventListener('click',e=>{
