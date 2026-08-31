@@ -195,10 +195,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba
 .discord-banner{background:linear-gradient(135deg,rgba(88,101,242,.13),rgba(88,101,242,.04));border:1px solid rgba(88,101,242,.28);border-radius:6px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;}
 .discord-banner h3{font-family:'Orbitron',sans-serif;font-size:12px;color:white;margin-bottom:4px;}
 .discord-banner p{font-size:13px;color:var(--muted);}
-.bop-tbl{width:100%;border-collapse:collapse;}
-.bop-tbl th{background:rgba(255,0,128,.07);padding:9px 12px;text-align:left;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;color:var(--pink);border-bottom:1px solid var(--border);text-transform:uppercase;}
-.bop-tbl td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.03);font-size:13px;}
-.bop-tbl input[type=number]{background:rgba(0,0,0,.5);border:1px solid var(--border);color:var(--text);padding:5px 8px;width:75px;font-family:'Rajdhani',sans-serif;font-size:12px;border-radius:3px;outline:none;}
 .loading{display:flex;align-items:center;justify-content:center;padding:40px;}
 .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -368,7 +364,6 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
         <ul class="admin-menu">
           <li><a onclick="adminTab('gportal')" class="active" id="at-gportal">🖥️ Serveur GPortal</a></li>
           <li><a onclick="adminTab('entrylist')" id="at-entrylist">📋 Entry List</a></li>
-          <li><a onclick="adminTab('bop')" id="at-bop">⚖️ BOP Manager</a></li>
           <li><a onclick="adminTab('event-create')" id="at-event-create">🏁 Créer Événement</a></li>
           <li><a onclick="adminTab('event-create-swap')" id="at-event-create-swap">🔄 Créer Événement Swap</a></li>
           <li><a onclick="adminTab('swap-teams')" id="at-swap-teams">👥 Gérer les Équipes</a></li>
@@ -1290,7 +1285,6 @@ async function submitReg(){
 }
 
 const GT3_CARS=['BMW M4 GT3','Porsche 992 GT3-R','Ferrari 296 GT3','Mercedes AMG GT3 EVO','Audi R8 GT3','Lamborghini Huracán GT3 EVO2','McLaren 720S GT3','Aston Martin Vantage GT3','Bentley Continental GT3','Honda NSX GT3','Nissan GT-R GT3','Emil Frey Jaguar G3','Lexus RC F GT3'];
-let bopData=GT3_CARS.map(car=>({car,restriction:0,ballast:0,active:true}));
 let currentEventId=null;
 
 function loadAdmin(){adminTab('gportal');}
@@ -1316,19 +1310,6 @@ function adminTab(tab){
       <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Les événements <span style="color:#00ff88;">🔄 swap</span> génèrent automatiquement une entry list par équipe. Les équipes de moins de 2 pilotes sont écartées.</p>
       <button class="btn btn-primary" onclick="sendGportal('entrylist')">⚡ GÉNÉRER L'ENTRY LIST</button>
       <div class="json-box" id="el-preview">// Cliquez sur GÉNÉRER pour voir le JSON</div>
-    </div>`;
-    if(eventsCache.length)currentEventId=eventsCache[0].id;
-  }
-
-  if(tab==='bop'){
-    c.innerHTML=`<div class="admin-card"><h3>⚖️ BOP MANAGER → GPORTAL</h3>
-      <div class="form-group"><label>Événement</label><select id="ev-sel-bop" onchange="currentEventId=this.value">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
-      <div class="btn-group" style="margin-bottom:16px;">
-        <button class="btn btn-primary" onclick="sendGportal('bop')">⚡ GÉNÉRER & ENVOYER SUR GPORTAL</button>
-      </div>
-      <table class="bop-tbl"><thead><tr><th>Voiture</th><th>Restriction (%)</th><th>Lest (kg)</th><th>Actif</th></tr></thead>
-      <tbody>${bopData.map((b,i)=>`<tr><td style="color:white;font-weight:600;">${b.car}</td><td><input type="number" min="-20" max="20" value="${b.restriction}" onchange="bopData[${i}].restriction=+this.value"></td><td><input type="number" min="-50" max="100" value="${b.ballast}" onchange="bopData[${i}].ballast=+this.value"></td><td><input type="checkbox" ${b.active?'checked':''} onchange="bopData[${i}].active=this.checked" style="accent-color:var(--pink);width:16px;height:16px;cursor:pointer;"></td></tr>`).join('')}</tbody></table>
-      <div style="margin-top:16px;"><div class="json-box" id="bop-preview">// Modifiez les valeurs ci-dessus puis envoyez sur GPortal</div></div>
     </div>`;
     if(eventsCache.length)currentEventId=eventsCache[0].id;
   }
@@ -1522,7 +1503,7 @@ async function sendGportal(type){
     const data=await api('/api/gportal/send',{method:'POST',body:JSON.stringify({type:realType,event_id:evId})});
     const content=data.content;
     notify(data.message,(data.skipped&&data.skipped.length)?'error':'success');
-    const preview=document.getElementById(type==='entrylist'?'el-preview':'bop-preview');
+    const preview=document.getElementById('el-preview');
     if(preview){
       if(data.skipped&&data.skipped.length){
         preview.textContent='// ÉQUIPES ÉCARTÉES (moins de 2 pilotes valides) :\n'
