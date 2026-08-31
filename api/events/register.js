@@ -401,19 +401,20 @@ async function swapPatch(req, res) {
     if (!Number.isInteger(pos) || pos < 1 || pos > 5) {
       return res.status(400).json({ error: 'Position invalide (1 à 5).' });
     }
-    const { data, error } = await supabase
-      .from('swap_registrations')
-      .update({ position: pos })
-      .eq('id', registration_id)
-      .select()
-      .single();
+    // Echange atomique cote Postgres : si la position visee est occupee,
+    // les deux pilotes permutent. Impossible a faire proprement ici a cause
+    // de la contrainte unique (team_id, position).
+    const { error } = await supabase.rpc('swap_move_pilot', {
+      p_reg: registration_id,
+      p_pos: pos,
+    });
     if (error) {
-      if (error.code === '23505') {
-        return res.status(409).json({ error: 'Cette position est déjà prise dans l\'équipe.' });
-      }
-      return res.status(500).json({ error: error.message });
+      const msg = error.message || '';
+      if (msg.includes('REG_NOT_FOUND')) return res.status(404).json({ error: 'Inscription introuvable.' });
+      if (msg.includes('BAD_POSITION')) return res.status(400).json({ error: 'Position invalide (1 à 5).' });
+      return res.status(500).json({ error: msg || 'Erreur déplacement.' });
     }
-    return res.status(200).json({ registration: data, message: 'Position modifiée.' });
+    return res.status(200).json({ message: 'Position modifiée.' });
   }
 
   if (action === 'remove_pilot') {
@@ -440,4 +441,3 @@ async function swapPatch(req, res) {
 
   return res.status(400).json({ error: 'Action inconnue.' });
 }
-
