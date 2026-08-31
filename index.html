@@ -790,7 +790,7 @@ async function voirDetails(eventId){
         try{
           const st=await api(`/api/events/register?mode=swap&event_id=${eventId}`);
           swapTeams=st.teams||[];
-          if(user)myTeam=swapTeams.find(t=>t.pilots.some(m=>m.pilot&&m.pilot.discord_id&&String(m.pilot.discord_id)===String(user.discord_id)))||null;
+          if(user)myTeam=swapTeams.find(t=>t.pilots.some(m=>isMePilot(m.pilot)))||null;
         }catch(e){swapError=true;}
         if(detailEventId!==eventId)return;
       }
@@ -904,6 +904,14 @@ const TEAM_COLORS=['linear-gradient(135deg,var(--green),#00997f)','linear-gradie
 let swapCtx={eventId:null,teamId:null,teamName:'',number:null,position:null,taken:[]};
 
 function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function isMePilot(p){
+  if(!p||!user)return false;
+  if(user.discord_id&&p.discord_id&&String(p.discord_id)===String(user.discord_id))return true;
+  if(user.discord_username&&p.discord_username===user.discord_username)return true;
+  if(user.username&&p.discord_username===user.username)return true;
+  return false;
+}
 
 function pilotLabel(p){
   if(!p)return '—';
