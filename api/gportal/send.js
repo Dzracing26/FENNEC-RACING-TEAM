@@ -1,3 +1,4 @@
+
 const { createClient } = require('@supabase/supabase-js');
 const { Client } = require('basic-ftp');
 const { Writable } = require('stream');
@@ -6,6 +7,13 @@ const supabase = createClient(
 process.env.SUPABASE_URL,
 process.env.SUPABASE_SERVICE_ROLE_KEY
 );
+
+// Genere un shortName ACC de 3 caracteres a partir du pseudo du pilote
+function shortNameOf(name) {
+const clean = String(name || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+if (clean.length >= 3) return clean.substring(0, 3);
+return (clean + 'XXX').substring(0, 3);
+}
 
 module.exports = async function handler(req, res) {
 if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -140,6 +148,111 @@ return res.status(200).json({
 message: `Résultats importés (${rows.length} pilotes)`,
 file: bestFile.name,
 event: event.name
+});
+}
+
+// ============== ENTRYLIST SWAP (endurance, relais pilotes) ==============
+if (type === 'entrylist_swap') {
+const { data: teams, error: errT } = await supabase
+.from('swap_teams')
+.select('id, team_name, car_number')
+.eq('event_id', event_id)
+.order('car_number', { ascending: true });
+
+if (errT) return res.status(500).json({ error: errT.message });
+if (!teams || !teams.length) {
+return res.status(200).json({ message: 'Aucune équipe engagée sur cet événement', content: '' });
+}
+
+const teamIds = teams.map(t => t.id);
+
+const { data: regs, error: errR } = await supabase
+.from('swap_registrations')
+.select('team_id, pilot_id, position')
+.in('team_id', teamIds);
+
+if (errR) return res.status(500).json({ error: errR.message });
+
+const pilotIds = [...new Set((regs || []).map(r => r.pilot_id))];
+const pilotsById = {};
+
+if (pilotIds.length) {
+const { data: pilots, error: errP } = await supabase
+.from('pilots')
+.select('id, race_number, psn_id, discord_username, platform_uid, platform, gamertag')
+.in('id', pilotIds);
+if (errP) return res.status(500).json({ error: errP.message });
+(pilots || []).forEach(p => { pilotsById[p.id] = p; });
+}
+
+const entries = [];
+const skipped = [];
+
+teams.forEach(t => {
+const members = (regs || [])
+.filter(r => r.team_id === t.id)
+.sort((a, b) => a.position - b.position);
+
+const drivers = [];
+const missingUid = [];
+
+members.forEach(m => {
+const p = pilotsById[m.pilot_id];
+if (!p) return;
+const label = p.gamertag || p.psn_id || p.discord_username || 'Pilote';
+// Sans identifiant de plateforme, ACC ne peut pas reconnaitre le pilote
+if (!p.platform_uid) { missingUid.push(label); return; }
+drivers.push({
+playerID: (p.platform === 'xbox' ? 'M' : 'P') + p.platform_uid,
+lastName: label + '\n' + t.team_name,
+shortName: shortNameOf(label),
+driverCategory: 2
+});
+});
+
+// Une equipe a moins de 2 pilotes valides ne part pas en course
+if (drivers.length < 2) {
+skipped.push({
+team: t.team_name,
+car_number: t.car_number,
+pilots: drivers.length,
+missing_uid: missingUid
+});
+return;
+}
+
+entries.push({
+drivers: drivers,
+raceNumber: t.car_number,
+forcedCarModel: -1,
+overrideDriverInfo: 1,
+isServerAdmin: 0,
+overrideCarModelForCustomCar: true
+});
+});
+
+if (!entries.length) {
+return res.status(200).json({
+message: 'Aucune équipe ne compte au moins 2 pilotes. Entry list non générée.',
+content: '',
+skipped: skipped
+});
+}
+
+const entrylist = { entries: entries, forceEntryList: 1 };
+const totalDrivers = entries.reduce(function (n, e) { return n + e.drivers.length; }, 0);
+
+let message = 'Entry list swap générée : ' + entries.length + ' équipe(s), ' + totalDrivers + ' pilote(s).';
+if (skipped.length) {
+message += ' ⚠️ ' + skipped.length + ' équipe(s) écartée(s) : ' + skipped.map(function (s) {
+return s.team + ' (#' + s.car_number + ')';
+}).join(', ') + '.';
+}
+
+return res.status(200).json({
+message: message,
+content: JSON.stringify(entrylist, null, 2),
+skipped: skipped
 });
 }
 
