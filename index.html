@@ -1,443 +1,1601 @@
-import { createClient } from '@supabase/supabase-js';
-import { requireMember, requireAdmin } from '../_middleware/auth.js';
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FENNEC RACING TEAM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#ff0080;--blue:#00b4ff;--darker:#050508;--mid:#12121a;--card:#16161f;--border:rgba(255,0,128,0.22);--border-blue:rgba(0,180,255,0.22);--text:#e8e8f0;--muted:#777;--green:#00ff88;--orange:#ff6600;--red:#ff2244;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--darker);color:var(--text);font-family:'Rajdhani',sans-serif;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:var(--pink);}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba(5,5,8,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+.nav-logo{display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none;}
+.logo-circle{width:46px;height:46px;border-radius:50%;border:2px solid var(--pink);background:linear-gradient(135deg,rgba(255,0,128,.2),rgba(0,180,255,.1));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;color:var(--pink);box-shadow:0 0 16px rgba(255,0,128,.35);}
+.logo-text{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;line-height:1.25;}
+.logo-text span{color:var(--pink);}
+.nav-links{display:flex;gap:4px;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 14px;border:1px solid transparent;border-radius:3px;transition:all .25s;cursor:pointer;text-transform:uppercase;}
+.nav-links a:hover,.nav-links a.active{color:var(--pink);border-color:var(--border);background:rgba(255,0,128,.07);}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.btn-lang{background:none;border:1px solid var(--border);color:var(--muted);font-family:'Orbitron',sans-serif;font-size:9px;padding:5px 10px;cursor:pointer;border-radius:3px;transition:all .25s;letter-spacing:1px;}
+.btn-discord-nav{background:linear-gradient(135deg,#5865F2,#4752c4);color:white;border:none;padding:7px 14px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;border-radius:3px;transition:all .25s;display:flex;align-items:center;gap:6px;}
+.btn-discord-nav:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(88,101,242,.5);}
+.btn-user{background:rgba(255,0,128,.12);border:1px solid var(--border);color:var(--pink);padding:7px 14px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;cursor:pointer;border-radius:3px;transition:all .25s;display:flex;align-items:center;gap:8px;}
+.avatar-sm{width:24px;height:24px;border-radius:50%;border:1px solid var(--pink);}
+.btn-logout{background:none;border:1px solid rgba(255,64,64,.3);color:#ff4040;font-family:'Orbitron',sans-serif;font-size:9px;padding:5px 10px;cursor:pointer;border-radius:3px;transition:all .25s;letter-spacing:1px;}
+.page{display:none;padding-top:68px;min-height:100vh;}
+.page.active{display:block;animation:fadeUp .35s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.hero{position:relative;height:320px;overflow:hidden;background:url('/image.jpg') center/cover no-repeat;display:flex;align-items:flex-end;justify-content:flex-end;}
+@media(max-width:900px){.hero{height:auto;aspect-ratio:2.5;background:url('/image.jpg') center/contain no-repeat;}.hero-content{left:50%!important;right:auto!important;bottom:6px!important;transform:translateX(-50%);gap:4px!important;padding:4px 7px!important;flex-wrap:nowrap!important;justify-content:center!important;max-width:96%!important;}.hero-content img{height:13px!important;}.hero-content .tag{font-size:7px!important;padding:2px 5px!important;letter-spacing:.5px!important;white-space:nowrap!important;}}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,0,128,.12) 0%,transparent 50%,rgba(0,180,255,.08) 100%);}
+.hero-stripes{position:absolute;inset:0;overflow:hidden;opacity:.12;}
+.hero-stripes span{position:absolute;top:-80px;width:3px;height:500px;transform:rotate(22deg);}
+.hero-stripes span:nth-child(1){right:80px;background:var(--pink);width:8px;}
+.hero-stripes span:nth-child(2){right:140px;background:var(--blue);}
+.hero-stripes span:nth-child(3){right:30px;background:var(--pink);}
+.hero-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.06) 2px,rgba(0,0,0,.06) 4px);pointer-events:none;}
+.hero-content{position:relative;z-index:1;text-align:center;}
+.hero-title{font-family:'Orbitron',sans-serif;font-size:54px;font-weight:900;letter-spacing:-1px;color:white;line-height:1;text-shadow:0 0 50px rgba(255,0,128,.4);}
+.hero-title span{color:var(--pink);}
+.hero-sub{font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:7px;color:var(--blue);margin-top:10px;text-transform:uppercase;}
+.hero-tags{display:flex;gap:8px;justify-content:center;margin-top:14px;}
+.tag{display:inline-block;padding:3px 10px;border-radius:2px;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;}
+.tag-ps5{background:rgba(0,70,163,.3);color:#4da6ff;border:1px solid rgba(0,112,209,.3);}
+.tag-xbox{background:rgba(16,124,16,.3);color:#4abf4a;border:1px solid rgba(16,160,16,.3);}
+.tag-cross{background:rgba(255,0,0,.3);color:#ff2244;border:1px solid rgba(255,34,68,.6);font-weight:700;}
+.tag-race{background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);}
+.tag-swap{background:rgba(0,255,136,.15);color:#00ff88;border:1px solid rgba(0,255,136,.45);font-weight:700;}
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:14px;}
+.team-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;position:relative;overflow:hidden;transition:all .25s;}
+.team-card:hover{border-color:rgba(0,255,136,.45);transform:translateY(-2px);}
+.team-card.mine{border-color:var(--green);box-shadow:0 0 18px rgba(0,255,136,.15);}
+.team-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--blue));}
+.team-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.team-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;color:white;border:2px solid rgba(255,255,255,.12);flex-shrink:0;}
+.team-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:white;line-height:1.2;word-break:break-word;}
+.team-num{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--green);line-height:1;margin-top:3px;}
+.team-pilot{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid rgba(255,255,255,.05);font-size:13px;}
+.team-pos{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--muted);background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;padding:2px 6px;flex-shrink:0;}
+.team-pos.p1{color:var(--green);border-color:rgba(0,255,136,.4);}
+.team-pilot-name{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.team-slots{font-size:11px;color:var(--muted);font-family:'Orbitron',sans-serif;margin-top:10px;}
+.container{max-width:1360px;margin:0 auto;padding:36px 32px;}
+.page-header{background:linear-gradient(135deg,var(--mid),rgba(255,0,128,.04));border-bottom:1px solid var(--border);padding:44px 32px 28px;}
+.page-header h1{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:white;}
+.page-header h1 span{color:var(--pink);}
+.page-header p{color:var(--muted);font-size:13px;margin-top:6px;}
+.grid-2{display:grid;grid-template-columns:2fr 1fr;gap:22px;}
+.section-label{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:4px;color:var(--pink);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:22px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink),var(--blue));}
+.next-event{background:linear-gradient(135deg,var(--card),rgba(255,0,128,.04));border:1px solid var(--border);border-radius:6px;padding:26px;position:relative;overflow:hidden;margin-bottom:22px;}
+.ev-badge{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:var(--pink);background:rgba(255,0,128,.1);border:1px solid var(--border);padding:4px 12px;display:inline-block;margin-bottom:14px;border-radius:2px;}
+.ev-title{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:white;margin-bottom:6px;}
+.ev-meta{display:flex;gap:22px;margin:14px 0;flex-wrap:wrap;}
+.ev-meta-item .lbl{font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;text-transform:uppercase;}
+.ev-meta-item .val{font-size:15px;font-weight:600;color:var(--blue);}
+.countdown{display:flex;gap:10px;margin:16px 0;}
+.cd-item{text-align:center;background:rgba(0,0,0,.4);border:1px solid var(--border);padding:10px 14px;border-radius:4px;min-width:58px;}
+.cd-num{font-family:'Orbitron',sans-serif;font-size:26px;font-weight:900;color:white;line-height:1;}
+.cd-unit{font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:3px;}
+.btn-group{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+.btn{padding:11px 24px;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;border-radius:3px;transition:all .25s;text-transform:uppercase;border:none;}
+.btn-primary{background:linear-gradient(135deg,var(--pink),#cc0066);color:white;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(255,0,128,.45);}
+.btn-secondary{background:transparent;color:var(--blue);border:1px solid var(--border-blue);}
+.btn-secondary:hover{background:rgba(0,180,255,.07);transform:translateY(-2px);}
+.btn-danger{background:rgba(255,64,64,.15);color:#ff4040;border:1px solid rgba(255,64,64,.3);}
+.btn-danger:hover{background:rgba(255,64,64,.3);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center;}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--pink),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat-lbl{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:3px;}
+.result-row{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.result-row:last-child{border-bottom:none;}
+.result-pos{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;min-width:36px;}
+.p1{color:#FFD700;}.p2{color:#C0C0C0;}.p3{color:#CD7F32;}
+.result-info{flex:1;}
+.result-track{font-weight:700;font-size:14px;color:white;}
+.result-driver{font-size:11px;color:var(--muted);}
+.result-time{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--blue);}
+.filters{display:flex;gap:7px;margin-bottom:26px;flex-wrap:wrap;}
+.filter-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:7px 16px;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;cursor:pointer;border-radius:3px;transition:all .25s;}
+.filter-btn.active,.filter-btn:hover{background:rgba(255,0,128,.1);border-color:var(--pink);color:var(--pink);}
+.event-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:16px;display:grid;grid-template-columns:76px 1fr auto;gap:24px;align-items:center;transition:all .25s;position:relative;overflow:hidden;}
+.event-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--pink),var(--blue));}
+.event-card:hover{border-color:rgba(255,0,128,.45);transform:translateX(3px);}
+.date-box{text-align:center;background:rgba(0,0,0,.35);border:1px solid var(--border);padding:12px 10px;border-radius:4px;}
+.date-day{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:white;line-height:1;}
+.date-month{font-size:10px;letter-spacing:3px;color:var(--pink);text-transform:uppercase;}
+.ev-info h3{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:white;margin-bottom:7px;}
+.ev-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.ev-details{font-size:12px;color:var(--muted);}
+.slots-wrap{text-align:right;min-width:130px;}
+.slots-bar{width:120px;height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin:6px 0;overflow:hidden;}
+.slots-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));border-radius:2px;transition:width .5s;}
+.slots-text{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--muted);}
+.pilots-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;}
+.pilot-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:22px;position:relative;overflow:hidden;transition:all .3s;}
+.pilot-card:hover{border-color:rgba(255,0,128,.45);transform:translateY(-3px);}
+.pilot-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink),var(--blue));}
+.pilot-num-bg{font-family:'Orbitron',sans-serif;font-size:46px;font-weight:900;color:rgba(255,255,255,.35);position:absolute;top:8px;right:14px;line-height:1;pointer-events:none;}
+.pilot-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:white;margin-bottom:12px;border:2px solid rgba(255,255,255,.1);}
+.pilot-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:white;margin-bottom:3px;}
+.pilot-handle{font-size:11px;color:var(--muted);letter-spacing:.5px;margin-bottom:10px;}
+.pilot-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;border-top:1px solid rgba(255,255,255,.05);padding-top:12px;}
+.ps{text-align:center;}
+.ps .v{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;color:var(--pink);}
+.ps .l{font-size:8px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;}
+.rules-toc{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:22px;margin-bottom:28px;}
+.rules-toc h3{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:3px;color:var(--pink);margin-bottom:14px;}
+.toc-list{list-style:none;}
+.toc-list li{padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.toc-list li a{color:var(--text);text-decoration:none;font-size:13px;display:flex;justify-content:space-between;transition:color .25s;}
+.toc-list li a:hover{color:var(--pink);}
+.rule-section{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:26px;margin-bottom:18px;position:relative;}
+.rule-section::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--pink),var(--blue));border-radius:3px 0 0 3px;}
+.rule-section h2{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:white;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.rule-num{background:linear-gradient(135deg,var(--pink),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:19px;}
+.rule-item{display:flex;gap:10px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.03);}
+.rule-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.rule-dot{width:5px;height:5px;background:var(--pink);border-radius:50%;margin-top:9px;flex-shrink:0;}
+.rule-item p{font-size:13px;line-height:1.7;color:#ccc;}
+.rule-item strong{color:var(--pink);}
+.admin-wrap{display:grid;grid-template-columns:260px 1fr;gap:22px;}
+.admin-sidebar{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;height:fit-content;}
+.admin-menu{list-style:none;}
+.admin-menu li a{display:flex;align-items:center;gap:9px;padding:10px 12px;color:var(--muted);text-decoration:none;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:1.5px;border-radius:4px;transition:all .25s;cursor:pointer;text-transform:uppercase;border:1px solid transparent;margin-bottom:3px;}
+.admin-menu li a:hover,.admin-menu li a.active{color:var(--pink);background:rgba(255,0,128,.07);border-color:var(--border);}
+.admin-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:24px;margin-bottom:18px;}
+.admin-card h3{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:white;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.json-box{background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.07);border-radius:4px;padding:14px;font-family:'Courier New',monospace;font-size:11px;color:#90e890;max-height:180px;overflow-y:auto;white-space:pre;margin:10px 0;}
+.server-status{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.4);border:1px solid var(--border);padding:12px 16px;border-radius:4px;margin-bottom:14px;}
+.dot-status{width:9px;height:9px;border-radius:50%;background:#00ff88;box-shadow:0 0 9px #00ff88;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.status-txt{font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text);}
+.status-txt span{color:#00ff88;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:7px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;background:rgba(0,0,0,.5);border:1px solid var(--border);color:var(--text);padding:10px 14px;font-family:'Rajdhani',sans-serif;font-size:13px;border-radius:3px;transition:border-color .25s;outline:none;}
+.form-group input:focus,.form-group select:focus{border-color:var(--pink);}
+.form-group select option{background:var(--mid);}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{background:rgba(0,0,0,.4);padding:9px 12px;text-align:left;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border);text-transform:uppercase;}
+.tbl td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.04);}
+.badge{display:inline-block;padding:2px 7px;border-radius:2px;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:1px;text-transform:uppercase;}
+.badge-green{background:rgba(0,255,136,.13);color:#00ff88;border:1px solid rgba(0,255,136,.28);}
+.badge-yellow{background:rgba(255,200,0,.13);color:#ffc800;border:1px solid rgba(255,200,0,.28);}
+.badge-blue{background:rgba(0,180,255,.13);color:var(--blue);border:1px solid var(--border-blue);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:2000;backdrop-filter:blur(10px);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--mid);border:1px solid var(--border);border-radius:8px;padding:32px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;position:relative;}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink),var(--blue));}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;}
+.modal h2{font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;color:white;margin-bottom:5px;}
+.modal h2 span{color:var(--pink);}
+.modal-sub{color:var(--muted);font-size:13px;margin-bottom:24px;}
+.alert-box{background:rgba(255,0,128,.07);border:1px solid var(--border);border-radius:4px;padding:12px 16px;font-size:13px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.platform-btns{display:flex;gap:8px;}
+.plat-btn{flex:1;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--muted);padding:9px;font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:1px;cursor:pointer;border-radius:3px;transition:all .25s;text-align:center;}
+.plat-btn.sel-ps5{background:rgba(0,112,209,.2);border-color:#0070d1;color:#4da6ff;}
+.plat-btn.sel-xbox{background:rgba(16,160,16,.2);border-color:#10a010;color:#4abf4a;}
+.num-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;max-height:160px;overflow-y:auto;padding:3px;}
+.num-btn{background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--muted);aspect-ratio:1;font-family:'Orbitron',sans-serif;font-size:11px;cursor:pointer;border-radius:3px;transition:all .18s;display:flex;align-items:center;justify-content:center;}
+.num-btn:hover:not(.taken){background:rgba(255,0,128,.15);color:var(--pink);border-color:var(--pink);}
+.num-btn.taken{opacity:.25;cursor:not-allowed;text-decoration:line-through;}
+.num-btn.selected{background:rgba(255,0,128,.25);color:white;border-color:var(--pink);}
+.discord-banner{background:linear-gradient(135deg,rgba(88,101,242,.13),rgba(88,101,242,.04));border:1px solid rgba(88,101,242,.28);border-radius:6px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;}
+.discord-banner h3{font-family:'Orbitron',sans-serif;font-size:12px;color:white;margin-bottom:4px;}
+.discord-banner p{font-size:13px;color:var(--muted);}
+.bop-tbl{width:100%;border-collapse:collapse;}
+.bop-tbl th{background:rgba(255,0,128,.07);padding:9px 12px;text-align:left;font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;color:var(--pink);border-bottom:1px solid var(--border);text-transform:uppercase;}
+.bop-tbl td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.03);font-size:13px;}
+.bop-tbl input[type=number]{background:rgba(0,0,0,.5);border:1px solid var(--border);color:var(--text);padding:5px 8px;width:75px;font-family:'Rajdhani',sans-serif;font-size:12px;border-radius:3px;outline:none;}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;}
+.spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.notif{position:fixed;bottom:26px;right:26px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--pink);padding:14px 18px;border-radius:4px;font-family:'Orbitron',sans-serif;font-size:10px;color:var(--text);letter-spacing:1px;z-index:3000;transform:translateX(220px);opacity:0;transition:all .35s;max-width:280px;}
+.notif.show{transform:translateX(0);opacity:1;}
+.notif.success{border-left-color:#00ff88;}
+.notif.error{border-left-color:#ff4040;}
+.standings-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);gap:12px;}
+.standings-row:last-child{border-bottom:none;}
+.st-pos{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;min-width:28px;}
+.st-name{flex:1;font-size:14px;color:white;font-weight:600;}
+.st-pts{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--pink);}
+footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;margin-top:50px;}
+.footer-grid{max-width:1360px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;}
+.footer-brand h4{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;color:white;margin-bottom:10px;}
+.footer-brand h4 span{color:var(--pink);}
+.footer-brand p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px;}
+.footer-socials{display:flex;gap:8px;}
+.social-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s;color:var(--muted);text-decoration:none;font-size:13px;}
+.social-btn:hover{border-color:var(--pink);color:var(--pink);transform:translateY(-2px);}
+.footer-col h5{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:var(--pink);margin-bottom:14px;text-transform:uppercase;}
+.footer-col ul{list-style:none;}
+.footer-col ul li{margin-bottom:7px;}
+.footer-col ul li a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .25s;cursor:pointer;}
+.footer-col ul li a:hover{color:var(--text);}
+.footer-bottom{max-width:1360px;margin:26px auto 0;padding-top:18px;border-top:1px solid rgba(255,255,255,.04);display:flex;justify-content:space-between;font-size:11px;color:var(--muted);}
+.modal-edit{background:var(--mid);border:1px solid var(--border);border-radius:8px;padding:32px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;position:relative;}
+.modal-edit::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink),var(--blue));}
+@media(max-width:900px){nav{padding:0 16px;}.nav-links{display:none;}.grid-2,.footer-grid,.admin-wrap{grid-template-columns:1fr;}.event-card{grid-template-columns:66px 1fr;}.slots-wrap{display:none;}.hero-title{font-size:28px;}.hero-sub{font-size:10px;letter-spacing:4px;}.container{padding:20px 16px;}.next-event{padding:16px;}.countdown{gap:6px;}.cd-item{min-width:44px;padding:8px 10px;}.cd-num{font-size:20px;}.btn-group{flex-direction:column;}.btn{width:100%;text-align:center;}.hamburger{display:flex!important;}.mobile-menu.open{display:flex!important;}.btn-lang{display:none;}}
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:8px;z-index:1100;}.hamburger span{display:block;width:24px;height:2px;background:var(--pink);border-radius:2px;transition:all .3s;}.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px);}.hamburger.open span:nth-child(2){opacity:0;}.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px);}.mobile-menu{display:none;flex-direction:column;position:fixed;top:68px;left:0;right:0;background:rgba(5,5,8,0.98);border-bottom:1px solid var(--border);z-index:999;padding:16px;gap:4px;backdrop-filter:blur(20px);}.mobile-menu a{color:var(--muted);text-decoration:none;font-family:Orbitron,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;padding:12px 16px;border:1px solid transparent;border-radius:4px;transition:all .25s;cursor:pointer;text-transform:uppercase;display:block;}.mobile-menu a:hover,.mobile-menu a.active{color:var(--pink);border-color:var(--border);background:rgba(255,0,128,.07);}
+</style>
+</head>
+<body>
+<div class="notif" id="notif"></div>
+<nav>
+  <a class="nav-logo" onclick="go('home')">
+    <div class="logo-circle">FRT</div>
+    <div class="logo-text">FENNEC<br><span>RACING TEAM</span></div>
+  </a>
+  <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu"><span></span><span></span><span></span></button>
+  <ul class="nav-links">
+    <li><a onclick="go('home')" id="nl-home" class="active" data-en="Home">Accueil</a></li>
+    <li><a onclick="go('events')" id="nl-events" data-en="Events">Événements</a></li>
+    <li><a onclick="go('profiles')" id="nl-profiles" data-en="Profiles">Profils</a></li>
+    <li><a onclick="go('rules')" id="nl-rules" data-en="Rules">Règlement</a></li>
+    <li id="admin-nav-li" style="display:none"><a onclick="go('admin')" id="nl-admin" style="color:var(--pink)">⚙ Admin</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-lang" onclick="toggleLang()" id="langBtn">🇬🇧 EN</button>
+    <div id="nav-auth-area">
+      <button class="btn-discord-nav" onclick="loginDiscord()">
+        <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Discord
+      </button>
+    </div>
+  </div>
+</nav>
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+<div class="mobile-menu" id="mobile-menu">
+  <a onclick="go('home');closeMobileMenu()" id="ml-home" class="active" data-en="Home">Accueil</a>
+  <a onclick="go('events');closeMobileMenu()" id="ml-events" data-en="Events">Événements</a>
+  <a onclick="go('profiles');closeMobileMenu()" id="ml-profiles" data-en="Profiles">Profils</a>
+  <a onclick="go('rules');closeMobileMenu()" id="ml-rules" data-en="Rules">Règlement</a>
+  <a onclick="go('admin');closeMobileMenu()" id="ml-admin" style="display:none;color:var(--pink)">⚙ Admin</a>
+</div>
 
-const SWAP_PILOT_FIELDS = 'id, race_number, discord_id, discord_username, platform, psn_id, gamertag';
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-content" style="position:absolute;bottom:20px;right:24px;display:flex;align-items:center;gap:12px;background:rgba(0,0,0,0.45);padding:10px 16px;border-radius:6px;backdrop-filter:blur(4px);">
+      <img src="/acc-logo.png" alt="ACC" style="height:20px;filter:drop-shadow(0 0 6px rgba(0,0,0,0.8));"><img src="/lfm-logo.png" alt="LFM" style="height:20px;filter:drop-shadow(0 0 6px rgba(0,0,0,0.8));margin-left:8px;">
+      <span class="tag tag-ps5">PS5</span>
+      <span class="tag tag-xbox">XBOX SERIES S / X</span>
+      <span class="tag tag-cross">CROSS PLAY</span>
+    </div>
+  </div>
+  <div class="container">
+    <div class="grid-2">
+      <div>
+        <div id="home-next-event"><div class="loading"><div class="spinner"></div></div></div>
+      </div>
+      <div>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="stat-num" id="stat-pilots">—</div><div class="stat-lbl" data-en="Drivers">Pilotes</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-events">—</div><div class="stat-lbl" data-en="Races">Courses</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-seasons">1</div><div class="stat-lbl" data-en="Seasons">Saisons</div></div>
+          <div class="stat-box"><div class="stat-num" id="stat-races">—</div><div class="stat-lbl" data-en="Rounds">Rounds</div></div>
+        </div>
+        <div class="card" style="text-align:center;margin-bottom:20px;" id="discord-join-card">
+          <div style="font-size:28px;margin-bottom:10px;">🎮</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:white;margin-bottom:8px;" data-en="JOIN THE COMMUNITY">REJOIGNEZ LA COMMUNAUTÉ</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px;" data-en="Connect Discord to join the league and register for races">Connectez Discord pour rejoindre la ligue et vous inscrire aux courses</p>
+          <button class="btn-discord-nav" style="width:100%;justify-content:center;display:flex;" onclick="loginDiscord()">
+            <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+            Discord FRT
+          </button>
+        </div>
+        <div class="card">
+          <div class="section-label" data-en="DRIVERS">PILOTES</div>
+          <div id="home-standings"><div class="loading"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_SITE_URL);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+<!-- EVENTS -->
+<div class="page" id="page-events">
+  <div class="page-header"><h1 data-en="CALENDAR &lt;span&gt;EVENTS&lt;/span&gt;">CALENDRIER <span>ÉVÉNEMENTS</span></h1><p data-en="Season 2025 — ACC · PS5 × XBOX SERIES S / X · Cross-Play">Saison 2025 — ACC · PS5 × XBOX SERIES S / X · Cross-Play</p></div>
+  <div class="container">
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all" data-en="All">Tous</button>
+      <button class="filter-btn" data-filter="upcoming" data-en="Upcoming">À venir</button>
+      <button class="filter-btn" data-filter="finished" data-en="Finished">Terminés</button>
+    </div>
+    <div id="events-list"><div class="loading"><div class="spinner"></div></div></div>
+    <div style="margin-top:44px;">
+    </div>
+  </div>
+</div>
 
-  // ===== SWAP : corrections admin (PATCH) =====
-  if (req.method === 'PATCH') {
-    const admin = await requireAdmin(req, res);
-    if (!admin) return;
-    return swapPatch(req, res);
-  }
+<!-- PROFILES -->
+<div class="page" id="page-profiles">
+  <div class="page-header"><h1 data-en="DRIVER &lt;span&gt;PROFILES&lt;/span&gt;">PROFILS <span>PILOTES</span></h1><p data-en="Official Entry List — 2025 FRT Season">Entry List officielle — Saison 2025 FRT</p></div>
+  <div class="container">
+    <div class="discord-banner" id="discord-required-banner">
+      <div><h3 data-en="🔗 Discord account required">🔗 Compte Discord requis</h3><p data-en="Join the FRT server and link your account to create a profile and register.">Rejoignez le serveur FRT et liez votre compte pour créer un profil et vous inscrire.</p></div>
+      <button class="btn-discord-nav" onclick="loginDiscord()">
+        <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        <span data-en="Join Discord">Rejoindre Discord</span>
+      </button>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;flex-wrap:wrap;gap:12px;">
+      <div class="section-label" style="margin-bottom:0;flex:1;" data-en="REGISTERED DRIVERS">PILOTES INSCRITS</div>
+      <button class="btn btn-primary" onclick="openRegModal()" data-en="+ CREATE MY PROFILE">+ CRÉER MON PROFIL</button>
+    </div>
+    <div class="pilots-grid" id="pilots-grid"><div class="loading"><div class="spinner"></div></div></div>
+  </div>
+</div>
 
-  const user = await requireMember(req, res);
-  if (!user) return;
+<!-- RULES -->
+<div class="page" id="page-rules">
+  <div class="page-header"><h1>RÈGLEMENT <span>OFFICIEL</span></h1><p>Fennec Racing Team — Saison 2025 · ACC</p></div>
+  <div class="container" style="max-width:960px;">
+    <div class="rules-toc">
+      <h3>TABLE DES MATIÈRES</h3>
+      <ul class="toc-list">
+        <li><a href="#r1"><span>01</span> <span>Conditions de participation</span></a></li>
+        <li><a href="#r2"><span>02</span> <span>Inscription et profil pilote</span></a></li>
+        <li><a href="#r3"><span>03</span> <span>Format des événements</span></a></li>
+        <li><a href="#r4"><span>04</span> <span>Règles de conduite sur piste</span></a></li>
+        <li><a href="#r5"><span>05</span> <span>Balance of Performance (BOP)</span></a></li>
+        <li><a href="#r6"><span>06</span> <span>Sanctions et exclusions</span></a></li>
+      </ul>
+    </div>
+    <div id="rules-content"></div>
+  </div>
+</div>
 
-  // ===== SWAP : aiguillage vers les equipes =====
-  const isSwapGet = req.method === 'GET' && req.query && req.query.mode === 'swap';
-  const isSwapBody = (req.method === 'POST' || req.method === 'DELETE')
-    && req.body && req.body.mode === 'swap';
-  if (isSwapGet) return swapGet(req, res);
-  if (isSwapBody && req.method === 'POST') return swapPost(req, res, user);
-  if (isSwapBody && req.method === 'DELETE') return swapDelete(req, res, user);
+<!-- ADMIN -->
+<div class="page" id="page-admin">
+  <div class="page-header"><h1>PANNEAU <span>ADMIN</span></h1><p>Fennec Racing Team — Gestion complète</p></div>
+  <div class="container">
+    <div class="admin-wrap">
+      <div class="admin-sidebar">
+        <div style="font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:3px;color:var(--pink);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">ADMINISTRATION</div>
+        <ul class="admin-menu">
+          <li><a onclick="adminTab('gportal')" class="active" id="at-gportal">🖥️ Serveur GPortal</a></li>
+          <li><a onclick="adminTab('entrylist')" id="at-entrylist">📋 Entry List</a></li>
+          <li><a onclick="adminTab('bop')" id="at-bop">⚖️ BOP Manager</a></li>
+          <li><a onclick="adminTab('event-create')" id="at-event-create">🏁 Créer Événement</a></li>
+          <li><a onclick="adminTab('event-create-swap')" id="at-event-create-swap">🔄 Créer Événement Swap</a></li>
+          <li><a onclick="adminTab('swap-teams')" id="at-swap-teams">👥 Gérer les Équipes</a></li>
+          <li><a onclick="adminTab('discord-push')" id="at-discord-push">📢 Discord Push</a></li>
+          <li><a onclick="adminTab('pilots-manage')" id="at-pilots-manage">👤 Pilotes</a></li>
+        </ul>
+      </div>
+      <div id="admin-content"></div>
+    </div>
+  </div>
+</div>
 
-  // ===== SOLO : code d'origine, inchange =====
-  if (req.method === 'POST') {
-    const { event_id, car_model } = req.body;
-    if (!event_id) return res.status(400).json({ error: 'event_id requis.' });
-    const { data: event } = await supabase
-      .from('events')
-      .select('id, status, max_pilots')
-      .eq('id', event_id)
-      .eq('status', 'upcoming')
-      .single();
-    if (!event) return res.status(404).json({ error: 'Événement introuvable ou fermé.' });
-    const { data: pilot } = await supabase
-      .from('pilots')
-      .select('id')
-      .eq('discord_id', user.discord_id)
-      .single();
-    if (!pilot) return res.status(400).json({ error: 'Créez votre profil pilote d\'abord.' });
-    const { count } = await supabase
-      .from('registrations')
-      .select('id', { count: 'exact' })
-      .eq('event_id', event_id)
-      .eq('status', 'confirmed');
-    const status = count >= event.max_pilots ? 'waitlist' : 'confirmed';
-    const { data, error } = await supabase
-      .from('registrations')
-      .insert({ event_id, pilot_id: pilot.id, car_model: car_model || null, status })
-      .select()
-      .single();
-    if (error) {
-      if (error.code === '23505') return res.status(409).json({ error: 'Vous êtes déjà inscrit.' });
-      return res.status(500).json({ error: 'Erreur inscription.' });
-    }
-    return res.status(201).json({
-      registration: data,
-      message: status === 'confirmed' ? '✅ Inscription confirmée !' : '⏳ Liste d\'attente.',
-    });
-  }
+<!-- MODAL MODIFIER PROFIL -->
+<div class="modal-overlay" id="modal-edit-profile">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-edit-profile')">✕</button>
+    <h2>MODIFIER MON <span>PROFIL</span></h2>
+    <p class="modal-sub">Mettez à jour votre PSN ID ou Gamertag</p>
+    <div id="edit-profile-ps5" style="display:none">
+      <div class="form-group"><label>PSN ID</label><input type="text" id="edit-psn" placeholder="Votre_PSN_ID"></div>
+      <div class="form-group"><label>PSN UID</label><input type="text" id="edit-psn-uid" placeholder="1234567890123456789"></div>
+    </div>
+    <div id="edit-profile-xbox" style="display:none">
+      <div class="form-group"><label>Gamertag</label><input type="text" id="edit-gt" placeholder="VotreGamertag"></div>
+      <div class="form-group"><label>XUID</label><input type="text" id="edit-xuid" placeholder="12345678901234567"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="submitEditProfile()">💾 SAUVEGARDER</button>
+  </div>
+</div>
 
-  if (req.method === 'DELETE') {
-    const { event_id } = req.body;
-    const { data: pilot } = await supabase.from('pilots').select('id').eq('discord_id', user.discord_id).single();
-    if (!pilot) return res.status(404).json({ error: 'Pilote introuvable.' });
-    const { error } = await supabase.from('registrations').delete().eq('event_id', event_id).eq('pilot_id', pilot.id);
-    if (error) return res.status(500).json({ error: 'Erreur désinscription.' });
-    return res.status(200).json({ message: 'Désinscription effectuée.' });
-  }
+<!-- MODAL EDIT EVENT -->
+<div class="modal-overlay" id="modal-edit-event">
+  <div class="modal-edit">
+    <button class="modal-close" onclick="closeModal('modal-edit-event')">✕</button>
+    <h2 style="font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;color:white;margin-bottom:20px;">✏️ MODIFIER L'<span style="color:var(--pink)">ÉVÉNEMENT</span></h2>
+    <input type="hidden" id="edit-ev-id">
+    <div class="form-grid">
+      <div class="form-group"><label>Nom</label><input type="text" id="edit-ev-name"></div>
+      <div class="form-group"><label>Circuit</label><select id="edit-ev-track"></select></div>
+      <div class="form-group"><label>Date</label><input type="date" id="edit-ev-date"></div>
+      <div class="form-group"><label>Heure (CET)</label><input type="time" id="edit-ev-time"></div>
+      <div class="form-group"><label>Durée course (min)</label><input type="number" id="edit-ev-dur"></div>
+      <div class="form-group"><label>Max pilotes</label><input type="number" id="edit-ev-max"></div>
+    </div>
+    <div class="form-group"><label>Description</label><input type="text" id="edit-ev-desc"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="saveEditEvent()">💾 SAUVEGARDER</button>
+  </div>
+</div>
 
-  if (req.method === 'GET') {
-    const { event_id } = req.query;
-    if (!event_id) return res.status(400).json({ error: 'event_id requis' });
-    const { data: regs, error: err1 } = await supabase
-      .from('registrations')
-      .select('pilot_id')
-      .eq('event_id', event_id)
-      .eq('status', 'confirmed');
-    if (err1) return res.status(500).json({ error: err1.message });
-    if (!regs.length) return res.status(200).json({ pilots: [] });
-    const pilotIds = regs.map(r => r.pilot_id);
-    const { data: pilots, error: err2 } = await supabase
-      .from('pilots')
-      .select('id, race_number, discord_username, platform, psn_id, gamertag')
-      .in('id', pilotIds);
-    if (err2) return res.status(500).json({ error: err2.message });
-    return res.status(200).json({ pilots });
-  }
+<!-- MODAL ACCEPTATION REGLEMENT -->
+<div class="modal-overlay" id="modal-rules">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-rules')">✕</button>
+    <h2 data-en="ACCEPT THE &lt;span&gt;RULES&lt;/span&gt;">ACCEPTER LE <span>RÈGLEMENT</span></h2>
+    <p class="modal-sub" data-en="Mandatory before registering for any race">Obligatoire avant toute inscription à une course</p>
+    <div class="alert-box"><span>📋</span><span data-en="You must read and accept the &lt;strong&gt;official FRT rules&lt;/strong&gt; to register.">Vous devez lire et accepter le <strong>règlement officiel FRT</strong> pour vous inscrire.</span></div>
+    <button class="btn btn-secondary" style="width:100%;margin-bottom:16px;" onclick="closeModal('modal-rules');go('rules')" data-en="📖 READ THE RULES">📖 LIRE LE RÈGLEMENT</button>
+    <label style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:9px;margin-bottom:18px;cursor:pointer;"><input type="checkbox" id="ra-check" onchange="document.getElementById('ra-btn').disabled=!this.checked" style="accent-color:var(--pink);width:16px;height:16px;cursor:pointer;flex-shrink:0;"><span data-en="I have read and accept the official FRT rules">J'ai lu et j'accepte le règlement officiel FRT</span></label>
+    <button class="btn btn-primary" id="ra-btn" disabled style="width:100%;" onclick="confirmRules()" data-en="CONFIRM MY REGISTRATION">VALIDER MON INSCRIPTION</button>
+  </div>
+</div>
 
-  res.status(405).json({ error: 'Méthode non autorisée' });
+<!-- MODAL CRÉER UNE ÉQUIPE SWAP -->
+<div class="modal-overlay" id="modal-swap-create">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-swap-create')">✕</button>
+    <h2>CRÉER MON <span>ÉQUIPE</span></h2>
+    <p class="modal-sub" id="sc-event-name">Course endurance — relais pilotes</p>
+    <div class="alert-box"><span>🔄</span><span>Vous serez le <strong>pilote principal</strong> (position 1). Vos coéquipiers pourront ensuite rejoindre l'équipe.</span></div>
+    <div class="form-group"><label>Nom de l'équipe</label><input type="text" id="sc-name" maxlength="40" placeholder="Fennec Racing #1"></div>
+    <div class="form-group">
+      <label>Numéro de voiture de l'équipe</label>
+      <div class="num-grid" id="sc-num-grid"></div>
+      <div style="margin-top:7px;font-size:12px;color:var(--muted);" id="sc-num-label">Aucun numéro sélectionné</div>
+    </div>
+    <label style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:9px;margin:14px 0;cursor:pointer;"><input type="checkbox" id="sc-rules" onchange="document.getElementById('sc-btn').disabled=!this.checked" style="accent-color:var(--pink);width:16px;height:16px;cursor:pointer;flex-shrink:0;"><span>J'ai lu et j'accepte le règlement officiel FRT</span></label>
+    <button class="btn btn-primary" id="sc-btn" disabled style="width:100%;" onclick="submitSwapCreate()">CRÉER L'ÉQUIPE</button>
+  </div>
+</div>
+
+<!-- MODAL REJOINDRE UNE ÉQUIPE SWAP -->
+<div class="modal-overlay" id="modal-swap-join">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-swap-join')">✕</button>
+    <h2>REJOINDRE L'<span>ÉQUIPE</span></h2>
+    <p class="modal-sub" id="sj-team-name">—</p>
+    <div class="form-group">
+      <label>Choisissez votre position de relais</label>
+      <div id="sj-positions" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      <div style="margin-top:7px;font-size:12px;color:var(--muted);" id="sj-pos-label">Aucune position sélectionnée</div>
+    </div>
+    <label style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:9px;margin:14px 0;cursor:pointer;"><input type="checkbox" id="sj-rules" onchange="document.getElementById('sj-btn').disabled=!this.checked" style="accent-color:var(--pink);width:16px;height:16px;cursor:pointer;flex-shrink:0;"><span>J'ai lu et j'accepte le règlement officiel FRT</span></label>
+    <button class="btn btn-primary" id="sj-btn" disabled style="width:100%;" onclick="submitSwapJoin()">REJOINDRE</button>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-overlay" id="modal-reg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-reg')">✕</button>
+    <h2>CRÉER MON <span>PROFIL PILOTE</span></h2>
+    <p class="modal-sub">Inscription officielle — Saison 2025 FRT</p>
+    <div class="alert-box"><span>🎮</span><span>Vous devez être membre du <strong>serveur Discord FRT</strong> avant de créer votre profil.</span></div>
+    <div class="form-group">
+      <label>Plateforme</label>
+      <div class="platform-btns">
+        <button class="plat-btn" id="btn-ps5" onclick="selPlat('ps5')">🎮 PS5</button>
+        <button class="plat-btn" id="btn-xbox" onclick="selPlat('xbox')">🎮 XBOX SERIES S / X</button>
+      </div>
+    </div>
+    <div id="ps5-f" style="display:none">
+      <div class="form-group"><label>PSN ID</label><input type="text" id="reg-psn" placeholder="Votre_PSN_ID"></div>
+      <div class="form-group"><label>PSN UID</label><input type="text" id="reg-psn-uid" placeholder="1234567890123456789"><a href="https://www.psntools.com/psn/checker/" target="_blank" style="display:block;margin-top:6px;font-size:11px;color:var(--pink);text-decoration:none;">→ Trouver mon PSN UID</a></div>
+    </div>
+    <div id="xbox-f" style="display:none">
+      <div class="form-group"><label>Gamertag</label><input type="text" id="reg-gt" placeholder="VotreGamertag"></div>
+      <div class="form-group"><label>XUID</label><input type="text" id="reg-xuid" placeholder="12345678901234567"><a href="https://www.cxkes.me/xbox/xuid" target="_blank" style="display:block;margin-top:6px;font-size:11px;color:var(--pink);text-decoration:none;">→ Trouver mon XUID</a></div>
+    </div>
+    <div class="form-group">
+      <label>Choisissez votre numéro de course</label>
+      <div class="num-grid" id="num-grid"></div>
+      <div style="margin-top:7px;font-size:12px;color:var(--muted);" id="num-selected-label">Aucun numéro sélectionné</div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;" onclick="submitReg()">VALIDER MON INSCRIPTION</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h4>FENNEC <span>RACING TEAM</span></h4>
+      <p data-en="Sim racing league on ACC. PS5 × XBOX SERIES S / X · Cross-Play. Join our Discord and take part in weekly races.">Ligue simulation automobile sur ACC. PS5 × XBOX SERIES S / X· Cross-Play. Rejoignez notre Discord et participez aux courses hebdomadaires.</p>
+      <div class="footer-socials">
+        <a class="social-btn" href="https://discord.gg/kJHzMKeER2" target="_blank" title="Discord">
+          <svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Navigation</h5>
+      <ul>
+        <li><a onclick="go('home')" data-en="Home">Accueil</a></li>
+        <li><a onclick="go('events')" data-en="Events">Événements</a></li>
+        <li><a onclick="go('profiles')" data-en="Profiles">Profils</a></li>
+        <li><a onclick="go('rules')" data-en="Rules">Règlement</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5 data-en="Registration">Inscription</h5>
+      <ul>
+        <li><a href="https://discord.gg/kJHzMKeER2" target="_blank">Discord FRT</a></li>
+        <li><a onclick="openRegModal()" data-en="Create my profile">Créer mon profil</a></li>
+        <li><a href="https://www.psntools.com/psn/checker/" target="_blank">PSN UID Checker</a></li>
+        <li><a href="https://www.cxkes.me/xbox/xuid" target="_blank">Xbox XUID Finder</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Admin</h5>
+      <ul>
+        <li><a onclick="loginDiscord()" data-en="Discord login">Connexion Discord</a></li>
+        <li><a onclick="go('admin')" data-en="Admin panel">Panneau Admin</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Fennec Racing Team · fennec-racing-team.fr</span>
+    <span style="color:var(--pink);">ACC · PS5 × XBOX SERIES S / X· Cross-Play</span>
+  </div>
+</footer>
+
+<script>
+let lang='fr';
+try{var _sl=localStorage.getItem('frt_lang');if(_sl==='en'||_sl==='fr')lang=_sl;}catch(e){}
+let user=null;
+let selectedNum=null;
+let selectedPlat=null;
+let eventsCache=[];
+let pilotsCache=[];
+let resultsCache=[];
+let myRegs=new Set();
+const ACC_TRACKS=[{k:'barcelona',n:'BARCELONA',km:'4.655'},{k:'brands_hatch',n:'BRANDS HATCH',km:'3.916'},{k:'cota',n:'COTA',km:'5.513'},{k:'donington',n:'DONINGTON',km:'4.020'},{k:'hungaroring',n:'HUNGARORING',km:'4.381'},{k:'indianapolis',n:'INDIANAPOLIS',km:'3.925'},{k:'imola',n:'IMOLA',km:'4.909'},{k:'kyalami',n:'KYALAMI',km:'4.580'},{k:'laguna_seca',n:'LAGUNA SECA',km:'3.602'},{k:'misano',n:'MISANO',km:'4.226'},{k:'monza',n:'MONZA',km:'5.793'},{k:'mount_panorama',n:'MOUNT PANORAMA',km:'6.213'},{k:'nurburgring',n:'NÜRBURGRING GP',km:'5.137'},{k:'nurburgring_24h',n:'NORDSCHLEIFE 24H',km:'25.378'},{k:'oulton_park',n:'OULTON PARK',km:'4.333'},{k:'paul_ricard',n:'PAUL RICARD',km:'5.791'},{k:'red_bull_ring',n:'RED BULL RING',km:'4.318'},{k:'silverstone',n:'SILVERSTONE',km:'5.891'},{k:'snetterton',n:'SNETTERTON',km:'4.779'},{k:'spa',n:'SPA',km:'7.004'},{k:'suzuka',n:'SUZUKA',km:'5.807'},{k:'watkins_glen',n:'WATKINS GLEN',km:'5.435'},{k:'valencia',n:'VALENCIA',km:'4.005'},{k:'zandvoort',n:'ZANDVOORT',km:'4.307'},{k:'zolder',n:'ZOLDER',km:'4.011'}];
+function trackOptions(){return ACC_TRACKS.map(t=>`<option value="${t.k}">${t.n} (${t.km} km)</option>`).join('');}
+function trackInfo(key){return ACC_TRACKS.find(t=>t.k===key)||{k:key||'',n:(key||'').replace(/_/g,' ').toUpperCase(),km:''};}
+let autoRefreshInterval=null;
+
+try{const c=document.cookie.match(/frt_user=([^;]+)/);if(c)user=JSON.parse(decodeURIComponent(c[1]));}catch(e){}
+
+const urlParams=new URLSearchParams(location.search);
+if(urlParams.get('auth')==='success'){notify('Connexion réussie !','success');history.replaceState({},'','/');}
+if(urlParams.get('auth')==='error'){notify('Erreur de connexion Discord.','error');history.replaceState({},'','/');}
+
+function applyLang(){
+  try{document.querySelectorAll('[data-en]').forEach(function(el){if(!el.hasAttribute('data-fr'))el.setAttribute('data-fr',el.innerHTML);el.innerHTML=(lang==='en')?el.getAttribute('data-en'):el.getAttribute('data-fr');});}catch(e){}
+  var lb=document.getElementById('langBtn');if(lb)lb.textContent=(lang==='fr')?'🇬🇧 EN':'🇫🇷 FR';
+  document.documentElement.setAttribute('lang',lang);
+  try{localStorage.setItem('frt_lang',lang);}catch(e){}
+}
+function toggleLang(){lang=(lang==='fr')?'en':'fr';applyLang();}
+
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const nl=document.getElementById('nl-'+page);
+  if(nl)nl.classList.add('active');
+  window.scrollTo(0,0);
+  updateMobileNav(page);
+  if(page==='home')loadHome();
+  if(page==='events')loadEvents();
+  if(page==='profiles')loadPilots();
+  if(page==='rules')renderRules();
+  if(page==='admin'){if(!user?.is_admin){notify('Accès admin requis.','error');go('home');return;}loadAdmin();}
 }
 
-// =========================================================
-// SWAP — GET : liste des equipes d'un evenement
-// =========================================================
-async function swapGet(req, res) {
-  const { event_id } = req.query;
-  if (!event_id) return res.status(400).json({ error: 'event_id requis' });
+function loginDiscord(){window.location.href='/api/auth/discord';}
 
-  const { data: teams, error: errTeams } = await supabase
-    .from('swap_teams')
-    .select('id, team_name, car_number, created_by, created_at')
-    .eq('event_id', event_id)
-    .order('car_number', { ascending: true });
-  if (errTeams) return res.status(500).json({ error: errTeams.message });
-  if (!teams || !teams.length) return res.status(200).json({ teams: [] });
+async function logout(){
+  await fetch('/api/auth/logout',{method:'POST'});
+  user=null;updateNavAuth();notify('Déconnecté.','');go('home');
+}
 
-  const teamIds = teams.map(t => t.id);
-  const { data: regs, error: errRegs } = await supabase
-    .from('swap_registrations')
-    .select('id, team_id, pilot_id, position')
-    .in('team_id', teamIds)
-    .order('position', { ascending: true });
-  if (errRegs) return res.status(500).json({ error: errRegs.message });
-
-  const pilotIds = [...new Set((regs || []).map(r => r.pilot_id))];
-  const pilotsById = {};
-  if (pilotIds.length) {
-    const { data: pilots, error: errPilots } = await supabase
-      .from('pilots')
-      .select(SWAP_PILOT_FIELDS)
-      .in('id', pilotIds);
-    if (errPilots) return res.status(500).json({ error: errPilots.message });
-    (pilots || []).forEach(p => { pilotsById[p.id] = p; });
+function updateNavAuth(){
+  const area=document.getElementById('nav-auth-area');
+  if(user){
+    const avatar=user.discord_avatar?`<img class="avatar-sm" src="https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png">`:'';
+    area.innerHTML=`<div style="display:flex;align-items:center;gap:8px;"><div class="btn-user">${avatar} ${user.username||'Pilote'}</div><button class="btn-logout" onclick="logout()">Déco</button></div>`;
+    if(user.is_admin){document.getElementById('admin-nav-li').style.display='block';document.getElementById('ml-admin').style.display='block';}
+    document.getElementById('discord-required-banner').style.display='none';
+    document.getElementById('discord-join-card').style.display='none';
+  }else{
+    area.innerHTML=`<button class="btn-discord-nav" onclick="loginDiscord()"><svg width="14" height="11" viewBox="0 0 24 18" fill="currentColor"><path d="M20.317 1.492a19.84 19.84 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 1.492a.07.07 0 0 0-.032.027C.533 6.093-.32 10.555.099 14.961a.08.08 0 0 0 .031.055 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg> Discord</button>`;
   }
+}
 
-  const result = teams.map(t => {
-    const members = (regs || [])
-      .filter(r => r.team_id === t.id)
-      .sort((a, b) => a.position - b.position)
-      .map(r => ({
-        registration_id: r.id,
-        position: r.position,
-        pilot: pilotsById[r.pilot_id] || null,
-      }));
-    return {
-      id: t.id,
-      team_name: t.team_name,
-      car_number: t.car_number,
-      created_by: t.created_by,
-      pilots: members,
-      pilots_count: members.length,
-      free_positions: [1, 2, 3, 4, 5].filter(p => !members.some(m => m.position === p)),
-    };
+async function api(url,options={}){
+  const res=await fetch(url,{cache:'no-store',...options,headers:{'Content-Type':'application/json','Cache-Control':'no-cache','Pragma':'no-cache',...(options.headers||{})}});
+  const data=await res.json();
+  if(!res.ok)throw new Error(data.error||'Erreur serveur');
+  return data;
+}
+
+async function refreshMyRegistrations(events){
+  myRegs=new Set();
+  if(!user)return;
+  const ups=(events||[]).filter(e=>e.status==='upcoming');
+  await Promise.all(ups.map(async ev=>{
+    try{
+      const data=await api(`/api/events/register?event_id=${ev.id}`);
+      if((data.pilots||[]).some(p=>p.discord_username===user?.username||p.discord_username===user?.discord_username))myRegs.add(ev.id);
+    }catch(e){}
+  }));
+}
+
+async function loadHome(){
+  try{
+    const[{events},{pilots},{results}]=await Promise.all([api('/api/events'),api('/api/pilots'),api('/api/results')]);
+    eventsCache=events||[];pilotsCache=pilots||[];resultsCache=results||[];
+    document.getElementById('stat-pilots').textContent=pilots.length;
+    document.getElementById('stat-events').textContent=events.filter(e=>e.status==='finished').length;
+    document.getElementById('stat-races').textContent=events.length;
+    const sorted=[...pilots].sort((a,b)=>b.points-a.points).slice(0,5);
+    const medColors=['#FFD700','#C0C0C0','#CD7F32'];
+    document.getElementById('home-standings').innerHTML=sorted.length
+      ?sorted.map((p,i)=>`<div class="standings-row"><div class="st-pos" style="color:${medColors[i]||'var(--muted)'}">${i+1}</div><div class="st-name">#${p.race_number} ${p.discord_username}</div><div class="st-pts">${p.points}</div></div>`).join('')
+      :'<p style="color:var(--muted);font-size:13px;">Aucun pilote encore inscrit.</p>';
+    const upcoming=events.filter(e=>e.status==='upcoming').sort((a,b)=>new Date(a.event_date)-new Date(b.event_date)).slice(0,2);
+    await refreshMyRegistrations(upcoming);
+    if(upcoming.length){
+      document.getElementById('home-next-event').innerHTML=upcoming.map((ev,i)=>{
+        const d=new Date(ev.event_date);
+        const regCount=ev.registrations?.[0]?.count||0;
+        const ninfo=trackInfo(ev.track);
+        return`<div class="next-event">
+        <div class="ev-badge" data-en="${i===0?'● NEXT EVENT':'● THEN'}">${i===0?'● PROCHAIN ÉVÉNEMENT':'● ENSUITE'}</div>
+        <div class="ev-title">${ev.name}</div>
+        <img src="/circuits/${ev.track}.jpg" alt="${ninfo.n}" onerror="this.style.display='none'" style="width:100%;height:180px;object-fit:cover;border-radius:6px;border:1px solid var(--border);margin:4px 0 10px;display:block;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--blue);margin-bottom:12px;">${ninfo.n}${ninfo.km?` <span style="color:var(--muted);font-weight:400;">· ${ninfo.km} km</span>`:''}</div>
+        ${ev.description?`<div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">${ev.description}</div>`:''}
+        <div class="ev-tags">${ev.event_type==='swap'?`<span class="tag tag-swap">🔄 ENDURANCE SWAP</span>`:''}<span class="tag tag-ps5">PS5</span><span class="tag tag-xbox">XBOX SERIES S / X</span><span class="tag tag-cross">CROSS PLAY</span></div>
+        <div class="ev-meta">
+          <div class="ev-meta-item"><div class="lbl" data-en="Date">Date</div><div class="val">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}).toUpperCase()}</div></div>
+          <div class="ev-meta-item"><div class="lbl" data-en="Time">Heure</div><div class="val">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div></div>
+          ${ev.event_type==='swap'?`<div class="ev-meta-item"><div class="lbl" data-en="Teams">Équipes</div><div class="val">${ev.max_teams||'—'} max</div></div>`:`<div class="ev-meta-item"><div class="lbl" data-en="Slots">Places</div><div class="val">${regCount}/${ev.max_pilots}</div></div>`}
+        </div>
+        <div class="countdown">
+          <div class="cd-item"><div class="cd-num" id="cd-d-${i}">--</div><div class="cd-unit" data-en="Days">Jours</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-h-${i}">--</div><div class="cd-unit" data-en="Hours">Heures</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-m-${i}">--</div><div class="cd-unit" data-en="Min">Min</div></div>
+          <div class="cd-item"><div class="cd-num" id="cd-s-${i}">--</div><div class="cd-unit" data-en="Sec">Sec</div></div>
+        </div>
+        <div class="btn-group">
+          ${ev.event_type==='swap'
+            ?''
+            :(myRegs.has(ev.id)
+            ?`<span class="badge badge-green" style="padding:10px 16px;font-size:10px;display:inline-flex;align-items:center;" data-en="✅ REGISTERED">✅ INSCRIT</span><button class="btn btn-danger" onclick="unregisterEvent('${ev.id}','home')" data-en="UNREGISTER">SE DÉSINSCRIRE</button>`
+            :`<label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;"><input type="checkbox" id="accept-rules-${i}" onchange="document.getElementById('btn-register-${i}').disabled=!this.checked"> J'accepte le <a href="#" onclick="go('rules')" style="color:var(--pink)">règlement</a></label><button id="btn-register-${i}" disabled class="btn btn-primary" onclick="registerEvent('${ev.id}',true)" data-en="REGISTER">S'INSCRIRE</button>`)}
+          <button class="btn btn-secondary" onclick="voirDetails('${ev.id}')" data-en="VIEW DETAILS">VOIR DÉTAILS</button>
+        </div>
+      </div>`;
+      }).join('');
+      upcoming.forEach((ev,i)=>startCountdown(new Date(ev.event_date),i));
+    }else{
+      document.getElementById('home-next-event').innerHTML='<p style="color:var(--muted);font-size:14px;padding:20px 0;" data-en="No upcoming events.">Aucun événement à venir.</p>';
+    }
+    const homeRes=document.getElementById('home-results');
+    if(homeRes){
+      const lastResults=resultsCache.filter(r=>r.result_type==='race').slice(0,3);
+      const medals=['p1','p2','p3'];
+      homeRes.innerHTML=lastResults.length
+        ?lastResults.map((r,i)=>`<div class="result-row"><div class="result-pos ${medals[i]||''}">P${r.position}</div><div class="result-info"><div class="result-track">${r.pilots?.discord_username||'—'}</div><div class="result-driver">#${r.pilots?.race_number||'?'} · ${r.car_model||'GT3'}</div></div><div class="result-time">${r.best_lap_ms?msToLap(r.best_lap_ms):'—'}</div></div>`).join('')
+        :'<p style="color:var(--muted);font-size:13px;" data-en="No results available.">Aucun résultat disponible.</p>';
+    }
+    applyLang();
+  }catch(e){console.error(e);}
+}
+
+let cdIntervals=[];
+function startCountdown(target,idx){
+  const i=idx||0;
+  if(cdIntervals[i])clearInterval(cdIntervals[i]);
+  cdIntervals[i]=setInterval(()=>{
+    const diff=target-Date.now();
+    if(diff<=0){clearInterval(cdIntervals[i]);return;}
+    const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=String(v).padStart(2,'0');};
+    set('cd-d-'+i,d);set('cd-h-'+i,h);set('cd-m-'+i,m);set('cd-s-'+i,s);
+  },1000);
+}
+
+async function loadEvents(){
+  try{
+    const{events}=await api('/api/events');
+    eventsCache=events;
+    clearInterval(autoRefreshInterval);
+    autoRefreshInterval=setInterval(async()=>{try{const{events:ev}=await api('/api/events');eventsCache=ev;await refreshMyRegistrations(ev);if(!detailEventId&&document.getElementById('page-events').classList.contains('active')){const activeFilter=document.querySelector('.filter-btn.active');renderEvents(activeFilter?.getAttribute('data-filter')||'all');}}catch(e){}},120000);
+    await refreshMyRegistrations(events);
+    renderEvents('all');
+    const lastFinished=eventsCache.filter(e=>e.status==='finished').pop();
+    if(lastFinished){
+      const{results}=await api(`/api/results?event_id=${lastFinished.id}&type=race`);
+      renderResults(results,lastFinished);
+    }else{
+      document.getElementById('results-section').innerHTML='<p style="color:var(--muted);font-size:13px;" data-en="No results available.">Aucun résultat disponible.</p>';
+    }
+    applyLang();
+  }catch(e){console.error(e);}
+}
+
+function renderEvents(filter){
+  detailEventId=null;
+  let evs=[...eventsCache];
+  if(filter==='upcoming')evs=evs.filter(e=>e.status==='upcoming');
+  if(filter==='finished')evs=evs.filter(e=>e.status==='finished');
+  evs.sort((a,b)=>{
+    const au=a.status==='upcoming',bu=b.status==='upcoming';
+    if(au!==bu)return au?-1:1;
+    const da=new Date(a.event_date),db=new Date(b.event_date);
+    return au?da-db:db-da;
   });
-
-  return res.status(200).json({ teams: result });
+  document.getElementById('events-list').innerHTML=evs.length
+    ?evs.map(ev=>{
+        const d=new Date(ev.event_date);
+        const regCount=ev.registrations?.[0]?.count||0;
+        const pct=Math.min(100,(regCount/ev.max_pilots)*100);
+        const isOpen=ev.status==='upcoming';
+        return`<div class="event-card" onclick="voirDetails('${ev.id}')" style="cursor:pointer;">
+          <div class="date-box"><div class="date-day">${d.getDate()}</div><div class="date-month">${d.toLocaleString('fr-FR',{month:'short'}).toUpperCase()}</div></div>
+          <div class="ev-info">
+            <h3>${ev.name}</h3>
+            <div class="ev-tags">${ev.event_type==='swap'?`<span class="tag tag-swap">🔄 SWAP</span>`:''}<span class="tag tag-ps5">PS5</span><span class="tag tag-xbox">XBOX</span><span class="tag tag-cross">CROSS PLAY</span>
+              ${isOpen?`<span class="tag tag-race">COURSE ${ev.race_duration}MIN</span>`:`<span class="badge badge-yellow" data-en="FINISHED">TERMINÉE</span>`}
+            </div>
+            <div class="ev-details">${ev.description||''}</div>
+          </div>
+          <div class="slots-wrap">
+            ${ev.event_type==='swap'
+              ?`<div class="slots-text">${ev.max_teams||'—'} équipes max</div>`
+              :`<div class="slots-text">${regCount}/${ev.max_pilots} places</div><div class="slots-bar"><div class="slots-fill" style="width:${pct}%"></div></div>`}
+            ${ev.event_type==='swap'?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();voirDetails('${ev.id}')" data-en="View teams →">Voir les équipes →</button>`:(isOpen?(myRegs.has(ev.id)?`<button class="btn btn-danger" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();unregisterEvent('${ev.id}','list')" data-en="UNREGISTER">SE DÉSINSCRIRE</button>`:(regCount>=ev.max_pilots?`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" disabled data-en="FULL">COMPLET</button>`:`<button class="btn btn-primary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();registerEvent('${ev.id}')" data-en="REGISTER">S'INSCRIRE</button>`)):`<button class="btn btn-secondary" style="padding:7px 14px;font-size:9px;margin-top:7px;" onclick="event.stopPropagation();voirDetails('${ev.id}')" data-en="Details →">Détails →</button>`)}
+          </div>
+        </div>`;
+      }).join('')
+    :'<p style="color:var(--muted);font-size:13px;" data-en="No events.">Aucun événement.</p>';
+  applyLang();
 }
 
-// =========================================================
-// SWAP — POST : creer une equipe ou rejoindre une equipe
-// =========================================================
-async function swapPost(req, res, user) {
-  const { event_id, team_name, car_number, team_id, position } = req.body || {};
-  if (!event_id) return res.status(400).json({ error: 'event_id requis.' });
+let detailEventId=null;
 
-  const { data: event } = await supabase
-    .from('events')
-    .select('id, status, event_type, max_teams')
-    .eq('id', event_id)
-    .eq('status', 'upcoming')
-    .single();
-  if (!event) return res.status(404).json({ error: 'Événement introuvable ou fermé.' });
-  if (event.event_type !== 'swap') {
-    return res.status(400).json({ error: 'Cet événement n\'est pas un événement swap.' });
-  }
-
-  const { data: pilot } = await supabase
-    .from('pilots')
-    .select('id')
-    .eq('discord_id', user.discord_id)
-    .single();
-  if (!pilot) return res.status(400).json({ error: 'Créez votre profil pilote d\'abord.' });
-
-  // --- Rejoindre une equipe existante ---
-  if (team_id) {
-    const pos = Number(position);
-    if (!Number.isInteger(pos) || pos < 1 || pos > 5) {
-      return res.status(400).json({ error: 'Position invalide (1 à 5).' });
-    }
-
-    const { data: team } = await supabase
-      .from('swap_teams')
-      .select('id, team_name, event_id')
-      .eq('id', team_id)
-      .eq('event_id', event_id)
-      .single();
-    if (!team) return res.status(404).json({ error: 'Équipe introuvable.' });
-
-    const { count: memberCount } = await supabase
-      .from('swap_registrations')
-      .select('id', { count: 'exact', head: true })
-      .eq('team_id', team_id);
-    if ((memberCount || 0) >= 5) {
-      return res.status(409).json({ error: 'Cette équipe est complète (5 pilotes).' });
-    }
-
-    const { data: reg, error } = await supabase
-      .from('swap_registrations')
-      .insert({ team_id, event_id, pilot_id: pilot.id, position: pos })
-      .select()
-      .single();
-    if (error) {
-      if (error.code === '23505') {
-        if ((error.message || '').includes('position')) {
-          return res.status(409).json({ error: 'Cette position est déjà prise dans l\'équipe.' });
+async function voirDetails(eventId){
+  detailEventId=eventId;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+  document.getElementById('page-events').classList.add('active');
+  const nlv=document.getElementById('nl-events');if(nlv)nlv.classList.add('active');
+  window.scrollTo(0,0);
+  updateMobileNav('events');
+  document.getElementById('events-list').innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  {
+    try{
+      let ev=eventsCache.find(e=>e.id===eventId);
+      if(!ev){try{const{events}=await api('/api/events');eventsCache=events||[];ev=eventsCache.find(e=>e.id===eventId);}catch(e){}}
+      if(!ev){notify('Événement introuvable.','error');loadEvents();return;}
+      if(detailEventId!==eventId)return;
+      const d=new Date(ev.event_date);
+      const regCount=ev.registrations?.[0]?.count||0;
+      const pct=Math.min(100,(regCount/ev.max_pilots)*100);
+      let pilotesList=`<p style="color:var(--muted);font-size:13px;">Aucun pilote inscrit.</p>`;
+      let isRegistered=false;
+      const canUnregister=(new Date(ev.event_date)-new Date())>45*60*1000;
+      try{
+        const data=await api(`/api/events/register?event_id=${eventId}`);
+        if(data.pilots?.length){
+          pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:13px;font-weight:600;color:var(--pink);">#${p.race_number||'?'}</div><div style="font-size:12px;">${p.psn_id||p.discord_username||'-'}</div></div>`).join('')}</div>`;
+          isRegistered=data.pilots.some(p=>p.discord_username===user?.username||p.discord_username===user?.discord_username);
         }
-        return res.status(409).json({ error: 'Vous êtes déjà inscrit dans une équipe sur cet événement.' });
+      }catch(e){}
+      if(ev.status==='upcoming'){if(isRegistered)myRegs.add(eventId);else myRegs.delete(eventId);}
+      let swapTeams=[],myTeam=null,swapError=false;
+      if(ev.event_type==='swap'){
+        try{
+          const st=await api(`/api/events/register?mode=swap&event_id=${eventId}`);
+          swapTeams=st.teams||[];
+          if(user)myTeam=swapTeams.find(t=>t.pilots.some(m=>isMePilot(m.pilot)))||null;
+        }catch(e){swapError=true;}
+        if(detailEventId!==eventId)return;
       }
-      return res.status(500).json({ error: 'Erreur inscription équipe.' });
-    }
+      const teamsCount=swapTeams.length;
+      const canCreate=ev.status==='upcoming'&&!myTeam&&(!ev.max_teams||teamsCount<ev.max_teams);
+      document.getElementById('events-list').innerHTML=`
+        <div style="background:var(--card);border:1px solid var(--pink);border-radius:8px;padding:28px;margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+            <div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:white;">${ev.name}</div>
+              <div style="font-size:15px;color:var(--pink);margin-top:4px;">${ev.description||''}</div>
+            </div>
+            <span class="badge badge-${d<new Date()?'yellow':'blue'}" style="font-size:11px;padding:5px 12px;">${d<new Date()?'TERMINÉE':'À VENIR'}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:20px;">
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">DATE</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div></div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">HEURE</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div></div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">CIRCUIT</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${(ev.track||'').toUpperCase()}</div></div>
+            <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">DURÉE</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${ev.race_duration||60} MIN</div></div>
+${ev.event_type==='swap'?`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">ÉQUIPES</div><div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${teamsCount} / ${ev.max_teams||'—'}</div></div>`:`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">PLACES</div><div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${regCount} / ${ev.max_pilots}</div><div style="width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:6px;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));border-radius:2px;"></div></div></div>`}
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            ${ev.event_type==='swap'
+              ?(ev.status!=='upcoming'?''
+                :(myTeam
+                  ?`<button class="btn btn-danger" onclick="leaveSwapTeam('${ev.id}')">QUITTER MON ÉQUIPE</button>`
+                  :(canCreate?`<button class="btn btn-primary" onclick="openSwapCreate('${ev.id}')">+ CRÉER MON ÉQUIPE</button>`:'')))
+              :(isRegistered?`<button class="btn btn-danger" onclick="unregisterEvent('${ev.id}')" ${canUnregister?'':'disabled'}>${canUnregister?'SE DÉSINSCRIRE':'Désinscription fermée'}</button>`:`<button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S'INSCRIRE</button>`)}
+            <button class="btn btn-secondary" onclick="loadEvents()">← Retour au calendrier</button>
+          </div>
+          <div style="margin-top:24px;">
+            ${ev.event_type==='swap'
+              ?`<div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--pink);margin-bottom:8px;">ÉQUIPES ENGAGÉES (${teamsCount})</div>${swapError?`<p style="color:var(--muted);font-size:13px;">Impossible de charger les équipes. Rechargez la page.</p>`:renderTeams(swapTeams,ev,myTeam)}`
+              :`<div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--pink);margin-bottom:8px;">PILOTES INSCRITS (${regCount})</div>${pilotesList}`}
+          </div>
+        </div>`;
+    }catch(e){console.error(e);}
+  }
+}
 
-    return res.status(201).json({
-      registration: reg,
-      message: `✅ Inscrit dans ${team.team_name} en position ${pos} !`,
+document.addEventListener('click',e=>{
+  if(e.target.classList.contains('filter-btn')){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    renderEvents(e.target.getAttribute('data-filter'));
+  }
+});
+
+let pendingRegEvent=null;
+function askRules(eventId){
+  pendingRegEvent=eventId;
+  const cb=document.getElementById('ra-check');if(cb)cb.checked=false;
+  const bt=document.getElementById('ra-btn');if(bt)bt.disabled=true;
+  document.getElementById('modal-rules').classList.add('open');
+}
+function confirmRules(){
+  const id=pendingRegEvent;
+  pendingRegEvent=null;
+  closeModal('modal-rules');
+  if(id)registerEvent(id,true);
+}
+
+async function ensureProfile(){
+  if(!user)return false;
+  if(user.race_number)return true;
+  try{
+    const{pilots}=await api('/api/pilots');
+    pilotsCache=pilots||[];
+    const me=pilotsCache.find(p=>
+      (user.discord_id&&p.discord_id&&String(p.discord_id)===String(user.discord_id))||
+      (user.discord_username&&p.discord_username===user.discord_username)||
+      (user.username&&p.discord_username===user.username));
+    if(me){
+      user.race_number=me.race_number;
+      user.platform=me.platform;
+      if(me.is_member!==undefined&&me.is_member)user.is_member=true;
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+async function registerEvent(eventId,rulesOk){
+  if(!user){notify('Connectez-vous avec Discord.','error');return;}
+  if(!user.is_member){notify('Rejoignez le serveur Discord FRT.','error');return;}
+  if(!user.race_number&&!(await ensureProfile())){notify('Créez votre profil pilote.','error');openRegModal();return;}
+  if(!rulesOk){askRules(eventId);return;}
+  try{
+    const{message}=await api('/api/events/register',{method:'POST',body:JSON.stringify({event_id:eventId})});
+    myRegs.add(eventId);
+    notify(message,'success');
+    if(document.getElementById('page-home').classList.contains('active'))loadHome();
+    else loadEvents();
+  }catch(e){notify(e.message,'error');}
+}
+
+async function unregisterEvent(eventId,back){
+  if(!user){notify('Connectez-vous avec Discord.','error');return;}
+  try{
+    const{message}=await api('/api/events/register',{method:'DELETE',body:JSON.stringify({event_id:eventId})});
+    myRegs.delete(eventId);
+    notify(message,'success');
+    if(back==='home')loadHome();
+    else if(back==='list')loadEvents();
+    else voirDetails(eventId);
+  }catch(e){notify(e.message,'error');}
+}
+
+// ===================== SYSTÈME SWAP (ENDURANCE) =====================
+const TEAM_COLORS=['linear-gradient(135deg,var(--green),#00997f)','linear-gradient(135deg,var(--blue),#0088cc)','linear-gradient(135deg,var(--pink),#cc0066)','linear-gradient(135deg,#ff8800,var(--pink))','linear-gradient(135deg,#8800ff,var(--blue))'];
+let swapCtx={eventId:null,teamId:null,teamName:'',number:null,position:null,taken:[]};
+
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function isMePilot(p){
+  if(!p||!user)return false;
+  if(user.discord_id&&p.discord_id&&String(p.discord_id)===String(user.discord_id))return true;
+  if(user.discord_username&&p.discord_username===user.discord_username)return true;
+  if(user.username&&p.discord_username===user.username)return true;
+  return false;
+}
+
+function pilotLabel(p){
+  if(!p)return '—';
+  return p.discord_username||p.psn_id||p.gamertag||'Pilote';
+}
+
+function renderTeams(teams,ev,myTeam){
+  if(!teams.length)return `<p style="color:var(--muted);font-size:13px;">Aucune équipe engagée pour le moment.</p>`;
+  const open=ev.status==='upcoming';
+  return `<div class="teams-grid">${teams.map((t,i)=>{
+    const main=t.pilots.find(m=>m.position===1);
+    const label=pilotLabel(main&&main.pilot);
+    const initials=label.substring(0,2).toUpperCase();
+    const isMine=myTeam&&myTeam.id===t.id;
+    const full=t.pilots_count>=5;
+    const canJoin=open&&!myTeam&&!full;
+    return `<div class="team-card${isMine?' mine':''}">
+      <div class="team-head">
+        <div class="team-avatar" style="background:${TEAM_COLORS[i%5]}">${esc(initials)}</div>
+        <div style="min-width:0;">
+          <div class="team-name">${esc(t.team_name)}</div>
+          <div class="team-num">#${t.car_number}</div>
+        </div>
+      </div>
+      ${t.pilots.map(m=>`<div class="team-pilot"><span class="team-pos${m.position===1?' p1':''}">P${m.position}</span><span class="team-pilot-name">${esc(pilotLabel(m.pilot))}${m.position===1?' <span style="color:var(--muted);font-size:11px;">· principal</span>':''}</span></div>`).join('')}
+      <div class="team-slots">${t.pilots_count}/5 PILOTES${full?' · COMPLÈTE':''}${isMine?' · VOTRE ÉQUIPE':''}</div>
+      ${canJoin?`<button class="btn btn-secondary" style="width:100%;margin-top:12px;padding:8px;font-size:9px;" onclick="openSwapJoin('${ev.id}','${t.id}','${esc(t.team_name).replace(/'/g,"&#39;")}','${t.free_positions.join('-')}')">REJOINDRE</button>`:''}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+async function ensureSwapReady(){
+  if(!user){notify('Connectez-vous avec Discord.','error');return false;}
+  if(!user.is_member){notify('Rejoignez le serveur Discord FRT.','error');return false;}
+  if(!user.race_number&&!(await ensureProfile())){notify('Créez votre profil pilote.','error');openRegModal();return false;}
+  return true;
+}
+
+async function openSwapCreate(eventId){
+  if(!(await ensureSwapReady()))return;
+  const ev=eventsCache.find(e=>e.id===eventId);
+  swapCtx={eventId,teamId:null,teamName:'',number:null,position:null,taken:[]};
+  try{
+    const st=await api(`/api/events/register?mode=swap&event_id=${eventId}`);
+    swapCtx.taken=(st.teams||[]).map(t=>t.car_number);
+  }catch(e){}
+  document.getElementById('sc-event-name').textContent=ev?ev.name:'Course endurance';
+  document.getElementById('sc-name').value='';
+  document.getElementById('sc-rules').checked=false;
+  document.getElementById('sc-btn').disabled=true;
+  document.getElementById('sc-num-label').textContent='Aucun numéro sélectionné';
+  document.getElementById('sc-num-label').style.color='var(--muted)';
+  buildSwapNumGrid();
+  document.getElementById('modal-swap-create').classList.add('open');
+}
+
+function buildSwapNumGrid(){
+  const grid=document.getElementById('sc-num-grid');
+  grid.innerHTML='';
+  for(let i=0;i<=999;i++){
+    const taken=swapCtx.taken.indexOf(i)!==-1;
+    const btn=document.createElement('button');
+    btn.className='num-btn'+(taken?' taken':'');
+    btn.textContent=i;
+    btn.disabled=taken;
+    btn.onclick=function(){
+      const all=grid.querySelectorAll('.num-btn');
+      for(let k=0;k<all.length;k++)all[k].classList.remove('selected');
+      btn.classList.add('selected');
+      swapCtx.number=i;
+      const lbl=document.getElementById('sc-num-label');
+      lbl.textContent='#'+i+' sélectionné';
+      lbl.style.color='var(--pink)';
+    };
+    grid.appendChild(btn);
+  }
+}
+
+async function submitSwapCreate(){
+  const name=document.getElementById('sc-name').value.trim();
+  if(!name){notify('Donnez un nom à votre équipe.','error');return;}
+  if(swapCtx.number===null){notify('Choisissez un numéro de voiture.','error');return;}
+  const btn=document.getElementById('sc-btn');
+  btn.disabled=true;
+  try{
+    const{message}=await api('/api/events/register',{method:'POST',body:JSON.stringify({mode:'swap',event_id:swapCtx.eventId,team_name:name,car_number:swapCtx.number})});
+    closeModal('modal-swap-create');
+    notify(message,'success');
+    voirDetails(swapCtx.eventId);
+  }catch(e){notify(e.message,'error');btn.disabled=false;}
+}
+
+function openSwapJoin(eventId,teamId,teamName,freePositions){
+  ensureSwapReady().then(function(ok){
+    if(!ok)return;
+    swapCtx={eventId,teamId,teamName,number:null,position:null,taken:[]};
+    document.getElementById('sj-team-name').textContent=teamName;
+    document.getElementById('sj-rules').checked=false;
+    document.getElementById('sj-btn').disabled=true;
+    const lbl=document.getElementById('sj-pos-label');
+    lbl.textContent='Aucune position sélectionnée';
+    lbl.style.color='var(--muted)';
+    const wrap=document.getElementById('sj-positions');
+    wrap.innerHTML='';
+    const free=String(freePositions||'').split('-').filter(function(x){return x!=='';}).map(Number);
+    free.forEach(function(pos){
+      const b=document.createElement('button');
+      b.className='plat-btn';
+      b.style.flex='0 0 auto';
+      b.style.minWidth='62px';
+      b.textContent='P'+pos;
+      b.onclick=function(){
+        const all=wrap.querySelectorAll('.plat-btn');
+        for(let k=0;k<all.length;k++)all[k].classList.remove('sel-ps5');
+        b.classList.add('sel-ps5');
+        swapCtx.position=pos;
+        lbl.textContent='Position '+pos+' sélectionnée';
+        lbl.style.color='var(--pink)';
+      };
+      wrap.appendChild(b);
     });
-  }
-
-  // --- Creer une equipe : le createur est pilote principal (position 1) ---
-  const name = (team_name || '').trim();
-  const num = Number(car_number);
-  if (!name) return res.status(400).json({ error: 'Nom d\'équipe requis.' });
-  if (name.length > 40) return res.status(400).json({ error: 'Nom d\'équipe trop long (40 caractères max).' });
-  if (!Number.isInteger(num) || num < 0 || num > 999) {
-    return res.status(400).json({ error: 'Numéro de voiture invalide (0 à 999).' });
-  }
-
-  if (event.max_teams) {
-    const { count: teamCount } = await supabase
-      .from('swap_teams')
-      .select('id', { count: 'exact', head: true })
-      .eq('event_id', event_id);
-    if ((teamCount || 0) >= event.max_teams) {
-      return res.status(409).json({ error: 'Nombre maximum d\'équipes atteint.' });
-    }
-  }
-
-  const { count: alreadyIn } = await supabase
-    .from('swap_registrations')
-    .select('id', { count: 'exact', head: true })
-    .eq('event_id', event_id)
-    .eq('pilot_id', pilot.id);
-  if ((alreadyIn || 0) > 0) {
-    return res.status(409).json({ error: 'Vous êtes déjà inscrit dans une équipe sur cet événement.' });
-  }
-
-  const { data: team, error: errTeam } = await supabase
-    .from('swap_teams')
-    .insert({ event_id, team_name: name, car_number: num, created_by: pilot.id })
-    .select()
-    .single();
-  if (errTeam) {
-    if (errTeam.code === '23505') {
-      if ((errTeam.message || '').includes('car_number')) {
-        return res.status(409).json({ error: `Le numéro ${num} est déjà pris sur cet événement.` });
-      }
-      return res.status(409).json({ error: 'Ce nom d\'équipe est déjà utilisé sur cet événement.' });
-    }
-    return res.status(500).json({ error: 'Erreur création équipe.' });
-  }
-
-  const { data: reg, error: errReg } = await supabase
-    .from('swap_registrations')
-    .insert({ team_id: team.id, event_id, pilot_id: pilot.id, position: 1 })
-    .select()
-    .single();
-  if (errReg) {
-    // Rollback manuel : pas de transaction via l'API REST
-    await supabase.from('swap_teams').delete().eq('id', team.id);
-    if (errReg.code === '23505') {
-      return res.status(409).json({ error: 'Vous êtes déjà inscrit dans une équipe sur cet événement.' });
-    }
-    return res.status(500).json({ error: 'Erreur création équipe.' });
-  }
-
-  return res.status(201).json({
-    team,
-    registration: reg,
-    message: `✅ Équipe ${name} créée — voiture #${num}, vous êtes pilote principal.`,
+    document.getElementById('modal-swap-join').classList.add('open');
   });
 }
 
-// =========================================================
-// SWAP — DELETE : quitter son equipe
-// =========================================================
-async function swapDelete(req, res, user) {
-  const { event_id } = req.body || {};
-  if (!event_id) return res.status(400).json({ error: 'event_id requis.' });
-
-  const { data: pilot } = await supabase
-    .from('pilots')
-    .select('id')
-    .eq('discord_id', user.discord_id)
-    .single();
-  if (!pilot) return res.status(404).json({ error: 'Pilote introuvable.' });
-
-  const { data: myReg } = await supabase
-    .from('swap_registrations')
-    .select('id, team_id, position')
-    .eq('event_id', event_id)
-    .eq('pilot_id', pilot.id)
-    .single();
-  if (!myReg) return res.status(404).json({ error: 'Vous n\'êtes inscrit dans aucune équipe.' });
-
-  const { error: errDel } = await supabase
-    .from('swap_registrations')
-    .delete()
-    .eq('id', myReg.id);
-  if (errDel) return res.status(500).json({ error: 'Erreur désinscription.' });
-
-  const { data: remaining } = await supabase
-    .from('swap_registrations')
-    .select('id, position')
-    .eq('team_id', myReg.team_id)
-    .order('position', { ascending: true });
-
-  if (!remaining || !remaining.length) {
-    await supabase.from('swap_teams').delete().eq('id', myReg.team_id);
-    return res.status(200).json({ message: 'Désinscription effectuée. Équipe dissoute.' });
-  }
-
-  if (myReg.position === 1) {
-    const next = remaining[0];
-    await supabase
-      .from('swap_registrations')
-      .update({ position: 1 })
-      .eq('id', next.id);
-    const { data: nextReg } = await supabase
-      .from('swap_registrations')
-      .select('pilot_id')
-      .eq('id', next.id)
-      .single();
-    if (nextReg) {
-      await supabase
-        .from('swap_teams')
-        .update({ created_by: nextReg.pilot_id })
-        .eq('id', myReg.team_id);
-    }
-    return res.status(200).json({
-      message: 'Désinscription effectuée. Le pilote suivant devient principal.',
-    });
-  }
-
-  return res.status(200).json({ message: 'Désinscription effectuée.' });
+async function submitSwapJoin(){
+  if(!swapCtx.position){notify('Choisissez une position.','error');return;}
+  const btn=document.getElementById('sj-btn');
+  btn.disabled=true;
+  try{
+    const{message}=await api('/api/events/register',{method:'POST',body:JSON.stringify({mode:'swap',event_id:swapCtx.eventId,team_id:swapCtx.teamId,position:swapCtx.position})});
+    closeModal('modal-swap-join');
+    notify(message,'success');
+    voirDetails(swapCtx.eventId);
+  }catch(e){notify(e.message,'error');btn.disabled=false;}
 }
 
-// =========================================================
-// SWAP — PATCH : corrections admin
-// =========================================================
-async function swapPatch(req, res) {
-  const { action } = req.body || {};
-
-  if (action === 'update_team') {
-    const { team_id, team_name, car_number } = req.body;
-    if (!team_id) return res.status(400).json({ error: 'team_id requis.' });
-    const patch = {};
-    if (team_name !== undefined) {
-      const n = (team_name || '').trim();
-      if (!n) return res.status(400).json({ error: 'Nom d\'équipe vide.' });
-      patch.team_name = n;
-    }
-    if (car_number !== undefined) {
-      const num = Number(car_number);
-      if (!Number.isInteger(num) || num < 0 || num > 999) {
-        return res.status(400).json({ error: 'Numéro de voiture invalide (0 à 999).' });
-      }
-      patch.car_number = num;
-    }
-    if (!Object.keys(patch).length) return res.status(400).json({ error: 'Rien à modifier.' });
-
-    const { data, error } = await supabase
-      .from('swap_teams')
-      .update(patch)
-      .eq('id', team_id)
-      .select()
-      .single();
-    if (error) {
-      if (error.code === '23505') {
-        return res.status(409).json({ error: 'Numéro ou nom déjà utilisé sur cet événement.' });
-      }
-      return res.status(500).json({ error: error.message });
-    }
-    return res.status(200).json({ team: data, message: 'Équipe modifiée.' });
-  }
-
-  if (action === 'move_pilot') {
-    const { registration_id, position } = req.body;
-    const pos = Number(position);
-    if (!registration_id) return res.status(400).json({ error: 'registration_id requis.' });
-    if (!Number.isInteger(pos) || pos < 1 || pos > 5) {
-      return res.status(400).json({ error: 'Position invalide (1 à 5).' });
-    }
-    // Echange atomique cote Postgres : si la position visee est occupee,
-    // les deux pilotes permutent. Impossible a faire proprement ici a cause
-    // de la contrainte unique (team_id, position).
-    const { error } = await supabase.rpc('swap_move_pilot', {
-      p_reg: registration_id,
-      p_pos: pos,
-    });
-    if (error) {
-      const msg = error.message || '';
-      if (msg.includes('REG_NOT_FOUND')) return res.status(404).json({ error: 'Inscription introuvable.' });
-      if (msg.includes('BAD_POSITION')) return res.status(400).json({ error: 'Position invalide (1 à 5).' });
-      return res.status(500).json({ error: msg || 'Erreur déplacement.' });
-    }
-    return res.status(200).json({ message: 'Position modifiée.' });
-  }
-
-  if (action === 'remove_pilot') {
-    const { registration_id } = req.body;
-    if (!registration_id) return res.status(400).json({ error: 'registration_id requis.' });
-    const { error } = await supabase
-      .from('swap_registrations')
-      .delete()
-      .eq('id', registration_id);
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ message: 'Pilote retiré de l\'équipe.' });
-  }
-
-  if (action === 'delete_team') {
-    const { team_id } = req.body;
-    if (!team_id) return res.status(400).json({ error: 'team_id requis.' });
-    const { error } = await supabase
-      .from('swap_teams')
-      .delete()
-      .eq('id', team_id);
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ message: 'Équipe supprimée.' });
-  }
-
-  return res.status(400).json({ error: 'Action inconnue.' });
+async function leaveSwapTeam(eventId){
+  if(!confirm('Quitter votre équipe pour cette course ?'))return;
+  try{
+    const{message}=await api('/api/events/register',{method:'DELETE',body:JSON.stringify({mode:'swap',event_id:eventId})});
+    notify(message,'success');
+    voirDetails(eventId);
+  }catch(e){notify(e.message,'error');}
 }
+// ---------- ADMINISTRATION DES ÉQUIPES ----------
+let saEventId=null;
+
+async function loadSwapAdmin(eventId){
+  saEventId=eventId;
+  const box=document.getElementById('sa-content');
+  if(!box)return;
+  box.innerHTML='<div class="loading"><div class="spinner"></div></div>';
+  try{
+    const{teams}=await api(`/api/events/register?mode=swap&event_id=${eventId}`);
+    if(saEventId!==eventId)return;
+    if(!teams||!teams.length){
+      box.innerHTML='<p style="color:var(--muted);font-size:13px;">Aucune équipe engagée sur cet événement.</p>';
+      return;
+    }
+    box.innerHTML=teams.map(t=>`
+      <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:5px;padding:16px;margin-bottom:14px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
+          <div class="form-group" style="flex:2;min-width:170px;margin-bottom:0;"><label>Nom de l'équipe</label><input type="text" id="sa-name-${t.id}" value="${esc(t.team_name)}" maxlength="40"></div>
+          <div class="form-group" style="flex:1;min-width:90px;margin-bottom:0;"><label>N° voiture</label><input type="number" id="sa-num-${t.id}" value="${t.car_number}" min="0" max="999"></div>
+          <button class="btn btn-secondary" style="padding:9px 14px;font-size:9px;" onclick="adminSwapUpdateTeam('${t.id}')">💾 ENREGISTRER</button>
+          <button class="btn btn-danger" style="padding:9px 14px;font-size:9px;" onclick="adminSwapDeleteTeam('${t.id}','${esc(t.team_name).replace(/'/g,"&#39;")}')">🗑️ SUPPRIMER</button>
+        </div>
+        <table class="tbl"><thead><tr><th>Pos</th><th>Pilote</th><th>Déplacer vers</th><th>Action</th></tr></thead><tbody>
+        ${t.pilots.map(m=>`<tr>
+          <td style="font-family:'Orbitron',sans-serif;color:${m.position===1?'var(--green)':'var(--pink)'};">P${m.position}</td>
+          <td style="color:white;">${esc(pilotLabel(m.pilot))}${m.position===1?' <span style="color:var(--muted);font-size:11px;">· principal</span>':''}</td>
+          <td><select id="sa-pos-${m.registration_id}" style="background:rgba(0,0,0,.5);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:3px;">${[1,2,3,4,5].map(n=>`<option value="${n}"${n===m.position?' selected':''}>P${n}</option>`).join('')}</select>
+            <button class="btn btn-secondary" style="padding:5px 10px;font-size:9px;margin-left:6px;" onclick="adminSwapMove('${m.registration_id}')">OK</button></td>
+          <td><button class="btn btn-danger" style="padding:4px 9px;font-size:9px;" onclick="adminSwapRemove('${m.registration_id}','${esc(pilotLabel(m.pilot)).replace(/'/g,"&#39;")}')">Retirer</button></td>
+        </tr>`).join('')}
+        </tbody></table>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:'Orbitron',sans-serif;">${t.pilots_count}/5 PILOTES${t.pilots_count<2?' · ⚠️ MOINS DE 2 PILOTES':''}</div>
+      </div>`).join('');
+  }catch(e){
+    box.innerHTML='<p style="color:var(--muted);font-size:13px;">Erreur de chargement des équipes.</p>';
+    notify(e.message,'error');
+  }
+}
+
+async function adminSwapMove(regId){
+  const sel=document.getElementById('sa-pos-'+regId);
+  if(!sel)return;
+  try{
+    const{message}=await api('/api/events/register',{method:'PATCH',body:JSON.stringify({action:'move_pilot',registration_id:regId,position:+sel.value})});
+    notify(message,'success');
+    loadSwapAdmin(saEventId);
+  }catch(e){notify(e.message,'error');}
+}
+
+async function adminSwapRemove(regId,name){
+  if(!confirm(`Retirer ${name} de son équipe ?`))return;
+  try{
+    const{message}=await api('/api/events/register',{method:'PATCH',body:JSON.stringify({action:'remove_pilot',registration_id:regId})});
+    notify(message,'success');
+    loadSwapAdmin(saEventId);
+  }catch(e){notify(e.message,'error');}
+}
+
+async function adminSwapUpdateTeam(teamId){
+  const name=document.getElementById('sa-name-'+teamId).value.trim();
+  const num=+document.getElementById('sa-num-'+teamId).value;
+  if(!name){notify('Le nom de l\'équipe ne peut pas être vide.','error');return;}
+  if(!(num>=0&&num<=999)){notify('Numéro invalide (0 à 999).','error');return;}
+  try{
+    const{message}=await api('/api/events/register',{method:'PATCH',body:JSON.stringify({action:'update_team',team_id:teamId,team_name:name,car_number:num})});
+    notify(message,'success');
+    loadSwapAdmin(saEventId);
+  }catch(e){notify(e.message,'error');}
+}
+
+async function adminSwapDeleteTeam(teamId,name){
+  if(!confirm(`Supprimer l'équipe ${name} et retirer tous ses pilotes ?`))return;
+  try{
+    const{message}=await api('/api/events/register',{method:'PATCH',body:JSON.stringify({action:'delete_team',team_id:teamId})});
+    notify(message,'success');
+    loadSwapAdmin(saEventId);
+  }catch(e){notify(e.message,'error');}
+}
+// =================== FIN SYSTÈME SWAP ===================
+
+function renderResults(results,event){
+  const medColors=['#FFD700','#C0C0C0','#CD7F32'];
+  document.getElementById('results-section').innerHTML=`
+    <div class="admin-card">
+      <div style="margin-bottom:18px;"><div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:white;">${event.name}</div><div style="font-size:12px;color:var(--muted);">${new Date(event.event_date).toLocaleDateString('fr-FR')} · ${results.length} pilotes</div></div>
+      <table class="tbl"><thead><tr><th>Pos</th><th>N°</th><th>Pilote</th><th>Voiture</th><th>Meilleur Temps</th><th>Points</th></tr></thead>
+      <tbody>${results.map((r,i)=>`<tr>
+        <td style="color:${medColors[i]||'white'};font-family:'Orbitron',sans-serif;font-weight:900;">P${r.position}</td>
+        <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">#${r.pilots?.race_number||'?'}</td>
+        <td style="color:white;font-weight:600;">${r.pilots?.discord_username||'—'}</td>
+        <td style="font-size:12px;">${r.car_model||'—'}</td>
+        <td style="font-family:'Orbitron',sans-serif;font-size:11px;color:var(--blue);">${r.best_lap_ms?msToLap(r.best_lap_ms):'—'}</td>
+        <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">${r.points_earned}</td>
+      </tr>`).join('')}</tbody></table>
+    </div>`;
+}
+
+async function loadPilots(){
+  try{
+    const{pilots}=await api('/api/pilots');
+    pilotsCache=pilots;
+    const grid=document.getElementById('pilots-grid');
+    const colors=['linear-gradient(135deg,var(--pink),#cc0066)','linear-gradient(135deg,var(--blue),#0088cc)','linear-gradient(135deg,#8800ff,#cc0066)','linear-gradient(135deg,#ff8800,var(--pink))'];
+    grid.innerHTML=pilots.length
+      ?pilots.map((p,i)=>{
+          const isMe = user && (user.discord_username === p.discord_username || user.username === p.discord_username);
+          const handle = p.platform==='ps5' ? (p.psn_id||'⚠️ PSN ID manquant') : (p.gamertag||'⚠️ Gamertag manquant');
+          return `<div class="pilot-card">
+            <div class="pilot-num-bg">${p.race_number}</div>
+            <div class="pilot-avatar" style="background:${colors[i%4]}">${p.discord_username.substring(0,2).toUpperCase()}</div>
+            <div class="pilot-name">#${p.race_number} ${p.discord_username}</div>
+            <div class="pilot-handle">${handle}</div>
+            <span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span>
+            ${isMe ? `<button class="btn btn-secondary" style="width:100%;margin-top:12px;font-size:9px;padding:8px;" onclick="openEditProfile('${p.platform}','${(p.psn_id||'').replace(/'/g,"\\'")}','${(p.platform_uid||'').replace(/'/g,"\\'")}','${(p.gamertag||'').replace(/'/g,"\\'")}')">✏️ MODIFIER MON PROFIL</button>` : ''}
+          </div>`;
+        }).join('')
+      :'<p style="color:var(--muted);font-size:14px;">Aucun pilote inscrit.</p>';
+  }catch(e){console.error(e);}
+}
+
+function openEditProfile(platform, psnId, platformUid, gamertag) {
+  document.getElementById('edit-profile-ps5').style.display = platform==='ps5' ? 'block' : 'none';
+  document.getElementById('edit-profile-xbox').style.display = platform==='xbox' ? 'block' : 'none';
+  if(platform==='ps5'){
+    document.getElementById('edit-psn').value = psnId || '';
+    document.getElementById('edit-psn-uid').value = platformUid || '';
+  } else {
+    document.getElementById('edit-gt').value = gamertag || '';
+    document.getElementById('edit-xuid').value = platformUid || '';
+  }
+  document.getElementById('modal-edit-profile').classList.add('open');
+}
+
+async function submitEditProfile() {
+  const isPsn = document.getElementById('edit-profile-ps5').style.display !== 'none';
+  const body = isPsn
+    ? { psn_id: document.getElementById('edit-psn').value.trim(), platform_uid: document.getElementById('edit-psn-uid').value.trim() }
+    : { gamertag: document.getElementById('edit-gt').value.trim(), platform_uid: document.getElementById('edit-xuid').value.trim() };
+  if(isPsn && !body.psn_id){ notify('PSN ID requis.','error'); return; }
+  if(!isPsn && !body.gamertag){ notify('Gamertag requis.','error'); return; }
+  if(!body.platform_uid || body.platform_uid.length < 5){ notify('UID invalide (trop court).','error'); return; }
+  try{
+    await api('/api/pilots',{method:'PATCH',body:JSON.stringify(body)});
+    closeModal('modal-edit-profile');
+    notify('Profil mis à jour !','success');
+    loadPilots();
+  }catch(e){ notify(e.message,'error'); }
+}
+
+function renderRules(){
+  const rules=[
+    {id:'r1',title:'Conditions de participation',items:['Être membre du <strong>serveur Discord Fennec Racing Team</strong> et avoir lié son compte sur le site.','Posséder <strong>Assetto Corsa Competizione</strong> sur PS5 ou XBOX SERIES S / X avec accès au mode multijoueur.','Avoir créé un <strong>profil pilote</strong> sur le site avec un numéro unique, son PSN ID ou Gamertag, et son ID de plateforme vérifié.','Respecter l\'esprit <strong>fair-play</strong> de la communauté FRT à tout moment.']},
+    {id:'r2',title:'Inscription et profil pilote',items:['L\'inscription se fait exclusivement via le site <strong>fennec-racing-team.fr</strong> après avoir rejoint le Discord.','Chaque pilote choisit un <strong>numéro de voiture unique</strong> (1-99) attribué pour toute la saison.','Le <strong>PSN ID / Gamertag</strong> et l\'<strong>ID de plateforme</strong> doivent être fournis et vérifiés.','Toute tentative d\'<strong>usurpation d\'identité</strong> entraîne une exclusion définitive.']},
+    {id:'r3',title:'Format des événements',items:['<strong>Qualifications :</strong> 20 minutes de qualification chronométrée. La grille de départ est définie par les temps.','<strong>Course :</strong> 60 à 90 minutes selon le circuit. Format variable indiqué sur la fiche événement.','<strong>Connexion :</strong> Les pilotes rejoignent le serveur GPortal <strong>15 minutes avant</strong> le début des qualifications.','Le <strong>choix de voiture GT3 est libre</strong> sauf indication contraire. La BOP est activée.']},
+    {id:'r4',title:'Règles de conduite sur piste',items:['<strong>Responsabilité lors des dépassements :</strong> Le pilote qui dépasse est responsable d\'effectuer son dépassement proprement sans contact.','<strong>Limites de piste :</strong> Le respect des limites définies par le jeu est obligatoire.','<strong>Comportement défensif :</strong> Un changement de trajectoire en freinage est interdit. Une seule déviation défensive autorisée par ligne droite.','<strong>Retour en piste :</strong> Après une sortie, rejoindre la piste en toute sécurité sans gêner.']},
+    {id:'r5',title:'Balance of Performance (BOP)',items:['La <strong>BOP est configurée par l\'admin</strong> via l\'outil du site et envoyée directement sur le serveur GPortal avant chaque événement.','Les ajustements de BOP sont <strong>publiés sur le site et le Discord</strong> au moins 48h avant la course.','Aucune modification de BOP ne peut être demandée par les pilotes <strong>moins de 24h</strong> avant l\'événement.']},
+    {id:'r6',title:'Sanctions et exclusions',items:['Tout comportement <strong>irrespectueux</strong> envers les admins ou d\'autres pilotes peut entraîner une exclusion.','L\'<strong>absence de 3 manches consécutives</strong> sans justification entraîne la perte du numéro et du profil.','Les <strong>décisions finales</strong> appartiennent aux admins FRT. Pas d\'appel possible après 48h.']},
+  ];
+  document.getElementById('rules-content').innerHTML=rules.map(r=>`<div class="rule-section" id="${r.id}"><h2><span class="rule-num">${r.id.replace('r','0').padStart(2,'0')}</span> ${r.title}</h2>${r.items.map(item=>`<div class="rule-item"><div class="rule-dot"></div><p>${item}</p></div>`).join('')}</div>`).join('');
+}
+
+async function openRegModal(){
+  if(!user){loginDiscord();return;}
+  if(!user.is_member){notify('Rejoignez le serveur Discord FRT.','error');return;}
+  if(!user.race_number&&await ensureProfile()){notify('Votre profil pilote #'+user.race_number+' est déjà créé.','success');return;}
+  if(user.race_number){notify('Votre profil pilote #'+user.race_number+' existe déjà.','success');return;}
+  buildNumGrid();
+  document.getElementById('modal-reg').classList.add('open');
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+document.getElementById('modal-reg').addEventListener('click',function(e){if(e.target===this)closeModal('modal-reg');});
+document.getElementById('modal-edit-event').addEventListener('click',function(e){if(e.target===this)closeModal('modal-edit-event');});
+document.getElementById('modal-edit-profile').addEventListener('click',function(e){if(e.target===this)closeModal('modal-edit-profile');});
+document.getElementById('modal-rules').addEventListener('click',function(e){if(e.target===this)closeModal('modal-rules');});
+document.getElementById('modal-swap-create').addEventListener('click',function(e){if(e.target===this)closeModal('modal-swap-create');});
+document.getElementById('modal-swap-join').addEventListener('click',function(e){if(e.target===this)closeModal('modal-swap-join');});
+
+function buildNumGrid(){
+  const taken=pilotsCache.map(p=>p.race_number);
+  const grid=document.getElementById('num-grid');
+  grid.innerHTML='';
+  for(let i=1;i<=999;i++){
+    const btn=document.createElement('button');
+    btn.className='num-btn'+(taken.includes(i)?' taken':'');
+    btn.textContent=i;
+    btn.disabled=taken.includes(i);
+    btn.onclick=()=>{
+      document.querySelectorAll('.num-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedNum=i;
+      document.getElementById('num-selected-label').textContent=`#${i} sélectionné`;
+      document.getElementById('num-selected-label').style.color='var(--pink)';
+    };
+    grid.appendChild(btn);
+  }
+}
+
+function selPlat(p){
+  selectedPlat=p;
+  document.querySelectorAll('.plat-btn').forEach(b=>{b.classList.remove('sel-ps5','sel-xbox');});
+  document.getElementById('btn-ps5').classList.toggle('sel-ps5',p==='ps5');
+  document.getElementById('btn-xbox').classList.toggle('sel-xbox',p==='xbox');
+  document.getElementById('ps5-f').style.display=p==='ps5'?'block':'none';
+  document.getElementById('xbox-f').style.display=p==='xbox'?'block':'none';
+}
+
+async function submitReg(){
+  if(!selectedPlat){notify('Choisissez une plateforme.','error');return;}
+  if(!selectedNum){notify('Choisissez un numéro.','error');return;}
+  const body={race_number:selectedNum,platform:selectedPlat,platform_uid:selectedPlat==='ps5'?document.getElementById('reg-psn-uid').value.trim():document.getElementById('reg-xuid').value.trim()};
+  if(selectedPlat==='ps5')body.psn_id=document.getElementById('reg-psn').value.trim();
+  else body.gamertag=document.getElementById('reg-gt').value.trim();
+  try{
+    const{message}=await api('/api/pilots',{method:'POST',body:JSON.stringify(body)});
+    if(user){
+      user.race_number=selectedNum;
+      user.platform=selectedPlat;
+      if(selectedPlat==='ps5')user.psn_id=body.psn_id;else user.gamertag=body.gamertag;
+      user.platform_uid=body.platform_uid;
+    }
+    try{const c=document.cookie.match(/frt_user=([^;]+)/);const u=c?JSON.parse(decodeURIComponent(c[1])):null;if(u&&u.race_number)user=u;}catch(e){}
+    updateNavAuth();
+    closeModal('modal-reg');notify(message,'success');loadPilots();
+    if(document.getElementById('page-home').classList.contains('active'))loadHome();
+  }catch(e){notify(e.message,'error');}
+}
+
+const GT3_CARS=['BMW M4 GT3','Porsche 992 GT3-R','Ferrari 296 GT3','Mercedes AMG GT3 EVO','Audi R8 GT3','Lamborghini Huracán GT3 EVO2','McLaren 720S GT3','Aston Martin Vantage GT3','Bentley Continental GT3','Honda NSX GT3','Nissan GT-R GT3','Emil Frey Jaguar G3','Lexus RC F GT3'];
+let bopData=GT3_CARS.map(car=>({car,restriction:0,ballast:0,active:true}));
+let currentEventId=null;
+
+function loadAdmin(){adminTab('gportal');}
+
+function adminTab(tab){
+  document.querySelectorAll('.admin-menu li a').forEach(a=>a.classList.remove('active'));
+  const el=document.getElementById('at-'+tab);
+  if(el)el.classList.add('active');
+  const c=document.getElementById('admin-content');
+
+  if(tab==='gportal'){
+    c.innerHTML=`<div class="admin-card"><h3>🖥️ SERVEUR GPORTAL</h3>
+      <div class="server-status"><div class="dot-status"></div><div class="status-txt">GPortal: <span>CONFIGURÉ</span> — credentials dans Vercel ENV</div></div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Les identifiants FTP GPortal sont stockés <strong style="color:var(--pink)">uniquement dans les variables d'environnement Vercel</strong>, jamais exposés au client.</p>
+      <div class="form-group"><label>Chemin cfg/ sur GPortal</label><input type="text" placeholder="/game/assettocorsa/cfg/" id="cfg-path"></div>
+      <button class="btn btn-primary" onclick="notify('Chemin sauvegardé','success')">SAUVEGARDER</button>
+    </div>`;
+  }
+
+  if(tab==='entrylist'){
+    c.innerHTML=`<div class="admin-card"><h3>📋 ENTRY LIST → GPORTAL</h3>
+      <div class="form-group"><label>Événement</label><select id="ev-sel-el" onchange="currentEventId=this.value">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+      <button class="btn btn-primary" onclick="sendGportal('entrylist')">⚡ GÉNÉRER & ENVOYER SUR GPORTAL</button>
+      <div class="json-box" id="el-preview">// Cliquez sur GÉNÉRER pour voir le JSON</div>
+    </div>`;
+    if(eventsCache.length)currentEventId=eventsCache[0].id;
+  }
+
+  if(tab==='bop'){
+    c.innerHTML=`<div class="admin-card"><h3>⚖️ BOP MANAGER → GPORTAL</h3>
+      <div class="form-group"><label>Événement</label><select id="ev-sel-bop" onchange="currentEventId=this.value">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
+      <div class="btn-group" style="margin-bottom:16px;">
+        <button class="btn btn-primary" onclick="sendGportal('bop')">⚡ GÉNÉRER & ENVOYER SUR GPORTAL</button>
+      </div>
+      <table class="bop-tbl"><thead><tr><th>Voiture</th><th>Restriction (%)</th><th>Lest (kg)</th><th>Actif</th></tr></thead>
+      <tbody>${bopData.map((b,i)=>`<tr><td style="color:white;font-weight:600;">${b.car}</td><td><input type="number" min="-20" max="20" value="${b.restriction}" onchange="bopData[${i}].restriction=+this.value"></td><td><input type="number" min="-50" max="100" value="${b.ballast}" onchange="bopData[${i}].ballast=+this.value"></td><td><input type="checkbox" ${b.active?'checked':''} onchange="bopData[${i}].active=this.checked" style="accent-color:var(--pink);width:16px;height:16px;cursor:pointer;"></td></tr>`).join('')}</tbody></table>
+      <div style="margin-top:16px;"><div class="json-box" id="bop-preview">// Modifiez les valeurs ci-dessus puis envoyez sur GPortal</div></div>
+    </div>`;
+    if(eventsCache.length)currentEventId=eventsCache[0].id;
+  }
+
+  if(tab==='event-create'){
+    c.innerHTML=`
+      <div class="admin-card">
+        <h3>🏁 CRÉER UN ÉVÉNEMENT</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>Nom de l'événement</label><input type="text" id="ec-name" placeholder="Round 4 — Nürburgring"></div>
+          <div class="form-group"><label>Circuit (ACC)</label><select id="ec-track">
+            ${trackOptions()}
+          </select></div>
+          <div class="form-group"><label>Date</label><input type="date" id="ec-date"></div>
+          <div class="form-group"><label>Heure (CET)</label><input type="time" id="ec-time" value="20:30"></div>
+          <div class="form-group"><label>Durée course (min)</label><input type="number" id="ec-dur" placeholder="60"></div>
+          <div class="form-group"><label>Max pilotes</label><input type="number" id="ec-max" placeholder="30"></div>
+        </div>
+        <div class="form-group"><label>Description</label><input type="text" id="ec-desc" placeholder="GT3 Free Choice · BOP activée · Qualifs 20min"></div>
+        <button class="btn btn-primary" onclick="creerCourse()">PUBLIER L'ÉVÉNEMENT</button>
+      </div>
+      <div class="admin-card">
+        <h3>📋 ÉVÉNEMENTS EXISTANTS</h3>
+        <div id="events-admin-list"><div class="loading"><div class="spinner"></div></div></div>
+      </div>`;
+    loadEventsAdmin();
+  }
+
+  if(tab==='event-create-swap'){
+    c.innerHTML=`
+      <div class="admin-card">
+        <h3>🔄 CRÉER UN ÉVÉNEMENT SWAP (ENDURANCE)</h3>
+        <div class="alert-box" style="margin-bottom:18px;"><span>🔄</span><span>Course d'endurance avec <strong>relais pilotes</strong>. Les pilotes s'inscrivent par équipe (2 à 5 pilotes), avec un numéro de voiture unique par équipe.</span></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nom de l'événement</label><input type="text" id="es-name" placeholder="6H de Spa — Endurance"></div>
+          <div class="form-group"><label>Circuit (ACC)</label><select id="es-track">${trackOptions()}</select></div>
+          <div class="form-group"><label>Date</label><input type="date" id="es-date"></div>
+          <div class="form-group"><label>Heure (CET)</label><input type="time" id="es-time" value="20:30"></div>
+          <div class="form-group"><label>Durée course (min)</label><input type="number" id="es-dur" placeholder="360"></div>
+          <div class="form-group"><label>Max équipes</label><input type="number" id="es-teams" placeholder="20" min="1" max="200"></div>
+        </div>
+        <div class="form-group"><label>Description</label><input type="text" id="es-desc" placeholder="GT3 · Relais obligatoires · BOP activée"></div>
+        <button class="btn btn-primary" onclick="creerCourseSwap()">PUBLIER L'ÉVÉNEMENT SWAP</button>
+      </div>
+      <div class="admin-card">
+        <h3>📋 ÉVÉNEMENTS EXISTANTS</h3>
+        <div id="events-admin-list"><div class="loading"><div class="spinner"></div></div></div>
+      </div>`;
+    loadEventsAdmin();
+  }
+
+  if(tab==='swap-teams'){
+    const swapEvents=eventsCache.filter(e=>e.event_type==='swap');
+    if(!swapEvents.length){
+      c.innerHTML=`<div class="admin-card"><h3>👥 GÉRER LES ÉQUIPES</h3><p style="color:var(--muted);font-size:13px;">Aucun événement swap créé pour le moment.</p></div>`;
+      return;
+    }
+    c.innerHTML=`<div class="admin-card"><h3>👥 GÉRER LES ÉQUIPES</h3>
+      <div class="form-group"><label>Événement swap</label><select id="sa-event" onchange="loadSwapAdmin(this.value)">${swapEvents.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')}</select></div>
+      <div id="sa-content"><div class="loading"><div class="spinner"></div></div></div>
+    </div>`;
+    loadSwapAdmin(swapEvents[0].id);
+  }
+
+  if(tab==='discord-push'){
+    const evOpts=eventsCache.map(e=>'<option value="'+e.id+'">'+e.name+'</option>').join('');
+    c.innerHTML='<div class="admin-card"><h3>📢 DISCORD PUSH</h3>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">'
+      +'<div class="admin-card" style="padding:16px;"><div style="font-family:Orbitron,sans-serif;font-size:10px;color:white;margin-bottom:10px;">📅 ANNONCER ÉVÉNEMENT</div>'
+      +'<select style="width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:8px;border-radius:3px;margin-bottom:10px;" id="dp-event">'+evOpts+'</select>'
+      +'<button class="btn btn-primary" style="width:100%;font-size:9px;" onclick="discordPush(\'event\',document.getElementById(\'dp-event\').value)">ENVOYER</button></div>'
+      +'</div></div>';
+  }
+
+  if(tab==='pilots-manage'){
+    c.innerHTML=`<div class="admin-card"><h3>👤 GESTION DES PILOTES</h3>
+      <table class="tbl"><thead><tr><th>N°</th><th>Pilote</th><th>Platform</th><th>ID Plateforme</th><th>Courses</th><th>Points</th><th>Actions</th></tr></thead>
+      <tbody>${pilotsCache.map(p=>`<tr>
+        <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">#${p.race_number}</td>
+        <td style="color:white;font-weight:600;">${p.discord_username}</td>
+        <td><span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span></td>
+        <td style="font-size:11px;color:var(--muted);">${p.platform==='ps5'?p.psn_id||'⚠️ manquant':p.gamertag||'⚠️ manquant'}</td>
+        <td>${p.races_count}</td>
+        <td style="color:var(--pink);">${p.points}</td>
+        <td><button class="btn btn-danger" style="padding:4px 8px;font-size:9px;" onclick="deletePilot('${p.id}','${p.discord_username}')">Supprimer</button></td>
+      </tr>`).join('')}</tbody></table>
+    </div>`;
+  }
+}
+
+async function loadEventsAdmin(){
+  try{
+    const{events}=await api('/api/events');
+    eventsCache=events||[];
+    const el=document.getElementById('events-admin-list');
+    if(!el)return;
+    if(!events.length){el.innerHTML='<p style="color:var(--muted);padding:16px 0;">Aucun événement créé.</p>';return;}
+    el.innerHTML=events.map(e=>{
+      const d=new Date(e.event_date);
+      const isPast=d<new Date();
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:white;margin-bottom:4px;">${e.name}</div>
+          <div style="font-size:11px;color:var(--muted);">${d.toLocaleDateString('fr-FR')} · ${(e.track||'').toUpperCase()} · ${e.event_type==='swap'?'<span style="color:#00ff88">🔄 SWAP</span> · ':''}<span style="color:${isPast?'#ff6600':'#00ff88'}">${isPast?'TERMINÉE':'À VENIR'}</span></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0;">
+          <button class="btn btn-secondary" style="padding:6px 12px;font-size:9px;" onclick="openEditEvent('${e.id}')">✏️ Modifier</button>
+          <button class="btn btn-danger" style="padding:6px 12px;font-size:9px;" onclick="supprimerEvenement('${e.id}')">🗑️ Supprimer</button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){console.error(e);notify('Erreur chargement événements','error');}
+}
+
+function openEditEvent(id){
+  const ev=eventsCache.find(e=>e.id===id);
+  if(!ev)return;
+  document.getElementById('edit-ev-id').value=ev.id;
+  document.getElementById('edit-ev-name').value=ev.name;
+  document.getElementById('edit-ev-track').innerHTML=trackOptions();
+  document.getElementById('edit-ev-track').value=ev.track;
+  const d=new Date(ev.event_date);
+  document.getElementById('edit-ev-date').value=d.toISOString().split('T')[0];
+  document.getElementById('edit-ev-time').value=d.toTimeString().substring(0,5);
+  document.getElementById('edit-ev-dur').value=ev.race_duration||60;
+  document.getElementById('edit-ev-max').value=ev.max_pilots||30;
+  document.getElementById('edit-ev-desc').value=ev.description||'';
+  document.getElementById('modal-edit-event').classList.add('open');
+}
+
+async function saveEditEvent(){
+  const id=document.getElementById('edit-ev-id').value;
+  const name=document.getElementById('edit-ev-name').value;
+  const track=document.getElementById('edit-ev-track').value;
+  const date=document.getElementById('edit-ev-date').value;
+  const time=document.getElementById('edit-ev-time').value;
+  if(!name||!track||!date){notify('Renseignez nom, circuit et date.','error');return;}
+  try{
+    await api('/api/events',{method:'PUT',body:JSON.stringify({id,name,track,event_date:`${date}T${time}:00`,race_duration:+document.getElementById('edit-ev-dur').value||60,max_pilots:+document.getElementById('edit-ev-max').value||30,description:document.getElementById('edit-ev-desc').value})});
+    closeModal('modal-edit-event');
+    notify('Événement modifié !','success');
+    eventsCache=[];loadEventsAdmin();loadHome();
+  }catch(e){notify(e.message,'error');}
+}
+
+async function supprimerEvenement(id){
+  if(!confirm('Supprimer cet événement ? Cette action est irréversible.'))return;
+  try{
+    await api('/api/events',{method:'DELETE',body:JSON.stringify({id})});
+    notify('Événement supprimé !','success');
+    eventsCache=[];loadEventsAdmin();loadHome();
+  }catch(e){notify(e.message,'error');}
+}
+
+async function creerCourse(){
+  const name=document.getElementById('ec-name').value;
+  const track=document.getElementById('ec-track').value;
+  const date=document.getElementById('ec-date').value;
+  const time=document.getElementById('ec-time').value;
+  if(!name||!track||!date){notify('Renseignez nom, circuit et date.','error');return;}
+  try{
+    await api('/api/events',{method:'POST',body:JSON.stringify({name,track,event_date:`${date}T${time}:00`,race_duration:+document.getElementById('ec-dur').value||60,max_pilots:+document.getElementById('ec-max').value||30,description:document.getElementById('ec-desc').value})});
+    notify('Événement publié !','success');
+    eventsCache=[];loadEventsAdmin();loadHome();
+  }catch(e){notify(e.message,'error');}
+}
+
+async function creerCourseSwap(){
+  const name=document.getElementById('es-name').value;
+  const track=document.getElementById('es-track').value;
+  const date=document.getElementById('es-date').value;
+  const time=document.getElementById('es-time').value;
+  const teams=+document.getElementById('es-teams').value||20;
+  if(!name||!track||!date){notify('Renseignez nom, circuit et date.','error');return;}
+  if(teams<1||teams>200){notify('Nombre d\'équipes invalide (1 à 200).','error');return;}
+  try{
+    await api('/api/events',{method:'POST',body:JSON.stringify({name,track,event_date:`${date}T${time}:00`,race_duration:+document.getElementById('es-dur').value||360,description:document.getElementById('es-desc').value,event_type:'swap',max_teams:teams})});
+    notify('Événement swap publié !','success');
+    eventsCache=[];loadEventsAdmin();loadHome();
+  }catch(e){notify(e.message,'error');}
+}
+
+async function sendGportal(type){
+  const evId=currentEventId||eventsCache[0]?.id;
+  if(!evId){notify('Aucun événement sélectionné','error');return;}
+  notify(`Envoi ${type} vers GPortal...`,'');
+  try{
+    const{message,content}=await api('/api/gportal/send',{method:'POST',body:JSON.stringify({type,event_id:evId})});
+    notify(message,'success');
+    const preview=document.getElementById(type==='entrylist'?'el-preview':'bop-preview');
+    if(preview&&content){preview.textContent=content;const blob=new Blob([content],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='entrylist.json';a.click();}
+  }catch(e){notify(e.message,'error');}
+}
+
+async function saveResults(){notify('Résultats enregistrés !','success');}
+
+function addResRow(){
+  const tbody=document.getElementById('res-tbody');
+  const n=tbody.rows.length+1;
+  tbody.insertAdjacentHTML('beforeend',`<tr>
+    <td style="font-family:'Orbitron',sans-serif;">P${n}</td>
+    <td><input type="number" style="width:60px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;"></td>
+    <td><select style="background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;">${GT3_CARS.map(c=>`<option>${c}</option>`).join('')}</select></td>
+    <td><input type="number" style="width:100px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;"></td>
+    <td><input type="number" style="width:60px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:white;padding:5px 8px;border-radius:3px;"></td>
+    <td><button class="btn btn-danger" style="padding:4px 8px;font-size:9px;" onclick="this.closest('tr').remove()">✕</button></td>
+  </tr>`);
+}
+
+async function discordPush(type,eventId){
+  notify(`Envoi ${type} sur Discord...`,'');
+  try{
+    const{message}=await api('/api/discord/push',{method:'POST',body:JSON.stringify({type,event_id:eventId})});
+    notify(message,'success');
+  }catch(e){notify(e.message,'error');}
+}
+
+async function deletePilot(id,name){
+if(!confirm(`Supprimer le pilote ${name} ?`))return;
+try{
+await api('/api/pilots',{method:'DELETE',body:JSON.stringify({id})});
+notify(`Pilote ${name} supprimé`,'success');
+const{pilots}=await api('/api/pilots');
+pilotsCache=pilots;
+adminTab('pilots-manage');
+}catch(e){notify(e.message,'error');}
+}
+
+function msToLap(ms){
+  const min=Math.floor(ms/60000);
+  const sec=Math.floor((ms%60000)/1000);
+  const mill=ms%1000;
+  return`${min}:${String(sec).padStart(2,'0')}.${String(mill).padStart(3,'0')}`;
+}
+
+function notify(msg,type){
+  const el=document.getElementById('notif');
+  el.textContent=msg;
+  el.className='notif show'+(type?' '+type:'');
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+function toggleMobileMenu(){
+  const menu=document.getElementById('mobile-menu');
+  const btn=document.getElementById('hamburger');
+  menu.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+function closeMobileMenu(){
+  document.getElementById('mobile-menu').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+function updateMobileNav(page){
+  document.querySelectorAll('.mobile-menu a').forEach(a=>a.classList.remove('active'));
+  const ml=document.getElementById('ml-'+page);
+  if(ml)ml.classList.add('active');
+}
+
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden)return;
+  try{
+    if(document.getElementById('page-home').classList.contains('active'))loadHome();
+    else if(document.getElementById('page-profiles').classList.contains('active'))loadPilots();
+  }catch(e){}
+});
+updateNavAuth();
+loadHome();
+applyLang();
+</script>
+</body>
+</html>
