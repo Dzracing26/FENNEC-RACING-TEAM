@@ -1312,7 +1312,8 @@ function adminTab(tab){
   if(tab==='entrylist'){
     c.innerHTML=`<div class="admin-card"><h3>📋 ENTRY LIST → GPORTAL</h3>
       <div class="form-group"><label>Événement</label><select id="ev-sel-el" onchange="currentEventId=this.value">${eventsCache.map(e=>`<option value="${e.id}">${e.name}</option>`).join('')}</select></div>
-      <button class="btn btn-primary" onclick="sendGportal('entrylist')">⚡ GÉNÉRER & ENVOYER SUR GPORTAL</button>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Les événements <span style="color:#00ff88;">🔄 swap</span> génèrent automatiquement une entry list par équipe. Les équipes de moins de 2 pilotes sont écartées.</p>
+      <button class="btn btn-primary" onclick="sendGportal('entrylist')">⚡ GÉNÉRER L'ENTRY LIST</button>
       <div class="json-box" id="el-preview">// Cliquez sur GÉNÉRER pour voir le JSON</div>
     </div>`;
     if(eventsCache.length)currentEventId=eventsCache[0].id;
@@ -1512,12 +1513,25 @@ async function creerCourseSwap(){
 async function sendGportal(type){
   const evId=currentEventId||eventsCache[0]?.id;
   if(!evId){notify('Aucun événement sélectionné','error');return;}
-  notify(`Envoi ${type} vers GPortal...`,'');
+  const ev=eventsCache.find(e=>e.id===evId);
+  const isSwap=type==='entrylist'&&ev&&ev.event_type==='swap';
+  const realType=isSwap?'entrylist_swap':type;
+  notify(isSwap?'Génération de l\'entry list swap...':`Envoi ${type} vers GPortal...`,'');
   try{
-    const{message,content}=await api('/api/gportal/send',{method:'POST',body:JSON.stringify({type,event_id:evId})});
-    notify(message,'success');
+    const data=await api('/api/gportal/send',{method:'POST',body:JSON.stringify({type:realType,event_id:evId})});
+    const content=data.content;
+    notify(data.message,(data.skipped&&data.skipped.length)?'error':'success');
     const preview=document.getElementById(type==='entrylist'?'el-preview':'bop-preview');
-    if(preview&&content){preview.textContent=content;const blob=new Blob([content],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='entrylist.json';a.click();}
+    if(preview){
+      if(data.skipped&&data.skipped.length){
+        preview.textContent='// ÉQUIPES ÉCARTÉES (moins de 2 pilotes valides) :\n'
+          +data.skipped.map(s=>`//   #${s.car_number} ${s.team} — ${s.pilots} pilote(s)`+(s.missing_uid&&s.missing_uid.length?` — sans ID plateforme : ${s.missing_uid.join(', ')}`:'')).join('\n')
+          +(content?'\n\n'+content:'');
+      }else if(content){
+        preview.textContent=content;
+      }
+    }
+    if(content){const blob=new Blob([content],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='entrylist.json';a.click();}
   }catch(e){notify(e.message,'error');}
 }
 
