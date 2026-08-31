@@ -2,66 +2,89 @@ import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '../_middleware/auth.js';
 
 const supabase = createClient(
-process.env.SUPABASE_URL,
-process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export default async function handler(req, res) {
-res.setHeader('Access-Control-Allow-Origin', '*');
-res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-if (req.method === 'OPTIONS') return res.status(200).end();
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(200).end();
 
-if (req.method === 'GET') {
-await supabase
-.from('events')
-.update({ status: 'finished' })
-.eq('status', 'upcoming')
-.lt('event_date', new Date().toISOString());
+  if (req.method === 'GET') {
+    await supabase
+      .from('events')
+      .update({ status: 'finished' })
+      .eq('status', 'upcoming')
+      .lt('event_date', new Date().toISOString());
 
-const { data, error } = await supabase
-.from('events')
-.select('*, registrations(count)')
-.order('event_date', { ascending: true });
-if (error) return res.status(500).json({ error: error.message });
-return res.status(200).json({ events: data });
-}
+    const { data, error } = await supabase
+      .from('events')
+      .select('*, registrations(count)')
+      .order('event_date', { ascending: true });
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ events: data });
+  }
 
-if (req.method === 'POST') {
-const admin = await requireAdmin(req, res);
-if (!admin) return;
-const { name, track, event_date, race_duration, max_pilots, description } = req.body;
-if (!name || !track || !event_date) return res.status(400).json({ error: 'Nom, circuit et date requis.' });
-const { data, error } = await supabase
-.from('events')
-.insert({ name, track, event_date, race_duration: race_duration || 60, max_pilots: max_pilots || 30, description: description || '', created_by: admin.discord_username, status: 'upcoming' })
-.select().single();
-if (error) return res.status(500).json({ error: error.message });
-return res.status(201).json({ event: data });
-}
+  if (req.method === 'POST') {
+    const admin = await requireAdmin(req, res);
+    if (!admin) return;
+    const { name, track, event_date, race_duration, max_pilots, description, event_type, max_teams } = req.body;
+    if (!name || !track || !event_date) return res.status(400).json({ error: 'Nom, circuit et date requis.' });
 
-if (req.method === 'PUT') {
-const admin = await requireAdmin(req, res);
-if (!admin) return;
-const { id, name, track, event_date, race_duration, max_pilots, description } = req.body;
-if (!id) return res.status(400).json({ error: 'ID manquant' });
-const { data, error } = await supabase
-.from('events')
-.update({ name, track, event_date, race_duration, max_pilots, description })
-.eq('id', id).select().single();
-if (error) return res.status(500).json({ error: error.message });
-return res.status(200).json({ event: data });
-}
+    // Type d'evenement : 'solo' par defaut, comme avant
+    const type = event_type === 'swap' ? 'swap' : 'solo';
+    let teams = null;
+    let pilots = max_pilots || 30;
+    if (type === 'swap') {
+      teams = Number(max_teams) || 20;
+      if (!Number.isInteger(teams) || teams < 1 || teams > 200) {
+        return res.status(400).json({ error: 'Nombre d\'équipes invalide (1 à 200).' });
+      }
+      // Garde-fou : les compteurs du site divisent par max_pilots
+      pilots = max_pilots || teams * 5;
+    }
 
-if (req.method === 'DELETE') {
-const admin = await requireAdmin(req, res);
-if (!admin) return;
-const { id } = req.body;
-if (!id) return res.status(400).json({ error: 'ID manquant' });
-const { error } = await supabase.from('events').delete().eq('id', id);
-if (error) return res.status(500).json({ error: error.message });
-return res.status(200).json({ success: true });
-}
+    const { data, error } = await supabase
+      .from('events')
+      .insert({ name, track, event_date, race_duration: race_duration || 60, max_pilots: pilots, description: description || '', created_by: admin.discord_username, status: 'upcoming', event_type: type, max_teams: teams })
+      .select().single();
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(201).json({ event: data });
+  }
 
-return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method === 'PUT') {
+    const admin = await requireAdmin(req, res);
+    if (!admin) return;
+    const { id, name, track, event_date, race_duration, max_pilots, description, max_teams } = req.body;
+    if (!id) return res.status(400).json({ error: 'ID manquant' });
+    const patch = { name, track, event_date, race_duration, max_pilots, description };
+    // event_type n'est jamais modifiable apres creation : un solo ne devient pas un swap
+    if (max_teams !== undefined && max_teams !== null && max_teams !== '') {
+      const teams = Number(max_teams);
+      if (!Number.isInteger(teams) || teams < 1 || teams > 200) {
+        return res.status(400).json({ error: 'Nombre d\'équipes invalide (1 à 200).' });
+      }
+      patch.max_teams = teams;
+    }
+    const { data, error } = await supabase
+      .from('events')
+      .update(patch)
+      .eq('id', id).select().single();
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ event: data });
+  }
+
+  if (req.method === 'DELETE') {
+    const admin = await requireAdmin(req, res);
+    if (!admin) return;
+    const { id } = req.body;
+    if (!id) return res.status(400).json({ error: 'ID manquant' });
+    const { error } = await supabase.from('events').delete().eq('id', id);
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json({ success: true });
+  }
+
+  return res.status(405).json({ error: 'Method not allowed' });
 }
