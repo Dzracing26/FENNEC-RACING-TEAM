@@ -49,6 +49,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba
 .tag-cross{background:rgba(255,0,0,.3);color:#ff2244;border:1px solid rgba(255,34,68,.6);font-weight:700;}
 .tag-race{background:rgba(255,165,0,.15);color:#ffa500;border:1px solid rgba(255,165,0,.3);}
 .tag-swap{background:rgba(0,255,136,.15);color:#00ff88;border:1px solid rgba(0,255,136,.45);font-weight:700;}
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:14px;}
+.team-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;position:relative;overflow:hidden;transition:all .25s;}
+.team-card:hover{border-color:rgba(0,255,136,.45);transform:translateY(-2px);}
+.team-card.mine{border-color:var(--green);box-shadow:0 0 18px rgba(0,255,136,.15);}
+.team-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--blue));}
+.team-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.team-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;color:white;border:2px solid rgba(255,255,255,.12);flex-shrink:0;}
+.team-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:white;line-height:1.2;word-break:break-word;}
+.team-num{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--green);line-height:1;margin-top:3px;}
+.team-pilot{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid rgba(255,255,255,.05);font-size:13px;}
+.team-pos{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--muted);background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;padding:2px 6px;flex-shrink:0;}
+.team-pos.p1{color:var(--green);border-color:rgba(0,255,136,.4);}
+.team-pilot-name{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.team-slots{font-size:11px;color:var(--muted);font-family:'Orbitron',sans-serif;margin-top:10px;}
 .container{max-width:1360px;margin:0 auto;padding:36px 32px;}
 .page-header{background:linear-gradient(135deg,var(--mid),rgba(255,0,128,.04));border-bottom:1px solid var(--border);padding:44px 32px 28px;}
 .page-header h1{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:white;}
@@ -415,6 +429,40 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
   </div>
 </div>
 
+<!-- MODAL CRÉER UNE ÉQUIPE SWAP -->
+<div class="modal-overlay" id="modal-swap-create">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-swap-create')">✕</button>
+    <h2>CRÉER MON <span>ÉQUIPE</span></h2>
+    <p class="modal-sub" id="sc-event-name">Course endurance — relais pilotes</p>
+    <div class="alert-box"><span>🔄</span><span>Vous serez le <strong>pilote principal</strong> (position 1). Vos coéquipiers pourront ensuite rejoindre l'équipe.</span></div>
+    <div class="form-group"><label>Nom de l'équipe</label><input type="text" id="sc-name" maxlength="40" placeholder="Fennec Racing #1"></div>
+    <div class="form-group">
+      <label>Numéro de voiture de l'équipe</label>
+      <div class="num-grid" id="sc-num-grid"></div>
+      <div style="margin-top:7px;font-size:12px;color:var(--muted);" id="sc-num-label">Aucun numéro sélectionné</div>
+    </div>
+    <label style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:9px;margin:14px 0;cursor:pointer;"><input type="checkbox" id="sc-rules" onchange="document.getElementById('sc-btn').disabled=!this.checked" style="accent-color:var(--pink);width:16px;height:16px;cursor:pointer;flex-shrink:0;"><span>J'ai lu et j'accepte le règlement officiel FRT</span></label>
+    <button class="btn btn-primary" id="sc-btn" disabled style="width:100%;" onclick="submitSwapCreate()">CRÉER L'ÉQUIPE</button>
+  </div>
+</div>
+
+<!-- MODAL REJOINDRE UNE ÉQUIPE SWAP -->
+<div class="modal-overlay" id="modal-swap-join">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-swap-join')">✕</button>
+    <h2>REJOINDRE L'<span>ÉQUIPE</span></h2>
+    <p class="modal-sub" id="sj-team-name">—</p>
+    <div class="form-group">
+      <label>Choisissez votre position de relais</label>
+      <div id="sj-positions" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      <div style="margin-top:7px;font-size:12px;color:var(--muted);" id="sj-pos-label">Aucune position sélectionnée</div>
+    </div>
+    <label style="font-size:13px;color:var(--text);display:flex;align-items:center;gap:9px;margin:14px 0;cursor:pointer;"><input type="checkbox" id="sj-rules" onchange="document.getElementById('sj-btn').disabled=!this.checked" style="accent-color:var(--pink);width:16px;height:16px;cursor:pointer;flex-shrink:0;"><span>J'ai lu et j'accepte le règlement officiel FRT</span></label>
+    <button class="btn btn-primary" id="sj-btn" disabled style="width:100%;" onclick="submitSwapJoin()">REJOINDRE</button>
+  </div>
+</div>
+
 <!-- REGISTER MODAL -->
 <div class="modal-overlay" id="modal-reg">
   <div class="modal">
@@ -737,6 +785,17 @@ async function voirDetails(eventId){
         }
       }catch(e){}
       if(ev.status==='upcoming'){if(isRegistered)myRegs.add(eventId);else myRegs.delete(eventId);}
+      let swapTeams=[],myTeam=null,swapError=false;
+      if(ev.event_type==='swap'){
+        try{
+          const st=await api(`/api/events/register?mode=swap&event_id=${eventId}`);
+          swapTeams=st.teams||[];
+          if(user)myTeam=swapTeams.find(t=>t.pilots.some(m=>m.pilot&&m.pilot.discord_id&&String(m.pilot.discord_id)===String(user.discord_id)))||null;
+        }catch(e){swapError=true;}
+        if(detailEventId!==eventId)return;
+      }
+      const teamsCount=swapTeams.length;
+      const canCreate=ev.status==='upcoming'&&!myTeam&&(!ev.max_teams||teamsCount<ev.max_teams);
       document.getElementById('events-list').innerHTML=`
         <div style="background:var(--card);border:1px solid var(--pink);border-radius:8px;padding:28px;margin-bottom:24px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
@@ -751,15 +810,20 @@ async function voirDetails(eventId){
             <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">HEURE</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})} CET</div></div>
             <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">CIRCUIT</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${(ev.track||'').toUpperCase()}</div></div>
             <div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">DURÉE</div><div style="font-size:15px;font-weight:700;color:var(--blue);margin-top:4px;">${ev.race_duration||60} MIN</div></div>
-${ev.event_type==='swap'?`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">ÉQUIPES</div><div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${ev.max_teams||'—'} max</div></div>`:`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">PLACES</div><div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${regCount} / ${ev.max_pilots}</div><div style="width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:6px;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));border-radius:2px;"></div></div></div>`}
+${ev.event_type==='swap'?`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">ÉQUIPES</div><div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${teamsCount} / ${ev.max_teams||'—'}</div></div>`:`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:9px;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;">PLACES</div><div style="font-size:15px;font-weight:700;color:var(--pink);margin-top:4px;">${regCount} / ${ev.max_pilots}</div><div style="width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:6px;"><div style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--pink),var(--blue));border-radius:2px;"></div></div></div>`}
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            ${ev.event_type==='swap'?'':(isRegistered?`<button class="btn btn-danger" onclick="unregisterEvent('${ev.id}')" ${canUnregister?'':'disabled'}>${canUnregister?'SE DÉSINSCRIRE':'Désinscription fermée'}</button>`:`<button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S'INSCRIRE</button>`)}
+            ${ev.event_type==='swap'
+              ?(ev.status!=='upcoming'?''
+                :(myTeam
+                  ?`<button class="btn btn-danger" onclick="leaveSwapTeam('${ev.id}')">QUITTER MON ÉQUIPE</button>`
+                  :(canCreate?`<button class="btn btn-primary" onclick="openSwapCreate('${ev.id}')">+ CRÉER MON ÉQUIPE</button>`:'')))
+              :(isRegistered?`<button class="btn btn-danger" onclick="unregisterEvent('${ev.id}')" ${canUnregister?'':'disabled'}>${canUnregister?'SE DÉSINSCRIRE':'Désinscription fermée'}</button>`:`<button class="btn btn-primary" onclick="registerEvent('${ev.id}')">S'INSCRIRE</button>`)}
             <button class="btn btn-secondary" onclick="loadEvents()">← Retour au calendrier</button>
           </div>
           <div style="margin-top:24px;">
             ${ev.event_type==='swap'
-              ?`<div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--pink);margin-bottom:8px;">ÉQUIPES ENGAGÉES</div><p style="color:var(--muted);font-size:13px;">Les inscriptions par équipe seront disponibles ici.</p>`
+              ?`<div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--pink);margin-bottom:8px;">ÉQUIPES ENGAGÉES (${teamsCount})</div>${swapError?`<p style="color:var(--muted);font-size:13px;">Impossible de charger les équipes. Rechargez la page.</p>`:renderTeams(swapTeams,ev,myTeam)}`
               :`<div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:3px;color:var(--pink);margin-bottom:8px;">PILOTES INSCRITS (${regCount})</div>${pilotesList}`}
           </div>
         </div>`;
@@ -834,6 +898,158 @@ async function unregisterEvent(eventId,back){
     else voirDetails(eventId);
   }catch(e){notify(e.message,'error');}
 }
+
+// ===================== SYSTÈME SWAP (ENDURANCE) =====================
+const TEAM_COLORS=['linear-gradient(135deg,var(--green),#00997f)','linear-gradient(135deg,var(--blue),#0088cc)','linear-gradient(135deg,var(--pink),#cc0066)','linear-gradient(135deg,#ff8800,var(--pink))','linear-gradient(135deg,#8800ff,var(--blue))'];
+let swapCtx={eventId:null,teamId:null,teamName:'',number:null,position:null,taken:[]};
+
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+function pilotLabel(p){
+  if(!p)return '—';
+  return p.discord_username||p.psn_id||p.gamertag||'Pilote';
+}
+
+function renderTeams(teams,ev,myTeam){
+  if(!teams.length)return `<p style="color:var(--muted);font-size:13px;">Aucune équipe engagée pour le moment.</p>`;
+  const open=ev.status==='upcoming';
+  return `<div class="teams-grid">${teams.map((t,i)=>{
+    const main=t.pilots.find(m=>m.position===1);
+    const label=pilotLabel(main&&main.pilot);
+    const initials=label.substring(0,2).toUpperCase();
+    const isMine=myTeam&&myTeam.id===t.id;
+    const full=t.pilots_count>=5;
+    const canJoin=open&&!myTeam&&!full;
+    return `<div class="team-card${isMine?' mine':''}">
+      <div class="team-head">
+        <div class="team-avatar" style="background:${TEAM_COLORS[i%5]}">${esc(initials)}</div>
+        <div style="min-width:0;">
+          <div class="team-name">${esc(t.team_name)}</div>
+          <div class="team-num">#${t.car_number}</div>
+        </div>
+      </div>
+      ${t.pilots.map(m=>`<div class="team-pilot"><span class="team-pos${m.position===1?' p1':''}">P${m.position}</span><span class="team-pilot-name">${esc(pilotLabel(m.pilot))}${m.position===1?' <span style="color:var(--muted);font-size:11px;">· principal</span>':''}</span></div>`).join('')}
+      <div class="team-slots">${t.pilots_count}/5 PILOTES${full?' · COMPLÈTE':''}${isMine?' · VOTRE ÉQUIPE':''}</div>
+      ${canJoin?`<button class="btn btn-secondary" style="width:100%;margin-top:12px;padding:8px;font-size:9px;" onclick="openSwapJoin('${ev.id}','${t.id}','${esc(t.team_name).replace(/'/g,"&#39;")}','${t.free_positions.join('-')}')">REJOINDRE</button>`:''}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+async function ensureSwapReady(){
+  if(!user){notify('Connectez-vous avec Discord.','error');return false;}
+  if(!user.is_member){notify('Rejoignez le serveur Discord FRT.','error');return false;}
+  if(!user.race_number&&!(await ensureProfile())){notify('Créez votre profil pilote.','error');openRegModal();return false;}
+  return true;
+}
+
+async function openSwapCreate(eventId){
+  if(!(await ensureSwapReady()))return;
+  const ev=eventsCache.find(e=>e.id===eventId);
+  swapCtx={eventId,teamId:null,teamName:'',number:null,position:null,taken:[]};
+  try{
+    const st=await api(`/api/events/register?mode=swap&event_id=${eventId}`);
+    swapCtx.taken=(st.teams||[]).map(t=>t.car_number);
+  }catch(e){}
+  document.getElementById('sc-event-name').textContent=ev?ev.name:'Course endurance';
+  document.getElementById('sc-name').value='';
+  document.getElementById('sc-rules').checked=false;
+  document.getElementById('sc-btn').disabled=true;
+  document.getElementById('sc-num-label').textContent='Aucun numéro sélectionné';
+  document.getElementById('sc-num-label').style.color='var(--muted)';
+  buildSwapNumGrid();
+  document.getElementById('modal-swap-create').classList.add('open');
+}
+
+function buildSwapNumGrid(){
+  const grid=document.getElementById('sc-num-grid');
+  grid.innerHTML='';
+  for(let i=0;i<=999;i++){
+    const taken=swapCtx.taken.indexOf(i)!==-1;
+    const btn=document.createElement('button');
+    btn.className='num-btn'+(taken?' taken':'');
+    btn.textContent=i;
+    btn.disabled=taken;
+    btn.onclick=function(){
+      const all=grid.querySelectorAll('.num-btn');
+      for(let k=0;k<all.length;k++)all[k].classList.remove('selected');
+      btn.classList.add('selected');
+      swapCtx.number=i;
+      const lbl=document.getElementById('sc-num-label');
+      lbl.textContent='#'+i+' sélectionné';
+      lbl.style.color='var(--pink)';
+    };
+    grid.appendChild(btn);
+  }
+}
+
+async function submitSwapCreate(){
+  const name=document.getElementById('sc-name').value.trim();
+  if(!name){notify('Donnez un nom à votre équipe.','error');return;}
+  if(swapCtx.number===null){notify('Choisissez un numéro de voiture.','error');return;}
+  const btn=document.getElementById('sc-btn');
+  btn.disabled=true;
+  try{
+    const{message}=await api('/api/events/register',{method:'POST',body:JSON.stringify({mode:'swap',event_id:swapCtx.eventId,team_name:name,car_number:swapCtx.number})});
+    closeModal('modal-swap-create');
+    notify(message,'success');
+    voirDetails(swapCtx.eventId);
+  }catch(e){notify(e.message,'error');btn.disabled=false;}
+}
+
+function openSwapJoin(eventId,teamId,teamName,freePositions){
+  ensureSwapReady().then(function(ok){
+    if(!ok)return;
+    swapCtx={eventId,teamId,teamName,number:null,position:null,taken:[]};
+    document.getElementById('sj-team-name').textContent=teamName;
+    document.getElementById('sj-rules').checked=false;
+    document.getElementById('sj-btn').disabled=true;
+    const lbl=document.getElementById('sj-pos-label');
+    lbl.textContent='Aucune position sélectionnée';
+    lbl.style.color='var(--muted)';
+    const wrap=document.getElementById('sj-positions');
+    wrap.innerHTML='';
+    const free=String(freePositions||'').split('-').filter(function(x){return x!=='';}).map(Number);
+    free.forEach(function(pos){
+      const b=document.createElement('button');
+      b.className='plat-btn';
+      b.style.flex='0 0 auto';
+      b.style.minWidth='62px';
+      b.textContent='P'+pos;
+      b.onclick=function(){
+        const all=wrap.querySelectorAll('.plat-btn');
+        for(let k=0;k<all.length;k++)all[k].classList.remove('sel-ps5');
+        b.classList.add('sel-ps5');
+        swapCtx.position=pos;
+        lbl.textContent='Position '+pos+' sélectionnée';
+        lbl.style.color='var(--pink)';
+      };
+      wrap.appendChild(b);
+    });
+    document.getElementById('modal-swap-join').classList.add('open');
+  });
+}
+
+async function submitSwapJoin(){
+  if(!swapCtx.position){notify('Choisissez une position.','error');return;}
+  const btn=document.getElementById('sj-btn');
+  btn.disabled=true;
+  try{
+    const{message}=await api('/api/events/register',{method:'POST',body:JSON.stringify({mode:'swap',event_id:swapCtx.eventId,team_id:swapCtx.teamId,position:swapCtx.position})});
+    closeModal('modal-swap-join');
+    notify(message,'success');
+    voirDetails(swapCtx.eventId);
+  }catch(e){notify(e.message,'error');btn.disabled=false;}
+}
+
+async function leaveSwapTeam(eventId){
+  if(!confirm('Quitter votre équipe pour cette course ?'))return;
+  try{
+    const{message}=await api('/api/events/register',{method:'DELETE',body:JSON.stringify({mode:'swap',event_id:eventId})});
+    notify(message,'success');
+    voirDetails(eventId);
+  }catch(e){notify(e.message,'error');}
+}
+// =================== FIN SYSTÈME SWAP ===================
 
 function renderResults(results,event){
   const medColors=['#FFD700','#C0C0C0','#CD7F32'];
@@ -931,6 +1147,8 @@ document.getElementById('modal-reg').addEventListener('click',function(e){if(e.t
 document.getElementById('modal-edit-event').addEventListener('click',function(e){if(e.target===this)closeModal('modal-edit-event');});
 document.getElementById('modal-edit-profile').addEventListener('click',function(e){if(e.target===this)closeModal('modal-edit-profile');});
 document.getElementById('modal-rules').addEventListener('click',function(e){if(e.target===this)closeModal('modal-rules');});
+document.getElementById('modal-swap-create').addEventListener('click',function(e){if(e.target===this)closeModal('modal-swap-create');});
+document.getElementById('modal-swap-join').addEventListener('click',function(e){if(e.target===this)closeModal('modal-swap-join');});
 
 function buildNumGrid(){
   const taken=pilotsCache.map(p=>p.race_number);
