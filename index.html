@@ -921,7 +921,8 @@ function isMePilot(p){
 
 function pilotLabel(p){
   if(!p)return '—';
-  return p.discord_username||p.psn_id||p.gamertag||'Pilote';
+  // Meme priorite que le generateur d'entry list : ID plateforme d'abord
+  return p.gamertag||p.psn_id||p.discord_username||'Pilote';
 }
 
 function renderTeams(teams,ev,myTeam){
