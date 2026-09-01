@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -56,7 +55,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba
 .team-card.mine{border-color:var(--green);box-shadow:0 0 18px rgba(0,255,136,.15);}
 .team-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--blue));}
 .team-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
-.team-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;color:white;border:2px solid rgba(255,255,255,.12);flex-shrink:0;}
+.team-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;color:white;border:2px solid rgba(255,255,255,.12);flex-shrink:0;object-fit:cover;background-color:var(--mid);}
+.pilot-avatar-img{width:56px;height:56px;border-radius:50%;margin-bottom:12px;border:2px solid rgba(255,255,255,.1);object-fit:cover;background-color:var(--mid);display:block;}
+.team-pilot-av{width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;background-color:var(--mid);}
 .team-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:white;line-height:1.2;word-break:break-word;}
 .team-num{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--green);line-height:1;margin-top:3px;}
 .team-pilot{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid rgba(255,255,255,.05);font-size:13px;}
@@ -589,7 +590,10 @@ async function logout(){
 function updateNavAuth(){
   const area=document.getElementById('nav-auth-area');
   if(user){
-    const avatar=user.discord_avatar?`<img class="avatar-sm" src="https://cdn.discordapp.com/avatars/${user.discord_id}/${user.discord_avatar}.png">`:'';
+    const avId=user.discord_id||user.id;
+    const avHash=user.discord_avatar||user.avatar;
+    const avUrl=avatarUrl(avId,avHash,64);
+    const avatar=avUrl?`<img class="avatar-sm" src="${avUrl}" alt="" onerror="this.style.display='none'">`:'';
     area.innerHTML=`<div style="display:flex;align-items:center;gap:8px;"><div class="btn-user">${avatar} ${user.username||'Pilote'}</div><button class="btn-logout" onclick="logout()">Déco</button></div>`;
     if(user.is_admin){document.getElementById('admin-nav-li').style.display='block';document.getElementById('ml-admin').style.display='block';}
     document.getElementById('discord-required-banner').style.display='none';
@@ -902,6 +906,11 @@ let swapCtx={eventId:null,teamId:null,teamName:'',number:null,position:null,take
 
 function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
+function avatarUrl(id,hash,size){
+  if(!id||!hash)return null;
+  return 'https://cdn.discordapp.com/avatars/'+id+'/'+hash+'.png?size='+(size||64);
+}
+
 function isMePilot(p){
   if(!p||!user)return false;
   if(user.discord_id&&p.discord_id&&String(p.discord_id)===String(user.discord_id))return true;
@@ -927,13 +936,16 @@ function renderTeams(teams,ev,myTeam){
     const canJoin=open&&!myTeam&&!full;
     return `<div class="team-card${isMine?' mine':''}">
       <div class="team-head">
-        <div class="team-avatar" style="background:${TEAM_COLORS[i%5]}">${esc(initials)}</div>
+        ${(function(){const u=main&&main.pilot?avatarUrl(main.pilot.discord_id,main.pilot.discord_avatar,128):null;
+          return u?`<img class="team-avatar" src="${u}" alt="" onerror="this.outerHTML='<div class=\'team-avatar\' style=\'background:${TEAM_COLORS[i%5]}\'>${esc(initials)}</div>'">`
+                 :`<div class="team-avatar" style="background:${TEAM_COLORS[i%5]}">${esc(initials)}</div>`;})()}
         <div style="min-width:0;">
           <div class="team-name">${esc(t.team_name)}</div>
           <div class="team-num">#${t.car_number}</div>
         </div>
       </div>
-      ${t.pilots.map(m=>`<div class="team-pilot"><span class="team-pos${m.position===1?' p1':''}">P${m.position}</span><span class="team-pilot-name">${esc(pilotLabel(m.pilot))}${m.position===1?' <span style="color:var(--muted);font-size:11px;">· principal</span>':''}</span></div>`).join('')}
+      ${t.pilots.map(m=>{const au=m.pilot?avatarUrl(m.pilot.discord_id,m.pilot.discord_avatar,32):null;
+        return `<div class="team-pilot"><span class="team-pos${m.position===1?' p1':''}">P${m.position}</span>${au?`<img class="team-pilot-av" src="${au}" alt="" onerror="this.style.display='none'">`:''}<span class="team-pilot-name">${esc(pilotLabel(m.pilot))}${m.position===1?' <span style="color:var(--muted);font-size:11px;">· principal</span>':''}</span></div>`;}).join('')}
       <div class="team-slots">${t.pilots_count}/5 PILOTES${full?' · COMPLÈTE':''}${isMine?' · VOTRE ÉQUIPE':''}</div>
       ${canJoin?`<button class="btn btn-secondary" style="width:100%;margin-top:12px;padding:8px;font-size:9px;" onclick="openSwapJoin('${ev.id}','${t.id}','${esc(t.team_name).replace(/'/g,"&#39;")}','${t.free_positions.join('-')}')">REJOINDRE</button>`:''}
     </div>`;
@@ -1164,7 +1176,9 @@ async function loadPilots(){
           const handle = p.platform==='ps5' ? (p.psn_id||'⚠️ PSN ID manquant') : (p.gamertag||'⚠️ Gamertag manquant');
           return `<div class="pilot-card">
             <div class="pilot-num-bg">${p.race_number}</div>
-            <div class="pilot-avatar" style="background:${colors[i%4]}">${p.discord_username.substring(0,2).toUpperCase()}</div>
+            ${(function(){const u=avatarUrl(p.discord_id,p.discord_avatar,128);
+              return u?`<img class="pilot-avatar-img" src="${u}" alt="" onerror="this.outerHTML='<div class=\'pilot-avatar\' style=\'background:${colors[i%4]}\'>${p.discord_username.substring(0,2).toUpperCase()}</div>'">`
+                     :`<div class="pilot-avatar" style="background:${colors[i%4]}">${p.discord_username.substring(0,2).toUpperCase()}</div>`;})()}
             <div class="pilot-name">#${p.race_number} ${p.discord_username}</div>
             <div class="pilot-handle">${handle}</div>
             <span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span>
@@ -1389,7 +1403,7 @@ function adminTab(tab){
       <table class="tbl"><thead><tr><th>N°</th><th>Pilote</th><th>Platform</th><th>ID Plateforme</th><th>Courses</th><th>Points</th><th>Actions</th></tr></thead>
       <tbody>${pilotsCache.map(p=>`<tr>
         <td style="font-family:'Orbitron',sans-serif;color:var(--pink);">#${p.race_number}</td>
-        <td style="color:white;font-weight:600;">${p.discord_username}</td>
+        <td style="color:white;font-weight:600;"><span style="display:inline-flex;align-items:center;gap:8px;">${avatarUrl(p.discord_id,p.discord_avatar,32)?`<img class="team-pilot-av" src="${avatarUrl(p.discord_id,p.discord_avatar,32)}" alt="" onerror="this.style.display='none'">`:''}${esc(p.discord_username)}</span></td>
         <td><span class="tag tag-${p.platform}">${p.platform.toUpperCase()}</span></td>
         <td style="font-size:11px;color:var(--muted);">${p.platform==='ps5'?p.psn_id||'⚠️ manquant':p.gamertag||'⚠️ manquant'}</td>
         <td>${p.races_count}</td>
