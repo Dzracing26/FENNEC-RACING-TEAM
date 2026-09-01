@@ -386,12 +386,12 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
     <h2>MODIFIER MON <span>PROFIL</span></h2>
     <p class="modal-sub">Mettez à jour votre PSN ID ou Gamertag</p>
     <div id="edit-profile-ps5" style="display:none">
-      <div class="form-group"><label>PSN ID</label><input type="text" id="edit-psn" placeholder="Votre_PSN_ID"></div>
-      <div class="form-group"><label>PSN UID</label><input type="text" id="edit-psn-uid" placeholder="1234567890123456789"></div>
+      <div class="form-group"><label>1 · Pseudo PlayStation</label><input type="text" id="edit-psn" placeholder="Votre_PSN_ID"><span style="display:block;margin-top:5px;font-size:11px;color:var(--muted);line-height:1.4;">Votre nom de joueur PSN.</span></div>
+      <div class="form-group"><label>2 · Numéro de compte PlayStation</label><input type="text" id="edit-psn-uid" placeholder="1234567890123456789"><span style="display:block;margin-top:5px;font-size:11px;color:var(--muted);line-height:1.4;">La longue suite de chiffres, pas le pseudo.</span></div>
     </div>
     <div id="edit-profile-xbox" style="display:none">
-      <div class="form-group"><label>Gamertag</label><input type="text" id="edit-gt" placeholder="VotreGamertag"></div>
-      <div class="form-group"><label>XUID</label><input type="text" id="edit-xuid" placeholder="12345678901234567"></div>
+      <div class="form-group"><label>1 · Gamertag Xbox</label><input type="text" id="edit-gt" placeholder="VotreGamertag"><span style="display:block;margin-top:5px;font-size:11px;color:var(--muted);line-height:1.4;">Votre nom de joueur Xbox.</span></div>
+      <div class="form-group"><label>2 · Numéro de compte Xbox</label><input type="text" id="edit-xuid" placeholder="12345678901234567"><span style="display:block;margin-top:5px;font-size:11px;color:var(--muted);line-height:1.4;">La longue suite de chiffres, pas le Gamertag.</span></div>
     </div>
     <button class="btn btn-primary" style="width:100%;margin-top:8px;" onclick="submitEditProfile()">💾 SAUVEGARDER</button>
   </div>
@@ -476,14 +476,15 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
         <button class="plat-btn" id="btn-ps5" onclick="selPlat('ps5')">🎮 PS5</button>
         <button class="plat-btn" id="btn-xbox" onclick="selPlat('xbox')">🎮 XBOX SERIES S / X</button>
       </div>
+      <div style="margin-top:7px;font-size:11px;color:var(--muted);">Choisissez votre plateforme pour afficher les champs correspondants.</div>
     </div>
     <div id="ps5-f" style="display:none">
-      <div class="form-group"><label>PSN ID</label><input type="text" id="reg-psn" placeholder="Votre_PSN_ID"></div>
-      <div class="form-group"><label>PSN UID</label><input type="text" id="reg-psn-uid" placeholder="1234567890123456789"><a href="https://www.psntools.com/psn/checker/" target="_blank" style="display:block;margin-top:6px;font-size:11px;color:var(--pink);text-decoration:none;">→ Trouver mon PSN UID</a></div>
+      <div class="form-group"><label>1 · Pseudo PlayStation</label><input type="text" id="reg-psn" placeholder="Votre_PSN_ID"><span style="display:block;margin-top:5px;font-size:11px;color:var(--muted);line-height:1.4;">Votre nom de joueur PSN, celui affiché sur le site et dans l'entry list.</span></div>
+      <div class="form-group"><label>2 · Numéro de compte PlayStation</label><input type="text" id="reg-psn-uid" placeholder="1234567890123456789"><span style="display:block;margin-top:5px;font-size:11px;color:var(--muted);line-height:1.4;">Ce n'est pas votre pseudo : c'est une <strong>longue suite de chiffres</strong>. Sans elle, ACC ne peut pas vous reconnaître sur le serveur.</span><a href="https://www.psntools.com/psn/checker/" target="_blank" style="display:block;margin-top:6px;font-size:11px;color:var(--pink);text-decoration:none;">→ Trouver mon numéro de compte PSN</a></div>
     </div>
     <div id="xbox-f" style="display:none">
-      <div class="form-group"><label>Gamertag</label><input type="text" id="reg-gt" placeholder="VotreGamertag"></div>
-      <div class="form-group"><label>XUID</label><input type="text" id="reg-xuid" placeholder="12345678901234567"><a href="https://www.cxkes.me/xbox/xuid" target="_blank" style="display:block;margin-top:6px;font-size:11px;color:var(--pink);text-decoration:none;">→ Trouver mon XUID</a></div>
+      <div class="form-group"><label>1 · Gamertag Xbox</label><input type="text" id="reg-gt" placeholder="VotreGamertag"><span style="display:block;margin-top:5px;font-size:11px;color:var(--muted);line-height:1.4;">Votre nom de joueur Xbox, celui affiché sur le site et dans l'entry list.</span></div>
+      <div class="form-group"><label>2 · Numéro de compte Xbox</label><input type="text" id="reg-xuid" placeholder="12345678901234567"><span style="display:block;margin-top:5px;font-size:11px;color:var(--muted);line-height:1.4;">Ce n'est pas votre Gamertag : c'est une <strong>longue suite de chiffres</strong>. Sans elle, ACC ne peut pas vous reconnaître sur le serveur.</span><a href="https://www.cxkes.me/xbox/xuid" target="_blank" style="display:block;margin-top:6px;font-size:11px;color:var(--pink);text-decoration:none;">→ Trouver mon numéro de compte Xbox</a></div>
     </div>
     <div class="form-group">
       <label>Choisissez votre numéro de course</label>
