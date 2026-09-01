@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -58,6 +59,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba
 .team-avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;color:white;border:2px solid rgba(255,255,255,.12);flex-shrink:0;object-fit:cover;background-color:var(--mid);}
 .pilot-avatar-img{width:56px;height:56px;border-radius:50%;margin-bottom:12px;border:2px solid rgba(255,255,255,.1);object-fit:cover;background-color:var(--mid);display:block;}
 .team-pilot-av{width:20px;height:20px;border-radius:50%;object-fit:cover;flex-shrink:0;background-color:var(--mid);}
+.solo-pilot-av{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;background-color:var(--mid);border:1px solid var(--border);}
 .team-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:white;line-height:1.2;word-break:break-word;}
 .team-num{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--green);line-height:1;margin-top:3px;}
 .team-pilot{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid rgba(255,255,255,.05);font-size:13px;}
@@ -781,7 +783,10 @@ async function voirDetails(eventId){
       try{
         const data=await api(`/api/events/register?event_id=${eventId}`);
         if(data.pilots?.length){
-          pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>`<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;"><div style="font-size:13px;font-weight:600;color:var(--pink);">#${p.race_number||'?'}</div><div style="font-size:12px;">${p.psn_id||p.discord_username||'-'}</div></div>`).join('')}</div>`;
+          pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>{
+            const au=avatarUrl(p.discord_id,p.discord_avatar,64);
+            const av=au?`<img class="solo-pilot-av" src="${au}" alt="" onerror="this.style.display='none'">`:'';
+            return `<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;display:flex;align-items:center;gap:10px;">${av}<div style="min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--pink);">#${p.race_number||'?'}</div><div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(pilotLabel(p))}</div></div></div>`;}).join('')}</div>`;
           isRegistered=data.pilots.some(p=>p.discord_username===user?.username||p.discord_username===user?.discord_username);
         }
       }catch(e){}
