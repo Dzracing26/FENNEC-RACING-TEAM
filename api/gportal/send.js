@@ -8,9 +8,17 @@ process.env.SUPABASE_URL,
 process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Genere un shortName ACC de 3 caracteres a partir du pseudo du pilote
+// Genere un shortName ACC de 3 caracteres a partir du pseudo du pilote.
+// Le prefixe d'ecurie est ignore : FRT_DzRacing26 -> DZR, FRT_Verrattoch -> VER
 function shortNameOf(name) {
-const clean = String(name || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+const raw = String(name || '');
+const strip = function (v) { return v.toUpperCase().replace(/[^A-Z0-9]/g, ''); };
+let clean = strip(raw);
+// Si le pseudo contient un tiret bas, on garde ce qui suit le dernier
+if (raw.indexOf('_') !== -1) {
+const after = strip(raw.substring(raw.lastIndexOf('_') + 1));
+if (after.length) clean = after;
+}
 if (clean.length >= 3) return clean.substring(0, 3);
 return (clean + 'XXX').substring(0, 3);
 }
