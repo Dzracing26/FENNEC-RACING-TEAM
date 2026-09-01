@@ -27,7 +27,7 @@ if (req.method === 'OPTIONS') return res.status(200).end();
 if (req.method === 'GET') {
 const { data, error } = await supabase
 .from('pilots')
-.select('id, race_number, discord_username, platform, psn_id, gamertag, platform_uid, races_count, wins_count, points, created_at')
+.select('id, race_number, discord_id, discord_avatar, discord_username, platform, psn_id, gamertag, platform_uid, races_count, wins_count, points, created_at')
 .eq('is_active', true)
 .order('race_number', { ascending: true });
 if (error) return res.status(500).json({ error: 'Erreur base de données' });
@@ -54,6 +54,7 @@ const { data: newPilot, error: insertError } = await supabase
 .insert({
 discord_id: user.discord_id,
 discord_username: user.discord_username,
+discord_avatar: user.discord_avatar || null,
 race_number: parseInt(race_number),
 platform,
 psn_id: psn_id || null,
@@ -79,6 +80,7 @@ if (!pilot) return res.status(404).json({ error: 'Pilote introuvable.' });
 const updates = { platform_uid };
 if (psn_id !== undefined) updates.psn_id = psn_id;
 if (gamertag !== undefined) updates.gamertag = gamertag;
+if (user.discord_avatar !== undefined) updates.discord_avatar = user.discord_avatar || null;
 const { error } = await supabase.from('pilots').update(updates).eq('id', pilot.id);
 if (error) return res.status(500).json({ error: error.message });
 return res.status(200).json({ message: 'Profil mis à jour !' });
