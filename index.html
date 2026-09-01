@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -65,7 +64,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba
 .team-pilot{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid rgba(255,255,255,.05);font-size:13px;}
 .team-pos{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:var(--muted);background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:3px;padding:2px 6px;flex-shrink:0;}
 .team-pos.p1{color:var(--green);border-color:rgba(0,255,136,.4);}
-.team-pilot-name{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.team-pilot-name{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
+.team-plat{font-size:7px;padding:2px 5px;flex-shrink:0;margin-left:auto;}
 .team-slots{font-size:11px;color:var(--muted);font-family:'Orbitron',sans-serif;margin-top:10px;}
 .container{max-width:1360px;margin:0 auto;padding:36px 32px;}
 .page-header{background:linear-gradient(135deg,var(--mid),rgba(255,0,128,.04));border-bottom:1px solid var(--border);padding:44px 32px 28px;}
@@ -786,7 +786,8 @@ async function voirDetails(eventId){
           pilotesList=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:12px;">${data.pilots.map(p=>{
             const au=avatarUrl(p.discord_id,p.discord_avatar,64);
             const av=au?`<img class="solo-pilot-av" src="${au}" alt="" onerror="this.style.display='none'">`:'';
-            return `<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;display:flex;align-items:center;gap:10px;">${av}<div style="min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--pink);">#${p.race_number||'?'}</div><div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(pilotLabel(p))}</div></div></div>`;}).join('')}</div>`;
+            const plat=p.platform==='ps5'?'<span class="tag tag-ps5" style="font-size:7px;padding:2px 5px;">PS5</span>':(p.platform==='xbox'?'<span class="tag tag-xbox" style="font-size:7px;padding:2px 5px;">XBOX</span>':'');
+            return `<div style="background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:4px;padding:12px;display:flex;align-items:center;gap:10px;">${av}<div style="min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--pink);">#${p.race_number||'?'}</div><div style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(pilotLabel(p))}</div>${plat?`<div style="margin-top:4px;">${plat}</div>`:''}</div></div>`;}).join('')}</div>`;
           isRegistered=data.pilots.some(p=>p.discord_username===user?.username||p.discord_username===user?.discord_username);
         }
       }catch(e){}
@@ -951,7 +952,9 @@ function renderTeams(teams,ev,myTeam){
         </div>
       </div>
       ${t.pilots.map(m=>{const au=m.pilot?avatarUrl(m.pilot.discord_id,m.pilot.discord_avatar,32):null;
-        return `<div class="team-pilot"><span class="team-pos${m.position===1?' p1':''}">P${m.position}</span>${au?`<img class="team-pilot-av" src="${au}" alt="" onerror="this.style.display='none'">`:''}<span class="team-pilot-name">${esc(pilotLabel(m.pilot))}${m.position===1?' <span style="color:var(--muted);font-size:11px;">· principal</span>':''}</span></div>`;}).join('')}
+        const pl=m.pilot&&m.pilot.platform;
+        const pb=pl==='ps5'?'<span class="tag tag-ps5 team-plat">PS5</span>':(pl==='xbox'?'<span class="tag tag-xbox team-plat">XBOX</span>':'');
+        return `<div class="team-pilot"><span class="team-pos${m.position===1?' p1':''}">P${m.position}</span>${au?`<img class="team-pilot-av" src="${au}" alt="" onerror="this.style.display='none'">`:''}<span class="team-pilot-name">${esc(pilotLabel(m.pilot))}${m.position===1?' <span style="color:var(--muted);font-size:11px;">· principal</span>':''}</span>${pb}</div>`;}).join('')}
       <div class="team-slots">${t.pilots_count}/5 PILOTES${full?' · COMPLÈTE':''}${isMine?' · VOTRE ÉQUIPE':''}</div>
       ${canJoin?`<button class="btn btn-secondary" style="width:100%;margin-top:12px;padding:8px;font-size:9px;" onclick="openSwapJoin('${ev.id}','${t.id}','${esc(t.team_name).replace(/'/g,"&#39;")}','${t.free_positions.join('-')}')">REJOINDRE</button>`:''}
     </div>`;
