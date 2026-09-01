@@ -309,7 +309,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
 
 <!-- EVENTS -->
 <div class="page" id="page-events">
-  <div class="page-header"><h1 data-en="CALENDAR &lt;span&gt;EVENTS&lt;/span&gt;">CALENDRIER <span>ÉVÉNEMENTS</span></h1><p data-en="Season 2025 — ACC · PS5 × XBOX SERIES S / X · Cross-Play">Saison 2025 — ACC · PS5 × XBOX SERIES S / X · Cross-Play</p></div>
+  <div class="page-header"><h1 data-en="CALENDAR &lt;span&gt;EVENTS&lt;/span&gt;">CALENDRIER <span>ÉVÉNEMENTS</span></h1><p data-en="Season <span class="season-year">2026</span> — ACC · PS5 × XBOX SERIES S / X · Cross-Play">Saison <span class="season-year">2026</span> — ACC · PS5 × XBOX SERIES S / X · Cross-Play</p></div>
   <div class="container">
     <div class="filters">
       <button class="filter-btn active" data-filter="all" data-en="All">Tous</button>
@@ -324,7 +324,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
 
 <!-- PROFILES -->
 <div class="page" id="page-profiles">
-  <div class="page-header"><h1 data-en="DRIVER &lt;span&gt;PROFILES&lt;/span&gt;">PROFILS <span>PILOTES</span></h1><p data-en="Official Entry List — 2025 FRT Season">Entry List officielle — Saison 2025 FRT</p></div>
+  <div class="page-header"><h1 data-en="DRIVER &lt;span&gt;PROFILES&lt;/span&gt;">PROFILS <span>PILOTES</span></h1><p data-en="Official Entry List — <span class="season-year">2026</span> FRT Season">Entry List officielle — Saison <span class="season-year">2026</span> FRT</p></div>
   <div class="container">
     <div class="discord-banner" id="discord-required-banner">
       <div><h3 data-en="🔗 Discord account required">🔗 Compte Discord requis</h3><p data-en="Join the FRT server and link your account to create a profile and register.">Rejoignez le serveur FRT et liez votre compte pour créer un profil et vous inscrire.</p></div>
@@ -343,7 +343,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
 
 <!-- RULES -->
 <div class="page" id="page-rules">
-  <div class="page-header"><h1>RÈGLEMENT <span>OFFICIEL</span></h1><p>Fennec Racing Team — Saison 2025 · ACC</p></div>
+  <div class="page-header"><h1>RÈGLEMENT <span>OFFICIEL</span></h1><p>Fennec Racing Team — Saison <span class="season-year">2026</span> · ACC</p></div>
   <div class="container" style="max-width:960px;">
     <div class="rules-toc">
       <h3>TABLE DES MATIÈRES</h3>
@@ -471,7 +471,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-reg')">✕</button>
     <h2>CRÉER MON <span>PROFIL PILOTE</span></h2>
-    <p class="modal-sub">Inscription officielle — Saison 2025 FRT</p>
+    <p class="modal-sub">Inscription officielle — Saison <span class="season-year">2026</span> FRT</p>
     <div class="alert-box"><span>🎮</span><span>Vous devez être membre du <strong>serveur Discord FRT</strong> avant de créer votre profil.</span></div>
     <div class="form-group">
       <label>Plateforme</label>
@@ -543,7 +543,7 @@ footer{background:var(--darker);border-top:1px solid var(--border);padding:36px;
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2025 Fennec Racing Team · fennec-racing-team.fr</span>
+    <span>© <span id="footer-year">2026</span> Fennec Racing Team · fennec-racing-team.fr</span>
     <span style="color:var(--pink);">ACC · PS5 × XBOX SERIES S / X· Cross-Play</span>
   </div>
 </footer>
@@ -574,6 +574,18 @@ function applyLang(){
   var lb=document.getElementById('langBtn');if(lb)lb.textContent=(lang==='fr')?'🇬🇧 EN':'🇫🇷 FR';
   document.documentElement.setAttribute('lang',lang);
   try{localStorage.setItem('frt_lang',lang);}catch(e){}
+  refreshYears();
+}
+
+// Toutes les annees du site suivent l'annee en cours, sans intervention
+function refreshYears(){
+  try{
+    var y=new Date().getFullYear();
+    var els=document.querySelectorAll('.season-year');
+    for(var i=0;i<els.length;i++)els[i].textContent=y;
+    var f=document.getElementById('footer-year');
+    if(f)f.textContent=y;
+  }catch(e){}
 }
 function toggleLang(){lang=(lang==='fr')?'en':'fr';applyLang();}
 
