@@ -50,9 +50,23 @@ const isMember = memberRes.ok;
 const isAdmin = discordUser.id === process.env.ADMIN_DISCORD_ID;
 const { data: pilot } = await supabase
 .from('pilots')
-.select('id, race_number, is_admin')
+.select('id, race_number, is_admin, psn_id, discord_avatar')
 .eq('discord_id', discordUser.id)
 .single();
+
+// Enregistre l'avatar Discord du pilote pour l'afficher sur le site.
+// Ne bloque jamais la connexion en cas d'echec.
+if (pilot && pilot.discord_avatar !== (discordUser.avatar ?? null)) {
+try {
+await supabase
+.from('pilots')
+.update({ discord_avatar: discordUser.avatar ?? null })
+.eq('id', pilot.id);
+} catch (e) {
+console.error('Avatar update failed:', e);
+}
+}
+
 const jwt = generateJWT({
 discord_id: discordUser.id,
 discord_username: discordUser.username,
@@ -76,6 +90,9 @@ res.setHeader('Set-Cookie', [
 username: discordUser.username,
 avatar: discordUser.avatar,
 id: discordUser.id,
+discord_id: discordUser.id,
+discord_username: discordUser.username,
+discord_avatar: discordUser.avatar,
 is_admin: isAdmin,
 is_member: isMember,
 race_number: pilot?.race_number ?? null,
