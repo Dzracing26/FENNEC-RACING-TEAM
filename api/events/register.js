@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-const SWAP_PILOT_FIELDS = 'id, race_number, discord_id, discord_username, platform, psn_id, gamertag';
+const SWAP_PILOT_FIELDS = 'id, race_number, discord_id, discord_avatar, discord_username, platform, psn_id, gamertag';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_SITE_URL);
